@@ -1,4 +1,4 @@
-import jwt from "../config/jwt.js"
+import jwt from "jsonwebtoken"
 import RefreshToken from "../models/RefreshToken.js";
 import { hashToken } from "../config/jwt.js";
 
@@ -25,7 +25,7 @@ export function verifyAccesToken(req, res, next){
     }
 }
 
-export function verifyRefreshToken(req, res, next){
+export async function verifyRefreshToken(req, res, next){
     const token = req.cookies.refreshToken
     if(!token){
         console.log("NO refresh token");

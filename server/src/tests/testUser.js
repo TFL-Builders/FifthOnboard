@@ -1,16 +1,7 @@
-//Code used to test user schema and ensure it is working properly
+import "dotenv/config"; 
 import mongoose from 'mongoose';
 import User from '../models/user.js';
 
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// point explicitly to server/.env from server/src/tests/
-dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const testUser = async () => {
     try {

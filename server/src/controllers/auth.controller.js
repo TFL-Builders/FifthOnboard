@@ -2,7 +2,6 @@ import User from "../models/User.js";
 import Invite from "../models/Invite.js";
 import RefreshToken from "../models/RefreshToken.js";
 import {generateAccessToken, generateRefreshToken, hashToken} from "../config/jwt.js";
-import {generateRefreshToken} from "../config/jwt.js";
 import crypto from "crypto"
 import { sendResetEmail } from "../config/mailer.js";
 import passport from "../config/passport.js";
@@ -135,7 +134,7 @@ export async function storeRefreshToken(userId, refreshToken){
     })
 }
 
-export function logoutUser(req, res){
+export async function logoutUser(req, res){
     try{
         const refreshToken = req.cookies.refreshToken;
         if (refreshToken) {

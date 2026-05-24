@@ -9,7 +9,7 @@ import {
   resetPassword,
   googleCallback,
   storeRefreshToken
-} from "../controllers/authController.js";
+} from "../controllers/auth.controller.js";
 import { verifyRefreshToken } from "../middleware/authMiddleware.js";
 import { validate } from "../middleware/inputValidationMiddleware.js";
 import passport from "../config/passport.js";
@@ -18,13 +18,13 @@ const router = express.Router();
 
 router.post("/signup", validate("signup"), signupUser);
 router.post("/login", validate("login"), loginUser);
-router.get("/auth/google", 
+router.get("/google", 
     passport.authenticate("google", 
     {
         scope: ["profile", "email"]
     }
 ));
-router.get("/auth/google/dashboard",
+router.get("/google/dashboard",
   passport.authenticate("google", { failureRedirect: "/", session: false }),
   googleCallback
 );
