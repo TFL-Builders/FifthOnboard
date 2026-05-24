@@ -7,6 +7,12 @@ const userSchema = new mongoose.Schema({
         required: true,
         index: true
     },
+    googleId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Google',
+        required: false,
+        index: true
+    },
     email: {
         type: String,
         required: true,
@@ -15,7 +21,7 @@ const userSchema = new mongoose.Schema({
     },
     passwordHash: {
         type: String,
-        required: true
+        required: false
     },
     name: {
         type: String,
