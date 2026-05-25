@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     organizationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Organization',
-        required: true,
+        required: false,
         index: true
     },
     googleId: {
@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'invited', 'disabled']
+        enum: ['active', 'pending', 'invited', 'disabled']
     },
     deletedAt: {
         type: Date,

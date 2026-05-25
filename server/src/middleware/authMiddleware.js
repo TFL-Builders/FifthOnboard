@@ -2,25 +2,30 @@ import jwt from "jsonwebtoken"
 import RefreshToken from "../models/RefreshToken.js";
 import { hashToken } from "../config/jwt.js";
 
-export function verifyAccesToken(req, res, next){
-    const authHeader = req.headers.authorization;
-      if (!authHeader) {
-        console.log("NO access token");
-            return res.status(401).json({ error: "No access token" });
-        }
-
-     const token = authHeader.split(" ")[1];
-    if(!token){
-        console.log("Malformed Authorization Header");
-        return res.status(401).json({error: "Malformed Authorization Header"})
-    }else{
-        try{
-           const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-           req.user = decoded;
-           next();
-        }catch(error){
-            console.log("Invalid access token");
-            return res.status(401).json({error: "NO access token"})
+export function verifyAccesToken(allowPending = false){
+    return (req, res, next) => {
+        const authHeader = req.headers.authorization;
+          if (!authHeader) {
+            console.log("NO access token");
+                return res.status(401).json({ error: "No access token" });
+            }
+    
+         const token = authHeader.split(" ")[1];
+        if(!token){
+            console.log("Malformed Authorization Header");
+            return res.status(401).json({error: "Malformed Authorization Header"})
+        }else{
+            try{
+                const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+                if (!allowPending && decoded.status === "pending"){
+                    return res.status(403).json({ error: "setup_required" });
+                }
+                req.user = decoded;
+               next();
+            }catch(error){
+                console.log("Invalid access token");
+                return res.status(401).json({error: "NO access token"})
+            }
         }
     }
 }
