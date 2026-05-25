@@ -14,6 +14,7 @@ export async function sendResetEmail(email, resetLink){
             <a href="${resetLink}">Reset Password</a>
             <p>If you didn't request this, ignore this email.</p>`
         });
+        console.log("Success");
     }catch(error){
         console.log("Email send error:", error.message);
         throw error; // let the controller handle it

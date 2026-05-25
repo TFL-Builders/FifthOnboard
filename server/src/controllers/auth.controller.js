@@ -188,7 +188,9 @@ export async function forgotPassword(req, res){
         await user.save();
     
         const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+        console.log("reset-link:", resetLink);
         await sendResetEmail(email, resetLink);
+        console.log("Email sent:", email);
         res.status(200).json({message: "If that email exists you will receive a reset link shortly" })
     }catch(error){
         console.log(error.message)
