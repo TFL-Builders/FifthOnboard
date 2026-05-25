@@ -4,7 +4,9 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\Downloads\\\\onboardflow_1\" -Recurse -File)",
       "Bash(Select-Object -ExpandProperty FullName)",
       "Bash(dir \"C:\\\\Users\\\\User\\\\OneDrive\\\\Documentos\\\\Columbus App\")",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(Remove-Item \"C:\\\\Projects\\\\Columbus App\\\\client\\\\src\\\\App.css\" -Force)"
     ]
   }
 }

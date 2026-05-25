@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import Invite from "../models/Invite.js";
+import Organization from "../models/Organization.js"
 import RefreshToken from "../models/RefreshToken.js";
 import {generateAccessToken, generateRefreshToken, hashToken} from "../config/jwt.js";
 import crypto from "crypto"
@@ -16,22 +17,35 @@ export async function signupUser(req, res){
             return res.status(409).json({error: "Email already registered"})
         }else{
             const invite = await Invite.findOne({ email });
+
+            let organizationId;
+            if (invite) {
+              organizationId = invite.organizationId;
+            } else {
+              const org = await Organization.create({
+                name: `${name}'s Organization`, 
+              });
+              organizationId = org._id;
+            }
              const user = await User.create({
                 email,
                 passwordHash: password,
                 name: name,
                 role: invite ? invite.role : 'hr',
-                organizationId: invite ? invite.organizationId : null,
+                organizationId,
                 status: "active",
             })
             const accessToken = generateAccessToken(user);
             const refreshToken = generateRefreshToken(user);
+
+            console.log("Storing refresh token for user:", user._id);   
 
             await storeRefreshToken(user._id, refreshToken);
 
             res.cookie('refreshToken', refreshToken,{
                 httpOnly: true,    
                 sameSite: 'lax',
+                secure: false,
                 maxAge: parseInt(process.env.COOKIE_MAX_AGE)
             })
             res.status(201).json({
@@ -46,8 +60,8 @@ export async function signupUser(req, res){
             });
         }
     }catch(error){
-        console.log(error);
-        res.status(500).json(error);
+        console.log(error.message);
+        res.status(500).json({error: error.message});
     }
 }
 
@@ -73,7 +87,8 @@ export async function loginUser(req, res){
                 const refreshToken = generateRefreshToken(user);
                 await storeRefreshToken(user._id, refreshToken);
                 res.cookie('refreshToken', refreshToken,{
-                    httpOnly: true,    
+                    httpOnly: true,
+                    secure: false,    
                     sameSite: 'lax',
                     maxAge: parseInt(process.env.COOKIE_MAX_AGE)
                 })
@@ -93,8 +108,8 @@ export async function loginUser(req, res){
             }
         }
     }catch(error){
-        console.log(error);
-        res.status(500).json(error);
+        console.log(error.message);
+        res.status(500).json({error: error.message});
     }
 }
 
@@ -116,22 +131,23 @@ export async function refreshUserAccessToken(req, res){
           }
         });
     }catch (error) {
-            console.log(error);
-            res.status(500).json({ error: "Server error" });
+            console.log(error.message);
+            res.status(500).json({error: error.message});
   }
 
 }
 
 export async function storeRefreshToken(userId, refreshToken){
-    const tokenHash = hash(refreshToken);
+    const tokenHash = hashToken(refreshToken);
 
     await RefreshToken.deleteMany({ userId })
 
-    await RefreshToken.create({
+    const result = await RefreshToken.create({
         userId,
         tokenHash,
         expiresAt: new Date(Date.now() + parseInt(process.env.COOKIE_MAX_AGE))
     })
+
 }
 
 export async function logoutUser(req, res){
@@ -145,13 +161,13 @@ export async function logoutUser(req, res){
         res.clearCookie("refreshToken", {
           httpOnly: true,
           sameSite: "lax",
-          secure: process.env.NODE_ENV === "production"
+          secure: false
         });
         res.status(200).json({message: "Successful Logout"});
 
     }catch (error) {
-        console.log(error);
-        res.status(500).json({ error: "Server error" });
+        console.log(error.message);
+        res.status(500).json({error: error.message});
     } 
 }
 
@@ -175,8 +191,8 @@ export async function forgotPassword(req, res){
         await sendResetEmail(email, resetLink);
         res.status(200).json({message: "If that email exists you will receive a reset link shortly" })
     }catch(error){
-        console.log(error)
-        res.status(500).json({error: "Server error"});
+        console.log(error.message)
+        res.status(500).json({error: error.message});
     }
 }
 
@@ -206,8 +222,8 @@ export async function resetPassword(req, res){
           await user.save();
           res.status(200).json({message: "Successful password reset"});
       }catch(error){
-        console.log(error);
-        res.status(500).json({ error: "Server error" });
+        console.log(error.message);
+        res.status(500).json({error: error.message});
       }
 
 }
@@ -222,6 +238,7 @@ export async function googleCallback(req, res) {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
+      secure: false,
       sameSite: "lax",
       maxAge: parseInt(process.env.COOKIE_MAX_AGE)
     });
@@ -237,8 +254,8 @@ export async function googleCallback(req, res) {
       }
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Server error" });
+    console.log(error.message);
+    res.status(500).json({error: error.message});
   }
 }
 

@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/jetbrains-mono/400.css';
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  --color-primary: #3B5BDB;
+  --color-primary-hover: #2F4BC4;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+  --color-info: #0EA5E9;
+
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-card: 8px;
+  --radius-btn: 6px;
+  --radius-chip: 9999px;
+
+  --shadow-modal: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  --height-topbar: 56px;
+  --height-btn: 36px;
+  --height-btn-sm: 28px;
+  --height-btn-lg: 44px;
+  --height-input: 38px;
+
+  --width-sidebar: 240px;
+  --width-sidebar-collapsed: 60px;
+
+  --max-width-app: 1280px;
+  --max-width-portal: 720px;
+}
+
+:root {
+  --bg-app: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --border-color: #E2E8F0;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+}
+
+[data-theme='dark'] {
+  --bg-app: #0F1419;
+  --bg-card: #161B22;
+  --border-color: #2A313C;
+  --text-primary: #E6EDF3;
+  --text-secondary: #9DA7B3;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--bg-app);
+}
+
+#root {
+  min-height: 100vh;
+}

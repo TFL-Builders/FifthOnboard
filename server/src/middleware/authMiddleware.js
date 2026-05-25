@@ -15,7 +15,7 @@ export function verifyAccesToken(req, res, next){
         return res.status(401).json({error: "Malformed Authorization Header"})
     }else{
         try{
-           const decoded = jwt.verify(token, JWT_ACCESS_SECRET);
+           const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
            req.user = decoded;
            next();
         }catch(error){
@@ -32,7 +32,7 @@ export async function verifyRefreshToken(req, res, next){
         return res.status(401).json({error: "NO refresh token"})
     }else{
         try{
-           const decoded = jwt.verify(token, JWT_REFRESH_SECRET);
+           const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
 
            const tokenHash = hashToken(token);
             const storedToken = await RefreshToken.findOne({ tokenHash });

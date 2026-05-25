@@ -46,7 +46,6 @@ const onboardingSchema = new mongoose.Schema({
     },
     hirePortalTokenHash: {
         type: String,
-        index: true
     },
     hirePortalExpiresAt: {
         type: Date

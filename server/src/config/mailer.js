@@ -15,7 +15,7 @@ export async function sendResetEmail(email, resetLink){
             <p>If you didn't request this, ignore this email.</p>`
         });
     }catch(error){
-        console.log("Email send error:", error);
+        console.log("Email send error:", error.message);
         throw error; // let the controller handle it
     }
 }

@@ -33,7 +33,7 @@ passport.use(new GoogleStrategy({
             done(null, user);
         }
     }catch(error){
-        console.log(error);
+        console.log(error.message);
         done(error);
     }
 }))
