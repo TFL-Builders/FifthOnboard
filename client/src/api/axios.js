@@ -29,6 +29,23 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config
 
+     // ← add here
+    if (error.response?.status === 403 &&
+        error.response?.data?.error === "setup_required") {
+      window.location.href = "/setup";
+      return Promise.reject(error);
+    }
+
+    // don't retry if refresh endpoint itself fails
+    if (original.url?.includes('refresh')) {
+      useAuthStore.getState().clearAuth()
+      if (!window.location.pathname.includes('/login') && 
+            !window.location.pathname.includes('/signup')) {
+            window.location.href = '/login'
+      }
+      return Promise.reject(error)
+    }
+
     if (!useAuthStore.getState().user) {
       return Promise.reject(error)
     }

@@ -21,6 +21,7 @@ const schema = z
   })
 
 export default function ResetPasswordPage() {
+  console.log("ResetPasswordPage rendered");
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
 

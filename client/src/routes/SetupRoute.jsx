@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom'
 import useAuthStore from '../stores/authStore'
 import Spinner from '../components/ui/Spinner'
 
-export default function ProtectedRoute({ children }) {
+export default function SetupRoute({ children }) {
   const { isAuthenticated, isLoading, user } = useAuthStore()
 
   if (isLoading) {
@@ -16,16 +16,13 @@ export default function ProtectedRoute({ children }) {
     )
   }
 
-  // unauthenticated — redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }
 
-  // pending user — needs to complete setup first
-  if (user?.status === 'pending') {
-    return <Navigate to="/setup" replace />
+  if (user?.status !== 'pending') {
+    return <Navigate to="/dashboard" replace />
   }
 
-  // active authenticated user — render the page
   return children
 }
