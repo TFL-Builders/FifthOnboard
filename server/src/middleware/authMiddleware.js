@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken"
 import RefreshToken from "../models/RefreshToken.js";
 import { hashToken } from "../config/jwt.js";
 
-export function verifyAccesToken(allowPending = false){
+export function verifyAccessToken(allowPending = false){
     return (req, res, next) => {
         const authHeader = req.headers.authorization;
           if (!authHeader) {

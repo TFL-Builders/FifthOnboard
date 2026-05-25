@@ -8,7 +8,7 @@ passport.use(new GoogleStrategy({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: process.env.GOOGLE_CALLBACK_URL,
     userProfileURL: process.env.GOOGLE_USER_PROFILE_URL
-}, async (accessToken, generateRefreshToken, profile, done) => {
+}, async (accessToken, refreshToken, profile, done) => {
     const{id: google_id, emails, name: names} = profile;
     const email = emails[0].value;
     const name = names.givenName;
@@ -18,24 +18,38 @@ passport.use(new GoogleStrategy({
         if(user){
             console.log("Successful Google Oauth, Already Existing in Database");
             console.log("user:", user);
-            done(null, user);
+            return done(null, user);
         }else{
             const invite = await Invite.findOne({ email });
-            const user = await User.create({
-                email: email,
-                name: name,
-                role: invite ? invite.role : 'hr',
-                organizationId: invite ? invite.organizationId : null,
-                status: "active",
-            })
-            console.log("Successful Google Oauth, Inserted into Database");
-            console.log("user:", user);
-            done(null, user);
+            if (invite){
+                const user = await User.create({
+                email,
+                googleId: profile.id,
+                name: profile.displayName,
+                role: invite.role,
+                organizationId: invite.organizationId,
+                status: "active"
+              });
+              return done(null, user);
+            }else{
+                const user = await User.create({
+                    email,
+                    googleId: profile.id,
+                    name,
+                    role: 'hr',
+                    organizationId:  null,
+                    status: "pending"
+                })
+                console.log("Successful Google Oauth, Inserted into Database");
+                console.log("user:", user);
+                return done(null, user);
+            }
+
+            }
+        }catch(error){
+            console.log(error.message);
+            done(error);
         }
-    }catch(error){
-        console.log(error.message);
-        done(error);
-    }
 }))
 
 export default passport;

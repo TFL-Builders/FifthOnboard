@@ -36,12 +36,18 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // don't retry if refresh endpoint itself fails
+    // don't retry if refresh endpoint itself fails — just clear state.
+    // only hard-redirect to /login when the user was on a page that actually
+    // requires a session; leave public pages (reset-password, forgot-password,
+    // setup, login, signup) alone so they can render themselves unmolested.
     if (original.url?.includes('refresh')) {
       useAuthStore.getState().clearAuth()
-      if (!window.location.pathname.includes('/login') && 
-            !window.location.pathname.includes('/signup')) {
-            window.location.href = '/login'
+      const PUBLIC_PATHS = ['/login', '/signup', '/forgot-password', '/reset-password', '/setup']
+      const onPublicPath = PUBLIC_PATHS.some((p) =>
+        window.location.pathname.startsWith(p),
+      )
+      if (!onPublicPath) {
+        window.location.href = '/login'
       }
       return Promise.reject(error)
     }

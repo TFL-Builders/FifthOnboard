@@ -6,12 +6,13 @@ import {generateAccessToken, generateRefreshToken, hashToken} from "../config/jw
 import crypto from "crypto"
 import { sendResetEmail } from "../config/mailer.js";
 import passport from "../config/passport.js";
+import slugify from "slugify";
 
 
 export async function signupUser(req, res){
     try{
         const user = req.body;
-        const {email, password, name} = user;
+        const {email, password, name, organizationName} = user;
         const exist = await User.findOne({email: email});
         if (exist){
             return res.status(409).json({error: "Email already registered"})
@@ -22,8 +23,14 @@ export async function signupUser(req, res){
             if (invite) {
               organizationId = invite.organizationId;
             } else {
+                const slug = slugify(organizationName, { lower: true, strict: true, trim: true });
+  
+                const existingOrg = await Organization.findOne({ slug });
+                if (existingOrg) {
+                  return res.status(409).json({ error: "Organization name already taken" });
+                }
               const org = await Organization.create({
-                name: `${name}'s Organization`, 
+                name: organizationName, 
               });
               organizationId = org._id;
             }
@@ -180,8 +187,10 @@ export async function forgotPassword(req, res){
         }
     
         const resetToken = crypto.randomBytes(32).toString("hex");
+        console.log("reset-token:", resetToken)
     
         const hashedToken = hashToken(resetToken)
+        console.log("reset-token-hashed:", hashedToken)
     
         user.passwordResetToken = hashedToken;
         user.passwordResetExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
@@ -202,14 +211,17 @@ export async function resetPassword(req, res){
     try{
         const {password} = req.body;
         const token = req.query.token;
+        console.log("sent-token:", token)
          if (!token) {
             return res.status(400).json({ error: "Reset token is required" });
         }
           const hashedToken = hashToken(token);
+          console.log("sent-hashedtoken:", hashedToken)
           const user = await User.findOne({
             passwordResetToken: hashedToken,
             passwordResetExpiry: {$gt: Date.now()}
         });
+        console.log("user to reset:", user);
     
           if (!user){
             return res.status(400).json({error: "Invalid or Expired reset token"});
@@ -228,9 +240,10 @@ export async function resetPassword(req, res){
 
 }
 
-// authController.js
+
 export async function googleCallback(req, res) {
   try {
+    console.log("1. generating tokens");
     const accessToken = generateAccessToken(req.user);
     const refreshToken = generateRefreshToken(req.user);
 
@@ -243,20 +256,81 @@ export async function googleCallback(req, res) {
       maxAge: parseInt(process.env.COOKIE_MAX_AGE)
     });
 
-    res.status(200).json({
-      accessToken,
-      user: {
-        id: req.user._id,
-        email: req.user.email,
-        name: req.user.name,
-        role: req.user.role,
-        organizationId: req.user.organizationId
-      }
-    });
+    const userData = encodeURIComponent(JSON.stringify({
+      id: req.user._id,
+      email: req.user.email,
+      name: req.user.name,
+      role: req.user.role,
+      status: req.user.status,
+      organizationId: req.user.organizationId
+    }));
+
+    if (req.user.status === "pending"){
+        return res.redirect(`${process.env.CLIENT_URL}/setup?token=${accessToken}&user=${userData}`);
+    }
+    return res.redirect(
+      `${process.env.CLIENT_URL}/dashboard?token=${accessToken}&user=${userData}`
+    );
   } catch (error) {
     console.log(error.message);
     res.status(500).json({error: error.message});
   }
 }
 
-// routes
+export async function setupOrganization(req, res){
+
+    if (req.user.status !== "pending") {
+      return res.status(403).json({ error: "Organization already set up" });
+    }
+
+    try{
+        const {organizationName} = req.body;
+    
+        const slug = slugify(organizationName, { lower: true, strict: true, trim: true });
+        const existingOrg = await Organization.findOne({ slug });
+    
+        if (existingOrg){
+            return res.status(409).json({ error: "Organization name already taken" });
+        }
+
+        const org = await Organization.create({
+            name: organizationName,
+            slug
+        })
+
+        const userId = req.user.userId;
+        const user = await User.findByIdAndUpdate(
+             userId,
+             { organizationId: org._id, status: "active" },
+            { returnDocument: 'after' }
+           );
+
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+
+        await storeRefreshToken(user._id, refreshToken);
+
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+          maxAge: parseInt(process.env.COOKIE_MAX_AGE)
+        });
+
+        res.status(200).json({
+          accessToken,
+          user: {
+            id: user._id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            status: user.status,
+            organizationId: user.organizationId
+          }
+        });
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({ error: error.message });
+    }
+}

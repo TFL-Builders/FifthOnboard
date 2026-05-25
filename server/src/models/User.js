@@ -10,8 +10,7 @@ const userSchema = new mongoose.Schema({
         index: true
     },
     googleId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Google',
+        type: String,
         required: false,
         index: true
     },
@@ -60,7 +59,7 @@ const userSchema = new mongoose.Schema({
         default: null
     },
     passwordResetExpiry: {
-        type: String,
+        type: Number,
         default: null
     }
 }, {timestamps: true});

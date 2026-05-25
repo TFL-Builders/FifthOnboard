@@ -5,6 +5,7 @@ const organizationSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
         minlength: 2,
         maxlength: 80
     },
@@ -28,7 +29,7 @@ const organizationSchema = new mongoose.Schema({
 }, {timestamps: true});
 
 organizationSchema.pre('save', async function() {
-    if (this.isModified('name')) {
+    if (this.isModified('name') && !this.slug) {
         this.slug = slugify(this.name, {
             lower: true,
             strict: true,

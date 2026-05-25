@@ -4,8 +4,8 @@ import crypto from "crypto"
 export function generateAccessToken(user){
     return jwt.sign(
         {
-            userId: user._id.toString(),
-            organizationId: user.organizationId.toString(),
+            userId: user._id,
+            organizationId: user.organizationId,
             email: user.email,
             name: user.name,
             role: user.role,
@@ -21,8 +21,8 @@ export function generateAccessToken(user){
 export function generateRefreshToken(user){
     return jwt.sign(
         {
-            userId: user._id.toString(),
-            organizationId: user.organizationId.toString()
+            userId: user._id,
+            organizationId: user.organizationId
         },
         process.env.JWT_REFRESH_SECRET,
         {
