@@ -19,8 +19,6 @@ const inviteSchema = new mongoose.Schema({
     token: {
         type: String,
         required: true,
-        index: true,
-        unique: true
     },
     invitedBy: {
         type: mongoose.Schema.Types.ObjectId,

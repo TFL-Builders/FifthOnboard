@@ -1,36 +1,55 @@
-import { cn } from '../../utils/cn';
-
-const BASE = 'inline-flex items-center justify-center gap-sm font-semibold text-label-md rounded-lg transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
-
-const VARIANTS = {
-  primary:   'bg-primary text-on-primary hover:bg-[#2F4BC4] focus:ring-primary shadow-sm',
-  secondary: 'bg-white border border-outline-variant text-on-surface hover:bg-surface-container-low focus:ring-outline',
-  ghost:     'text-primary hover:bg-primary/8 focus:ring-primary',
-  danger:    'bg-white border border-error text-error hover:bg-error-container/20 focus:ring-error',
-  indigo:    'bg-primary-container text-on-primary hover:bg-primary focus:ring-primary shadow-sm',
-};
-
-const SIZES = {
-  sm:  'h-8 px-md text-label-md',
-  md:  'h-10 px-lg text-label-md',
-  lg:  'h-12 px-xl text-body-md',
-};
+import { cn } from '../../utils/cn'
+import Spinner from './Spinner'
 
 export default function Button({
   variant = 'primary',
-  size = 'md',
-  className,
+  size = 'default',
+  loading = false,
+  disabled = false,
   children,
-  type = 'button',
+  className,
   ...props
 }) {
+  const base =
+    'inline-flex items-center justify-center font-medium transition-colors ' +
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ' +
+    'disabled:pointer-events-none disabled:opacity-50 cursor-pointer'
+
+  const variants = {
+    primary: 'bg-primary text-white hover:bg-primary-hover rounded-[6px]',
+    secondary:
+      'border bg-transparent hover:opacity-80 rounded-[6px]',
+    ghost: 'bg-transparent hover:opacity-70 rounded-[6px]',
+  }
+
+  const sizes = {
+    default: 'h-[36px] px-4 text-[14px]',
+    sm: 'h-[28px] px-3 text-[12px]',
+    lg: 'h-[44px] px-6 text-[14px]',
+  }
+
+  const secondaryStyle =
+    variant === 'secondary'
+      ? { borderColor: 'var(--border-color)', color: 'var(--text-primary)' }
+      : {}
+  const ghostStyle =
+    variant === 'ghost' ? { color: 'var(--text-primary)' } : {}
+
   return (
     <button
-      type={type}
-      className={cn(BASE, VARIANTS[variant], SIZES[size], className)}
+      className={cn(base, variants[variant], sizes[size], className)}
+      style={{ ...secondaryStyle, ...ghostStyle }}
+      disabled={disabled || loading}
       {...props}
     >
-      {children}
+      {loading ? (
+        <>
+          <Spinner size="sm" className="mr-2" />
+          {children}
+        </>
+      ) : (
+        children
+      )}
     </button>
-  );
+  )
 }

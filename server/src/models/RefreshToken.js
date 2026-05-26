@@ -10,8 +10,6 @@ const refreshTokenSchema = new mongoose.Schema({
     tokenHash: {
         type: String,
         required: true,
-        unique: true,
-        index: true
     },
     userAgent: {
         type: String

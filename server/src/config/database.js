@@ -1,4 +1,14 @@
 import mongoose from 'mongoose';
+import "../models/User.js";
+import "../models/Organization.js";
+import "../models/RefreshToken.js";
+import "../models/Invite.js";
+import "../models/AuditLog.js";
+import "../models/Comment.js";
+import "../models/Notification.js";
+import "../models/Onboarding.js";
+import "../models/Task.js";
+import "../models/Template.js";
 
 const connectDB = async() => {
     try{

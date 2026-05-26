@@ -1,33 +1,62 @@
-import { forwardRef } from 'react';
-import { cn } from '../../utils/cn';
+import { forwardRef } from 'react'
+import { cn } from '../../utils/cn'
 
-const Input = forwardRef(({ label, error, hint, className, id, ...props }, ref) => {
-  const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
+const Input = forwardRef(function Input(
+  { label, error, helperText, className, id, ...props },
+  ref,
+) {
   return (
-    <div className="flex flex-col gap-xs">
+    <div className="space-y-1">
       {label && (
-        <label htmlFor={inputId} className="text-label-md text-on-surface-variant">
+        <label
+          htmlFor={id}
+          className="block text-[12px] font-medium"
+          style={{ color: 'var(--text-primary)' }}
+        >
           {label}
         </label>
       )}
       <input
         ref={ref}
-        id={inputId}
+        id={id}
         className={cn(
-          'w-full h-12 px-md bg-white border rounded-lg text-body-md placeholder:text-outline-variant',
-          'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all',
+          'flex w-full h-[38px] rounded-[8px] border bg-transparent px-3 text-[14px]',
+          'transition-colors placeholder:opacity-50',
+          'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-0 focus:border-primary',
+          'disabled:cursor-not-allowed disabled:opacity-50',
           error
-            ? 'border-error focus:ring-error'
-            : 'border-outline-variant',
+            ? 'border-danger focus:ring-danger focus:border-danger'
+            : 'border-[var(--border-color)]',
           className,
         )}
+        style={{ color: 'var(--text-primary)' }}
+        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={
+          error ? `${id}-error` : helperText ? `${id}-helper` : undefined
+        }
         {...props}
       />
-      {error  && <p className="text-label-md text-error">{error}</p>}
-      {!error && hint && <p className="text-label-md text-on-surface-variant">{hint}</p>}
+      {error && (
+        <p
+          id={`${id}-error`}
+          className="text-[12px] text-danger"
+          role="alert"
+          aria-live="polite"
+        >
+          {error}
+        </p>
+      )}
+      {!error && helperText && (
+        <p
+          id={`${id}-helper`}
+          className="text-[12px]"
+          style={{ color: 'var(--text-secondary)' }}
+        >
+          {helperText}
+        </p>
+      )}
     </div>
-  );
-});
+  )
+})
 
-Input.displayName = 'Input';
-export default Input;
+export default Input

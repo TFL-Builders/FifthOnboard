@@ -1,10 +1,12 @@
 import mongoose from 'mongoose';
+import bcryptjs from "bcryptjs";
 
+const salt_rounds = 10;
 const userSchema = new mongoose.Schema({
     organizationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Organization',
-        required: true,
+        required: false,
         index: true
     },
     googleId: {
@@ -20,6 +22,7 @@ const userSchema = new mongoose.Schema({
     },
     passwordHash: {
         type: String,
+        default: null,
         required: false
     },
     name: {
@@ -45,16 +48,37 @@ const userSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'invited', 'disabled']
+        enum: ['active', 'pending', 'invited', 'disabled']
     },
     deletedAt: {
         type: Date,
         default: null
+    },
+    passwordResetToken: {
+        type: String,
+        default: null
+    },
+    passwordResetExpiry: {
+        type: Number,
+        default: null
     }
 }, {timestamps: true});
 
+
+userSchema.pre("save", async function() {
+  if (!this.passwordHash || !this.isModified("passwordHash")) return;
+
+  this.passwordHash = await bcryptjs.hash(this.passwordHash, parseInt(process.env.BCRYPTJS_SALT_ROUNDS));
+});
+
+// instance method — available on every user document
+userSchema.methods.comparePassword = async function(plainTextPassword) {
+  return bcryptjs.compare(plainTextPassword, this.passwordHash);
+};
+
 userSchema.index({organizationId: 1, email: 1}, {unique: true});
 userSchema.index({role: 1});
+
 
 const User = mongoose.model('User', userSchema);
 
