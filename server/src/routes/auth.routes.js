@@ -8,9 +8,11 @@ import {
   forgotPassword,
   resetPassword,
   googleCallback,
-  storeRefreshToken
+  storeRefreshToken,
+  setupOrganization
 } from "../controllers/auth.controller.js";
-import { verifyRefreshToken } from "../middleware/authMiddleware.js";
+import { verifyAccessToken, verifyRefreshToken } from "../middleware/authMiddleware.js";
+import { requireRole } from "../middleware/requireRoleMiddleware.js";
 import { validate } from "../middleware/inputValidationMiddleware.js";
 import passport from "../config/passport.js";
 
@@ -28,6 +30,7 @@ router.get("/google/dashboard",
   passport.authenticate("google", { failureRedirect: "/", session: false }),
   googleCallback
 );
+router.post("/setup", verifyAccessToken(true), requireRole("hr", "admin"), setupOrganization);
 router.post("/forgot-password", validate("forgotPassword"), forgotPassword);
 router.post("/reset-password", validate("resetPassword"), resetPassword);
 router.post("/refresh", verifyRefreshToken, refreshUserAccessToken);

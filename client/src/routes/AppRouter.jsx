@@ -1,9 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import SetupRoute from './SetupRoute'
 import LoginPage from '../pages/auth/LoginPage'
 import SignupPage from '../pages/auth/SignupPage'
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage'
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage'
+import SetupPage from '../pages/auth/SetupPage'
 import ProtectedRoute from './ProtectedRoute'
+import PublicRoute from './PublicRoute'
 
 function DashboardPlaceholder() {
   return (
@@ -20,10 +23,16 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        {/* public routes — redirect authenticated users away */}
+        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+        {/* setup — accessible to pending users only */}
+        <Route path="/setup" element={<SetupRoute><SetupPage /></SetupRoute>} />
+
+        {/* protected routes — redirect unauthenticated users away */}
         <Route
           path="/dashboard"
           element={
@@ -32,6 +41,8 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+
+        {/* fallback routes */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

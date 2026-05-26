@@ -10,7 +10,8 @@ const templateTasksSchema = new mongoose.Schema({
     },
     assigneeRole: {
         type: String,
-        enum: ['hr', 'manager', 'new_hire', 'it', 'finance', 'custom']
+        enum: ['hr', 'manager', 'new_hire', 'it', 'finance', 'custom'],
+        required: true
     },
     assigneeUserId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -74,6 +75,21 @@ const templateSchema = new mongoose.Schema({
 }, {timestamps: true});
 
 templateSchema.index({organizationId: 1, isArchived: 1});
+
+templateSchema.index(
+    { organizationId: 1, name: 1 },
+    { 
+        unique: true, 
+        partialFilterExpression: { deletedAt: null } 
+    }
+);
+
+templateSchema.pre(/^find/, function(next) {
+    if (this.getFilter().isArchived === undefined) {
+        this.where({ isArchived: false, deletedAt: null });
+    }
+    next();
+});
 
 const Template = mongoose.model('Template', templateSchema);
 export default Template;

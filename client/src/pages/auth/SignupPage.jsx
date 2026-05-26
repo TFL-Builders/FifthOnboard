@@ -14,6 +14,7 @@ import useAuthStore from '../../stores/authStore'
 const schema = z
   .object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
+    organizationName: z.string().min(1, 'Organization name is required').max(100),
     email: z.string().email('Please enter a valid email address'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
@@ -41,6 +42,7 @@ export default function SignupPage() {
         name: data.name,
         email: data.email,
         password: data.password,
+        organizationName: data.organizationName,
       })
       setAuth(res.data.user, res.data.accessToken)
       navigate('/dashboard', { replace: true })
@@ -66,6 +68,16 @@ export default function SignupPage() {
             autoComplete="name"
             error={errors.name?.message}
             {...register('name')}
+          />
+
+          <Input
+            id="organizationName"
+            type="text"
+            label="Organization name"
+            placeholder="Acme Corp"
+            autoComplete="organization"
+            error={errors.organizationName?.message}
+            {...register('organizationName')}
           />
 
           <Input

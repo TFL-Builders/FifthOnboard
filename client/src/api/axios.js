@@ -29,6 +29,29 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config
 
+     // ← add here
+    if (error.response?.status === 403 &&
+        error.response?.data?.error === "setup_required") {
+      window.location.href = "/setup";
+      return Promise.reject(error);
+    }
+
+    // don't retry if refresh endpoint itself fails — just clear state.
+    // only hard-redirect to /login when the user was on a page that actually
+    // requires a session; leave public pages (reset-password, forgot-password,
+    // setup, login, signup) alone so they can render themselves unmolested.
+    if (original.url?.includes('refresh')) {
+      useAuthStore.getState().clearAuth()
+      const PUBLIC_PATHS = ['/login', '/signup', '/forgot-password', '/reset-password', '/setup']
+      const onPublicPath = PUBLIC_PATHS.some((p) =>
+        window.location.pathname.startsWith(p),
+      )
+      if (!onPublicPath) {
+        window.location.href = '/login'
+      }
+      return Promise.reject(error)
+    }
+
     if (!useAuthStore.getState().user) {
       return Promise.reject(error)
     }

@@ -6,12 +6,11 @@ const userSchema = new mongoose.Schema({
     organizationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Organization',
-        required: true,
+        required: false,
         index: true
     },
     googleId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Google',
+        type: String,
         required: false,
         index: true
     },
@@ -49,7 +48,7 @@ const userSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'invited', 'disabled']
+        enum: ['active', 'pending', 'invited', 'disabled']
     },
     deletedAt: {
         type: Date,
@@ -60,7 +59,7 @@ const userSchema = new mongoose.Schema({
         default: null
     },
     passwordResetExpiry: {
-        type: String,
+        type: Number,
         default: null
     }
 }, {timestamps: true});
