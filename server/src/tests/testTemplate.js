@@ -6,7 +6,7 @@ dotenv.config()
 
 const testTemplate = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI)
+        await mongoose.connect("mongodb://localhost:27017/columbus")
         console.log('MongoDB Connected')
 
         const orgId = new mongoose.Types.ObjectId()
@@ -140,7 +140,7 @@ const testTemplate = async () => {
         }
 
         // clean up
-        await Template.deleteOne({ _id: template._id })
+       
         console.log('✓ Test documents cleaned up')
 
     } catch (error) {

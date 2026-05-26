@@ -50,6 +50,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['active', 'pending', 'invited', 'disabled']
     },
+    theme: {
+        type: String,
+        enum: ['dark', 'light', null],
+        default: null,
+        required: false
+    },
     deletedAt: {
         type: Date,
         default: null

@@ -54,7 +54,7 @@ export default function ResetPasswordPage() {
     return (
       <AuthLayout>
         <div
-          className="rounded-[8px] border p-8 text-center"
+          className="rounded-[8px] border px-7 py-7 text-center"
           style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}
         >
           <div className="flex justify-center mb-4">
@@ -87,7 +87,7 @@ export default function ResetPasswordPage() {
     return (
       <AuthLayout>
         <div
-          className="rounded-[8px] border p-8 text-center"
+          className="rounded-[8px] border px-7 py-7 text-center"
           style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}
         >
           <h1

@@ -62,7 +62,8 @@ export async function signupUser(req, res){
                 email: user.email,
                 name: user.name,
                 role: user.role,
-                organizationId: user.organizationId
+                organizationId: user.organizationId,
+                theme: user.theme ?? null
               }
             });
         }
@@ -106,7 +107,8 @@ export async function loginUser(req, res){
                     email: user.email,
                     name: user.name,
                     role: user.role,
-                    organizationId: user.organizationId
+                    organizationId: user.organizationId,
+                    theme: user.theme ?? null
                   }
                 });
             }else{
@@ -134,7 +136,8 @@ export async function refreshUserAccessToken(req, res){
             email: user.email,
             name: user.name,
             role: user.role,
-            organizationId: user.organizationId
+            organizationId: user.organizationId,
+            theme: user.theme ?? null
           }
         });
     }catch (error) {
@@ -264,7 +267,8 @@ export async function googleCallback(req, res) {
       name: req.user.name,
       role: req.user.role,
       status: req.user.status,
-      organizationId: req.user.organizationId
+      organizationId: req.user.organizationId,
+      theme: req.user.theme ?? null
     }));
 
     if (req.user.status === "pending"){
@@ -327,7 +331,8 @@ export async function setupOrganization(req, res){
             name: user.name,
             role: user.role,
             status: user.status,
-            organizationId: user.organizationId
+            organizationId: user.organizationId,
+            theme: user.theme ?? null
           }
         });
 

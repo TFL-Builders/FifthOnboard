@@ -9,7 +9,8 @@ export function generateAccessToken(user){
             email: user.email,
             name: user.name,
             role: user.role,
-            status: user.status
+            status: user.status,
+            theme: user.theme ?? null
         },
         process.env.JWT_ACCESS_SECRET,
         {
