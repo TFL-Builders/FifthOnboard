@@ -11,6 +11,17 @@ export function useAuthInit() {
   useEffect(() => {
     if (initialized) return // ← skip if already ran
     initialized = true;
+
+    // If this is an OAuth callback (token + user in URL),
+    // skip the refresh attempt entirely — useOAuthCallback handles it
+    const params = new URLSearchParams(window.location.search)
+    const hasOAuthParams = params.get('token') && params.get('user')
+
+     const { isAuthenticated, isLoading } = useAuthStore.getState()
+    if (isAuthenticated && !isLoading) {
+      return
+    }
+
     async function init() {
       try {
         const { data } = await authApi.refresh()
@@ -19,7 +30,6 @@ export function useAuthInit() {
       } catch (error) {
         // no valid refresh token — user needs to log in
         clearAuth()
-         console.log("auth init failed - cleared")
       } finally {
         setLoading(false)
       }
