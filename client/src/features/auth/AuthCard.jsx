@@ -1,7 +1,7 @@
 export default function AuthCard({ title, description, children }) {
   return (
     <div
-      className="rounded-[8px] border p-8"
+      className="rounded-[8px] border px-7 py-7"
       style={{
         backgroundColor: 'var(--bg-card)',
         borderColor: 'var(--border-color)',
@@ -15,7 +15,7 @@ export default function AuthCard({ title, description, children }) {
           {title}
         </h1>
         {description && (
-          <p className="mt-1 text-[14px]" style={{ color: 'var(--text-secondary)' }}>
+          <p className="mt-2 text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             {description}
           </p>
         )}

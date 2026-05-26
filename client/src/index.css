@@ -43,6 +43,7 @@
   --border-color: #E2E8F0;
   --text-primary: #0F172A;
   --text-secondary: #475569;
+  --auth-panel-bg: linear-gradient(155deg, #3B5BDB 0%, #2F4BC4 45%, #2237a1 100%);
 }
 
 [data-theme='dark'] {
@@ -51,6 +52,7 @@
   --border-color: #2A313C;
   --text-primary: #E6EDF3;
   --text-secondary: #9DA7B3;
+  --auth-panel-bg: linear-gradient(155deg, #1a2552 0%, #111827 50%, #0d1117 100%);
 }
 
 *,
@@ -75,4 +77,27 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+/* ── Auth page: Google sign-in button — theme-aware ── */
+.auth-google-btn {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.auth-google-btn:hover {
+  background-color: var(--bg-app);
+}
+
+/* ── Respect reduced-motion OS preference ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
