@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import slugify from "slugify";
 
 const templateTasksSchema = new mongoose.Schema({
     title: {
@@ -56,6 +57,9 @@ const templateSchema = new mongoose.Schema({
         minlength: 2,
         maxlength: 120
     },
+    slug: {
+        type: String,
+    },
     description: {
         type: String,
     },
@@ -71,7 +75,7 @@ const templateSchema = new mongoose.Schema({
     deletedAt: {
         type: Date,
         default: null
-    }
+    },
 }, {timestamps: true});
 
 templateSchema.index({organizationId: 1, isArchived: 1});
@@ -84,12 +88,24 @@ templateSchema.index(
     }
 );
 
-templateSchema.pre(/^find/, function(next) {
-    if (this.getFilter().isArchived === undefined) {
-        this.where({ isArchived: false, deletedAt: null });
-    }
-    next();
+templateSchema.virtual('taskCount').get(function () {
+    return this.templateTasks?.length ?? 0;
 });
+
+templateSchema.pre('save', async function() {
+    if (this.isModified('name') && !this.slug) {
+        this.slug = slugify(this.name, {
+            lower: true,
+            strict: true,
+            trim: true
+        })
+    }
+});
+
+// so it shows up in toJSON/toObject output
+templateSchema.set('toJSON', { virtuals: true });
+templateSchema.set('toObject', { virtuals: true });
+
 
 const Template = mongoose.model('Template', templateSchema);
 export default Template;

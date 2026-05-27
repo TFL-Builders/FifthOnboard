@@ -18,6 +18,8 @@ const testUser = async () => {
             status: 'active'
         });
 
+        
+
         console.log('User created:', user);
         console.log('User id:', user._id.toString());
         console.log(typeof(user._id));

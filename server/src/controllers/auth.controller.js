@@ -38,7 +38,7 @@ export async function signupUser(req, res){
                 email,
                 passwordHash: password,
                 name: name,
-                role: invite ? invite.role : 'hr',
+                role: invite ? invite.role : 'admin',
                 organizationId,
                 status: "active",
             })
