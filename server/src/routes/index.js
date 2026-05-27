@@ -5,7 +5,7 @@ import templateRoutes from "./templates.routes.js"
 export const apiRouter = express.Router();
 
 apiRouter.use("/auth", authRoutes);
-apiRouter.use("/template", templateRoutes);
+apiRouter.use("/templates", templateRoutes);
 
 // health check
 apiRouter.get("/health", (req, res) => {

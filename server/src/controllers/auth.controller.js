@@ -94,6 +94,7 @@ export async function loginUser(req, res){
                 const accessToken = generateAccessToken(user);
                 const refreshToken = generateRefreshToken(user);
                 await storeRefreshToken(user._id, refreshToken);
+                console.log(user);
                 res.cookie('refreshToken', refreshToken,{
                     httpOnly: true,
                     secure: false,    

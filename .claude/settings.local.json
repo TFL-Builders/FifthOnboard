@@ -9,7 +9,8 @@
       "Bash(Remove-Item \"C:\\\\Projects\\\\Columbus App\\\\client\\\\src\\\\App.css\" -Force)",
       "Skill(ui-ux-pro-max)",
       "Skill(ui-ux-pro-max:*)",
-      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"SaaS HR onboarding authentication login signup professional calm precision\" --design-system -p \"Columbus\" -f markdown)"
+      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"SaaS HR onboarding authentication login signup professional calm precision\" --design-system -p \"Columbus\" -f markdown)",
+      "Bash(python \"C:/Projects/Columbus App/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"SaaS dashboard HR onboarding professional minimal clean\" --design-system -f markdown -p \"Columbus\")"
     ]
   }
 }

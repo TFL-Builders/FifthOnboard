@@ -7,6 +7,8 @@ import ResetPasswordPage from '../pages/auth/ResetPasswordPage'
 import SetupPage from '../pages/auth/SetupPage'
 import ProtectedRoute from './ProtectedRoute'
 import PublicRoute from './PublicRoute'
+import TemplatesPage from '../pages/templates/TemplatesPage'
+import TemplateEditorPage from '../pages/templates/TemplateEditorPage'
 
 function DashboardPlaceholder() {
   return (
@@ -38,6 +40,32 @@ export default function AppRouter() {
           element={
             <ProtectedRoute>
               <DashboardPlaceholder />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* templates */}
+        <Route
+          path="/templates"
+          element={
+            <ProtectedRoute>
+              <TemplatesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/templates/new"
+          element={
+            <ProtectedRoute>
+              <TemplateEditorPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/templates/:id"
+          element={
+            <ProtectedRoute>
+              <TemplateEditorPage />
             </ProtectedRoute>
           }
         />
