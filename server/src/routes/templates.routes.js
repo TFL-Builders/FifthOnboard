@@ -2,6 +2,7 @@ import express from "express";
 import { 
     listTemplates,
     getTemplate,
+    getTemplateDefault,
     createTemplate,
     updateTemplate,
     archiveTemplate,
@@ -19,6 +20,7 @@ const protect = [verifyAccessToken(), requireRole("hr", "admin"), organizationGu
 const adminProtect = [verifyAccessToken(), requireRole("admin"), organizationGuard];
 
 router.get("/", ...protect, listTemplates);
+router.get("/seed", ...protect, getTemplateDefault);
 router.get("/:id", ...protect, getTemplate);
 router.post("/", ...protect, validate("createTemplate"), createTemplate);
 router.post("/:id/clone", ...protect, cloneTemplate);

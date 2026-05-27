@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -446,7 +446,11 @@ function PhaseHeader({ label, count }) {
 export default function TemplateEditorPage() {
   const { id }   = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const isEdit   = Boolean(id)
+
+  // Ref flag — ensures seed prefill only runs once (never re-fires on re-render)
+  const seedApplied = useRef(false)
 
   // ── Form ───────────────────────────────────────────────────────────────────
   const {
@@ -493,6 +497,22 @@ export default function TemplateEditorPage() {
       })
     }
   }, [templateData, reset])
+
+  // Seed prefill — create mode only, runs once on mount.
+  // Reads router state passed by TemplatesPage's "Use this example template" button.
+  // useRef gate ensures reset() never re-fires on re-render and wipes user edits.
+  useEffect(() => {
+    if (isEdit) return                  // edit mode has its own prefill above
+    if (seedApplied.current) return     // already applied — do not overwrite user edits
+    const seedData = location.state?.seedData
+    if (!seedData) return               // no seed in router state — blank create form
+    seedApplied.current = true
+    reset({
+      name:          seedData.name,
+      description:   seedData.description ?? '',
+      templateTasks: seedData.tasks ?? [],  // API field `tasks` → form field `templateTasks`
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps — intentionally mount-once
 
   // ── Mutations ──────────────────────────────────────────────────────────────
   const createMutation = useMutation({

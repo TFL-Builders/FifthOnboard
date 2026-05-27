@@ -31,3 +31,7 @@ export const cloneTemplate = (id) =>
 // DELETE /templates/:id
 export const deleteTemplate = (id) =>
   api.delete(`/templates/${id}`)
+
+// GET /templates/seed — returns the unwrapped seed template object
+export const getSeedTemplate = () =>
+  api.get('/templates/seed').then((r) => r.data.data)

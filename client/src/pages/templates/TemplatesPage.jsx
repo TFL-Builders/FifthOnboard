@@ -18,6 +18,7 @@ import {
   archiveTemplate,
   unarchiveTemplate,
   deleteTemplate,
+  getSeedTemplate,
 } from '../../api/templates'
 import useAuthStore from '../../stores/authStore'
 import Button from '../../components/ui/Button'
@@ -304,7 +305,32 @@ function ActionBtn({ onClick, icon, label, children, danger = false }) {
 // Empty state
 // ─────────────────────────────────────────────────────────────────────────────
 
-function EmptyState({ onCreateClick }) {
+function EmptyState({ filter, onCreateClick, onUseExample, isSeedPending, seedError }) {
+  if (filter === 'archived') {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <div
+          className="flex h-12 w-12 items-center justify-center rounded-[8px] mb-4"
+          style={{ backgroundColor: 'rgba(71,85,105,0.08)' }}
+        >
+          <Archive size={22} style={{ color: 'var(--text-secondary)' }} aria-hidden="true" />
+        </div>
+        <p
+          className="text-[15px] font-semibold mb-1"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          No archived templates
+        </p>
+        <p
+          className="text-[14px] max-w-[280px] leading-relaxed"
+          style={{ color: 'var(--text-secondary)' }}
+        >
+          Templates you archive will appear here.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       <div
@@ -329,6 +355,25 @@ function EmptyState({ onCreateClick }) {
         <Plus size={15} aria-hidden="true" />
         Create your first template
       </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onUseExample}
+        loading={isSeedPending}
+        disabled={isSeedPending}
+        className="mt-3"
+      >
+        Use this example template
+      </Button>
+      {seedError && (
+        <p
+          className="mt-2 text-[12px] text-danger"
+          role="alert"
+          aria-live="assertive"
+        >
+          Failed to load example. Please try again.
+        </p>
+      )}
     </div>
   )
 }
@@ -386,6 +431,13 @@ export default function TemplatesPage() {
       invalidate()
     },
     onError: () => toast.error('Failed to delete template'),
+  })
+
+  const seedMutation = useMutation({
+    mutationFn: getSeedTemplate,
+    onSuccess:  (seedData) => {
+      navigate('/templates/new', { state: { seedData } })
+    },
   })
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -522,7 +574,13 @@ export default function TemplatesPage() {
 
             {/* ── Empty state ──────────────────────────────────────────── */}
             {!isLoading && !isError && templates.length === 0 && (
-              <EmptyState onCreateClick={() => navigate('/templates/new')} />
+              <EmptyState
+                filter={filter}
+                onCreateClick={() => navigate('/templates/new')}
+                onUseExample={() => seedMutation.mutate()}
+                isSeedPending={seedMutation.isPending}
+                seedError={seedMutation.isError}
+              />
             )}
 
             {/* ── Template list ────────────────────────────────────────── */}

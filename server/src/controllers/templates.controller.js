@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Template from "../models/Template.js";
 import slugify from "slugify";
+import engineeringSeedTemplate from "../config/constants.js";
 
 function daysAgo(date) {
     const ms = Date.now() - new Date(date).getTime();
@@ -73,6 +74,11 @@ export async function getTemplate(req, res){
         console.log(error.message)
         return res.status(500).json({ error: 'Failed to fetch template with id:', templateId });
     }
+}
+
+export async function getTemplateDefault(req, res) {
+    console.log(engineeringSeedTemplate.name);
+    return res.status(200).json({data: engineeringSeedTemplate})
 }
 
 export async function createTemplate(req, res){
