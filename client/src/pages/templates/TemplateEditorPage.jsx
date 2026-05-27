@@ -4,7 +4,20 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { Plus, X, ArrowLeft, ChevronRight, AlertCircle, RotateCcw } from 'lucide-react'
+import { Plus, X, ArrowLeft, ChevronRight, AlertCircle, RotateCcw, GripVertical } from 'lucide-react'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import toast, { Toaster } from 'react-hot-toast'
 import { getTemplate, createTemplate, updateTemplate } from '../../api/templates'
 import Input from '../../components/ui/Input'
@@ -184,7 +197,7 @@ function QueryError({ onRetry }) {
 // TaskCard
 // ─────────────────────────────────────────────────────────────────────────────
 
-function TaskCard({ index, register, errors, remove }) {
+function TaskCard({ index, register, errors, remove, dragHandleProps = null }) {
   const taskErrors = errors?.templateTasks?.[index]
 
   return (
@@ -194,12 +207,29 @@ function TaskCard({ index, register, errors, remove }) {
     >
       {/* Card header */}
       <div className="flex items-center justify-between">
-        <span
-          className="text-[12px] font-semibold uppercase tracking-wide"
-          style={{ color: 'var(--text-secondary)' }}
-        >
-          Task {index + 1}
-        </span>
+        <div className="flex items-center gap-2">
+          {/* Drag handle — only rendered when sortable context provides props */}
+          {dragHandleProps && (
+            <button
+              type="button"
+              {...dragHandleProps}
+              aria-label={`Reorder task ${index + 1}`}
+              className="flex h-5 w-5 items-center justify-center rounded cursor-grab
+                active:cursor-grabbing touch-none transition-colors
+                hover:bg-black/8 dark:hover:bg-white/8
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              <GripVertical size={14} aria-hidden="true" />
+            </button>
+          )}
+          <span
+            className="text-[12px] font-semibold uppercase tracking-wide"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Task {index + 1}
+          </span>
+        </div>
         <button
           type="button"
           onClick={() => remove(index)}
@@ -347,6 +377,41 @@ function TaskCard({ index, register, errors, remove }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// SortableTaskCard — wraps TaskCard with dnd-kit sortable behaviour
+// ─────────────────────────────────────────────────────────────────────────────
+
+function SortableTaskCard({ fieldId, index, register, errors, remove }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: fieldId })
+
+  const style = {
+    transform:  CSS.Transform.toString(transform),
+    transition,
+    opacity:    isDragging ? 0.45 : 1,
+    position:   'relative',
+    zIndex:     isDragging ? 10 : undefined,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <TaskCard
+        index={index}
+        register={register}
+        errors={errors}
+        remove={remove}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Phase group header
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -400,7 +465,7 @@ export default function TemplateEditorPage() {
     },
   })
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control,
     name: 'templateTasks',
   })
@@ -461,7 +526,30 @@ export default function TemplateEditorPage() {
   const isError   = isEdit && queryError
 
   // ── Group tasks by phase for display ──────────────────────────────────────
+  // watchedTasks must be declared before handleDragEnd so the closure is valid
   const watchedTasks = watch('templateTasks')
+
+  // ── Drag-to-reorder (within a phase only) ─────────────────────────────────
+  // distance:5 prevents accidental drags when clicking form inputs inside the card
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  )
+
+  function handleDragEnd({ active, over }) {
+    if (!over || active.id === over.id) return
+
+    const fromIndex = fields.findIndex((f) => f.id === active.id)
+    const toIndex   = fields.findIndex((f) => f.id === over.id)
+    if (fromIndex === -1 || toIndex === -1) return
+
+    // Abort if the two items belong to different phases — cross-phase drag is not allowed
+    const fromPhase = watchedTasks?.[fromIndex]?.phase ?? fields[fromIndex]?.phase
+    const toPhase   = watchedTasks?.[toIndex]?.phase   ?? fields[toIndex]?.phase
+    if (fromPhase !== toPhase) return
+
+    // move() keeps react-hook-form state consistent; onSubmit stamps order from index
+    move(fromIndex, toIndex)
+  }
 
   const phaseGroups = PHASES.map((phase) => ({
     ...phase,
@@ -742,39 +830,52 @@ export default function TemplateEditorPage() {
                     </div>
                   )}
 
-                  {/* Tasks grouped by phase */}
+                  {/* Tasks grouped by phase, each group is its own sortable context */}
                   {fields.length > 0 && (
-                    <div className="space-y-4">
-                      {phaseGroups.map((group) => (
-                        <div key={group.value} className="space-y-2">
-                          <PhaseHeader label={group.label} count={group.indices.length} />
-                          {group.indices.map((index) => (
-                            <TaskCard
-                              key={fields[index]?.id ?? index}
-                              index={index}
-                              register={register}
-                              errors={errors}
-                              remove={remove}
-                            />
-                          ))}
-                        </div>
-                      ))}
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <div className="space-y-4">
+                        {phaseGroups.map((group) => (
+                          <div key={group.value} className="space-y-2">
+                            <PhaseHeader label={group.label} count={group.indices.length} />
+                            {/* One SortableContext per phase — tasks cannot be dragged across phases */}
+                            <SortableContext
+                              items={group.indices.map((i) => fields[i].id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              {group.indices.map((index) => (
+                                <SortableTaskCard
+                                  key={fields[index].id}
+                                  fieldId={fields[index].id}
+                                  index={index}
+                                  register={register}
+                                  errors={errors}
+                                  remove={remove}
+                                />
+                              ))}
+                            </SortableContext>
+                          </div>
+                        ))}
 
-                      {/* Unassigned (safety net — shouldn't appear in normal use) */}
-                      {unassignedIndices.length > 0 && (
-                        <div className="space-y-2">
-                          {unassignedIndices.map((index) => (
-                            <TaskCard
-                              key={fields[index]?.id ?? index}
-                              index={index}
-                              register={register}
-                              errors={errors}
-                              remove={remove}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                        {/* Unassigned safety net — rendered without drag (shouldn't happen in normal use) */}
+                        {unassignedIndices.length > 0 && (
+                          <div className="space-y-2">
+                            {unassignedIndices.map((index) => (
+                              <TaskCard
+                                key={fields[index]?.id ?? index}
+                                index={index}
+                                register={register}
+                                errors={errors}
+                                remove={remove}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </DndContext>
                   )}
 
                   {/* Add task (bottom shortcut when list is non-empty) */}
