@@ -4,7 +4,7 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { Plus, X, ArrowLeft, ChevronRight } from 'lucide-react'
+import { Plus, X, ArrowLeft, ChevronRight, AlertCircle, RotateCcw } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import { getTemplate, createTemplate, updateTemplate } from '../../api/templates'
 import Input from '../../components/ui/Input'
@@ -132,6 +132,50 @@ function SkeletonEditor() {
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Query error state
+// ─────────────────────────────────────────────────────────────────────────────
+
+function QueryError({ onRetry }) {
+  return (
+    <div
+      className="rounded-[8px] border p-8 flex flex-col items-center justify-center text-center"
+      style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}
+      role="alert"
+      aria-live="assertive"
+    >
+      <div
+        className="flex h-10 w-10 items-center justify-center rounded-full mb-4"
+        style={{ backgroundColor: 'rgba(220,38,38,0.08)' }}
+      >
+        <AlertCircle size={18} className="text-danger" aria-hidden="true" />
+      </div>
+      <p
+        className="text-[14px] font-medium mb-1"
+        style={{ color: 'var(--text-primary)' }}
+      >
+        Failed to load template
+      </p>
+      <p
+        className="text-[13px] mb-5 max-w-[260px]"
+        style={{ color: 'var(--text-secondary)' }}
+      >
+        Something went wrong while fetching this template. Check your connection and try again.
+      </p>
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        onClick={onRetry}
+        className="gap-1.5"
+      >
+        <RotateCcw size={13} aria-hidden="true" />
+        Try again
+      </Button>
     </div>
   )
 }
@@ -362,27 +406,28 @@ export default function TemplateEditorPage() {
   })
 
   // ── Query — edit mode only ─────────────────────────────────────────────────
-  const { isLoading: queryLoading } = useQuery({
+  const {
+    data:      templateData,
+    isLoading: queryLoading,
+    isError:   queryError,
+    refetch,
+  } = useQuery({
     queryKey: ['template', id],
-    queryFn:  () => getTemplate(id).then((r) => r.data),
+    queryFn:  () => getTemplate(id).then((r) => r.data.data),
     enabled:  isEdit,
-    onSuccess: (data) => {
-      const t = data?.template ?? data
-      reset({
-        name:          t.name          ?? '',
-        description:   t.description   ?? '',
-        templateTasks: (t.templateTasks ?? []).map((task) => ({
-          title:          task.title          ?? '',
-          description:    task.description    ?? '',
-          assigneeRole:   task.assigneeRole   ?? 'hr',
-          phase:          task.phase          ?? 'pre_start',
-          dueOffsetDays:  task.dueOffsetDays  ?? 0,
-          order:          task.order          ?? 0,
-          requiresUpload: task.requiresUpload ?? false,
-        })),
-      })
-    },
   })
+
+  // Pre-fill form once data arrives — useEffect so reset() only fires when
+  // templateData changes, not on every render
+  useEffect(() => {
+    if (templateData) {
+      reset({
+        name:          templateData.name,
+        description:   templateData.description ?? '',
+        templateTasks: templateData.tasks,
+      })
+    }
+  }, [templateData, reset])
 
   // ── Mutations ──────────────────────────────────────────────────────────────
   const createMutation = useMutation({
@@ -411,8 +456,9 @@ export default function TemplateEditorPage() {
     else        createMutation.mutate(payload)
   }
 
-  const isSaving = isSubmitting || createMutation.isPending || updateMutation.isPending
+  const isSaving  = isSubmitting || createMutation.isPending || updateMutation.isPending
   const isLoading = isEdit && queryLoading
+  const isError   = isEdit && queryError
 
   // ── Group tasks by phase for display ──────────────────────────────────────
   const watchedTasks = watch('templateTasks')
@@ -556,6 +602,8 @@ export default function TemplateEditorPage() {
 
             {isLoading ? (
               <SkeletonEditor />
+            ) : isError ? (
+              <QueryError onRetry={refetch} />
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
 

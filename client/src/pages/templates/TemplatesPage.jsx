@@ -178,6 +178,7 @@ function TemplateRow({
   template,
   filter,
   isAdmin,
+  onPreview,
   onEdit,
   onClone,
   onArchive,
@@ -204,12 +205,17 @@ function TemplateRow({
           <FileText size={15} className="text-primary" aria-hidden="true" />
         </div>
         <div className="min-w-0">
-          <p
-            className="text-[14px] font-medium truncate"
+          <button
+            onClick={onPreview}
+            aria-label={`Preview ${template.name}`}
+            className="text-[14px] font-medium truncate text-left cursor-pointer
+              hover:underline transition-colors
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1
+              rounded-[2px]"
             style={{ color: 'var(--text-primary)' }}
           >
             {template.name}
-          </p>
+          </button>
           <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
             {taskCount === 1 ? '1 task' : `${taskCount} tasks`}
             {updatedLabel ? ` · Updated ${updatedLabel}` : ''}
@@ -523,11 +529,12 @@ export default function TemplatesPage() {
             {!isLoading && !isError && templates.length > 0 && (
               <div role="list" aria-label="Templates">
                 {templates.map((template) => (
-                  <div key={template._id} role="listitem">
+                  <div key={template.id} role="listitem">
                     <TemplateRow
                       template={template}
                       filter={filter}
                       isAdmin={isAdmin}
+                      onPreview={() => navigate(`/templates/${template.id}/preview`)}
                       onEdit={() => navigate(`/templates/${template.id}`)}
                       onClone={() => cloneMutation.mutate(template.id)}
                       onArchive={() => archiveMutation.mutate(template.id)}

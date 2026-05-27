@@ -36,8 +36,6 @@ export async function listTemplates(req, res){
             taskCount: t.taskCount
         }));
 
-        console.log("Results:", result);
-
         res.status(200).json({data: result});
 
     }catch (error) {

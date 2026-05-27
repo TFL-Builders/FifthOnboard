@@ -9,6 +9,7 @@ import ProtectedRoute from './ProtectedRoute'
 import PublicRoute from './PublicRoute'
 import TemplatesPage from '../pages/templates/TemplatesPage'
 import TemplateEditorPage from '../pages/templates/TemplateEditorPage'
+import TemplatePreviewPage from '../pages/templates/TemplatePreviewPage'
 
 function DashboardPlaceholder() {
   return (
@@ -58,6 +59,14 @@ export default function AppRouter() {
           element={
             <ProtectedRoute>
               <TemplateEditorPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/templates/:id/preview"
+          element={
+            <ProtectedRoute>
+              <TemplatePreviewPage />
             </ProtectedRoute>
           }
         />
