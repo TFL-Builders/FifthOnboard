@@ -71,6 +71,10 @@ const templateSchema = new mongoose.Schema({
     deletedAt: {
         type: Date,
         default: null
+    },
+    taskCount: {
+        type: Number,
+        default: 0
     }
 }, {timestamps: true});
 
@@ -89,6 +93,8 @@ templateSchema.pre(/^find/, function(next) {
         this.where({ isArchived: false, deletedAt: null });
     }
     next();
+
+template
 });
 
 const Template = mongoose.model('Template', templateSchema);

@@ -37,7 +37,8 @@ const onboardingSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'completed', 'archived', 'cancelled']
+        enum: ['active', 'completed', 'archived', 'cancelled'],
+        default: 'active'
     },
     progressPercent: {
         type: Number,
