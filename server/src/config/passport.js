@@ -36,7 +36,7 @@ passport.use(new GoogleStrategy({
                     email,
                     googleId: profile.id,
                     name,
-                    role: 'hr',
+                    role: 'admin',
                     organizationId:  null,
                     status: "pending"
                 })

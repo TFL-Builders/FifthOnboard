@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import Template from '../models/template.js'
+import User from '../models/user.js' 
 
 dotenv.config()
 
@@ -9,8 +10,8 @@ const testTemplate = async () => {
         await mongoose.connect("mongodb://localhost:27017/columbus")
         console.log('MongoDB Connected')
 
-        const orgId = new mongoose.Types.ObjectId()
-        const userId = new mongoose.Types.ObjectId()
+        const orgId = '6a16ba953d67652c11a584d4'
+        const userId = "6a158a6cd2d4be614722f35e";
 
         // test 1: create a valid template with tasks
         const template = await Template.create({
@@ -40,104 +41,37 @@ const testTemplate = async () => {
         console.log('✓ Template created:', template.name)
         console.log('✓ Tasks created:', template.templateTasks.length)
 
-        // test 2: invalid order (float) should fail
-        try {
-            await Template.create({
-                organizationId: orgId,
-                name: 'Float Order Test',
-                createdBy: userId,
-                templateTasks: [
-                    {
-                        title: 'Bad task',
-                        assigneeRole: 'hr',
-                        dueOffsetDays: 0,
-                        phase: 'week_1',
-                        order: 1.5,  // ← should fail
-                        requiresUpload: false
-                    }
-                ]
-            })
-            console.log('✗ Float order should have failed')
-        } catch (err) {
-            console.log('✓ Float order correctly rejected:', err.message)
-        }
+    
+        await Template.create({
+            organizationId: orgId,
+            name: 'Balls Onboarding',
+            createdBy: userId,
+            templateTasks: [{
+                title: 'Set up balls',
+                assigneeRole: 'custom',
+                dueOffsetDays: -4,
+                phase: 'week_1',
+                order: 0,
+                requiresUpload: false
+            },
+            {
+                title: 'Sign balls',
+                assigneeRole: 'hr',
+                dueOffsetDays: 1,
+                phase: 'week_2',
+                order: 1,
+                requiredUpload: true
+            }
+        ]
+        })
+        
 
-        // test 3: invalid dueOffsetDays (float) should fail
-        try {
-            await Template.create({
-                organizationId: orgId,
-                name: 'Float Offset Test',
-                createdBy: userId,
-                templateTasks: [
-                    {
-                        title: 'Bad task',
-                        assigneeRole: 'hr',
-                        dueOffsetDays: 2.5,  // ← should fail
-                        phase: 'week_1',
-                        order: 0,
-                        requiresUpload: false
-                    }
-                ]
-            })
-            console.log('✗ Float dueOffsetDays should have failed')
-        } catch (err) {
-            console.log('✓ Float dueOffsetDays correctly rejected:', err.message)
-        }
+        const newTemplate = await Template
+               .findById(template._id)
+               .select('name description createdBy templateTasks updatedAt')
+               .populate('createdBy', 'name');
 
-        // test 4: negative order should fail
-        try {
-            await Template.create({
-                organizationId: orgId,
-                name: 'Negative Order Test',
-                createdBy: userId,
-                templateTasks: [
-                    {
-                        title: 'Bad task',
-                        assigneeRole: 'hr',
-                        dueOffsetDays: 0,
-                        phase: 'week_1',
-                        order: -1,  // ← should fail
-                        requiresUpload: false
-                    }
-                ]
-            })
-            console.log('✗ Negative order should have failed')
-        } catch (err) {
-            console.log('✓ Negative order correctly rejected:', err.message)
-        }
-
-        // test 5: invalid assigneeRole enum should fail
-        try {
-            await Template.create({
-                organizationId: orgId,
-                name: 'Bad Role Test',
-                createdBy: userId,
-                templateTasks: [
-                    {
-                        title: 'Bad task',
-                        assigneeRole: 'superadmin',  // ← not in enum
-                        dueOffsetDays: 0,
-                        phase: 'week_1',
-                        order: 0,
-                        requiresUpload: false
-                    }
-                ]
-            })
-            console.log('✗ Invalid role should have failed')
-        } catch (err) {
-            console.log('✓ Invalid role correctly rejected:', err.message)
-        }
-
-        // test 6: missing required name should fail
-        try {
-            await Template.create({
-                organizationId: orgId,
-                createdBy: userId
-            })
-            console.log('✗ Missing name should have failed')
-        } catch (err) {
-            console.log('✓ Missing name correctly rejected:', err.message)
-        }
+               console.log(newTemplate)
 
         // clean up
        

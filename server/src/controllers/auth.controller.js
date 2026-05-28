@@ -38,7 +38,7 @@ export async function signupUser(req, res){
                 email,
                 passwordHash: password,
                 name: name,
-                role: invite ? invite.role : 'hr',
+                role: invite ? invite.role : 'admin',
                 organizationId,
                 status: "active",
             })
@@ -94,6 +94,7 @@ export async function loginUser(req, res){
                 const accessToken = generateAccessToken(user);
                 const refreshToken = generateRefreshToken(user);
                 await storeRefreshToken(user._id, refreshToken);
+                console.log(user);
                 res.cookie('refreshToken', refreshToken,{
                     httpOnly: true,
                     secure: false,    
