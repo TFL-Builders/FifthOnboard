@@ -76,6 +76,10 @@ const templateSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
+    taskCount: {
+        type: Number,
+        default: 0
+    }
 }, {timestamps: true});
 
 templateSchema.index({organizationId: 1, isArchived: 1});
@@ -100,6 +104,9 @@ templateSchema.pre('save', async function() {
             trim: true
         })
     }
+    next();
+
+template
 });
 
 // so it shows up in toJSON/toObject output
