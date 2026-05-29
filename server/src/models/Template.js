@@ -75,10 +75,6 @@ const templateSchema = new mongoose.Schema({
     deletedAt: {
         type: Date,
         default: null
-    },
-    taskCount: {
-        type: Number,
-        default: 0
     }
 }, {timestamps: true});
 

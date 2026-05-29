@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { hashToken } from "../config/jwt.js";
 import Onboarding from '../models/Onboarding.js';
 
 export async function validateHireToken(req, res, next) {
@@ -10,9 +10,9 @@ export async function validateHireToken(req, res, next) {
             return res.status(400).json({message: 'Portal token is required.'});
         }
 
-        const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+        const tokenHash = hashToken(token);
 
-        const onboarding = await Onboarding.findOne({hirePortalTokenHash: tokenHash}).populate('organizationId', 'name');
+        const onboarding = await Onboarding.findOne({hirePortalTokenHash: tokenHash, deletedAt: null}).populate('organizationId', 'name');
 
         if (!onboarding) {
             console.log('Portal not found.')
