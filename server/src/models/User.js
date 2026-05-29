@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcryptjs from "bcryptjs";
+import { DEPARTMENTS, USER_ROLES } from "../config/constants.js";
 
 const salt_rounds = 10;
 const userSchema = new mongoose.Schema({
@@ -33,7 +34,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'hr', 'manager', 'employee', 'task_owner']
+        enum: USER_ROLES
     },
     avatarColor: {
         type: String
@@ -55,6 +56,11 @@ const userSchema = new mongoose.Schema({
         enum: ['dark', 'light', null],
         default: null,
         required: false
+    },
+    department: {
+        type: String,
+        enum: DEPARTMENTS,
+        default: null
     },
     deletedAt: {
         type: Date,

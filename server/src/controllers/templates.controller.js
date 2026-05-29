@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Template from "../models/Template.js";
 import slugify from "slugify";
-import engineeringSeedTemplate from "../config/constants.js";
+import { engineeringSeedTemplate } from "../config/constants.js";
 
 function daysAgo(date) {
     const ms = Date.now() - new Date(date).getTime();
@@ -12,6 +12,7 @@ function daysAgo(date) {
 export async function listTemplates(req, res){
     const filter = req.query.filter;
     const orgId = req.organizationId;
+    const onboarding = req.query.onboarding;
 
     console.log("req.user:", req.user);
     console.log("req.organizationId:", req.organizationId);
@@ -20,6 +21,15 @@ export async function listTemplates(req, res){
     let templates = [];
     
     try{
+         if (onboarding === "true") {
+            const templates = await Template.find({
+                organizationId: orgId,
+                isArchived: false,
+                deletedAt: null
+            }).select('_id name');
+            return res.status(200).json({ data: templates });
+        }
+
         if (!filter || filter === "active"){
            templates = await Template.find({ organizationId: orgId, isArchived: false, deletedAt: null }).select('_id name updatedAt templateTasks');
         }else if(filter === "archived"){
@@ -48,15 +58,26 @@ export async function listTemplates(req, res){
 export async function getTemplate(req, res){
     const templateId = req.params.id;
     const orgId = req.organizationId;
+    const departmentsOnly = req.query.departmentsOnly
 
     if (!mongoose.Types.ObjectId.isValid(templateId)) {
         console.log("error: Invalid template ID" )
         return res.status(400).json({ error: "Invalid template ID" });
     }
 
+    
     try{
         const templateData = await Template.findOne({organizationId: orgId, _id: templateId, deletedAt: null }).select('name description createdBy templateTasks updatedAt').populate('createdBy', 'name');
+        
         if (templateData){
+
+            if (departmentsOnly === "true") {
+                const departments = [...new Set(
+                    templateData.templateTasks.map(t => t.assigneeDepartment)
+                )];
+                return res.status(200).json({ data: { departments } });
+            }
+
             const template = {
                 id: templateData._id,
                 name: templateData.name,
@@ -65,6 +86,7 @@ export async function getTemplate(req, res){
                 tasks: templateData.templateTasks,
                 updatedAt: daysAgo(templateData.updatedAt)
             }
+            
             res.status(200).json({data: template});
         }else{
             console.log("error: Template not found" );

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import slugify from "slugify";
-
+import { DEPARTMENTS, PHASES } from "../config/constants.js";
 const templateTasksSchema = new mongoose.Schema({
     title: {
         type: String,
@@ -9,9 +9,9 @@ const templateTasksSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    assigneeRole: {
+    assigneeDepartment: {
         type: String,
-        enum: ['hr', 'manager', 'new_hire', 'it', 'finance', 'custom'],
+        enum: DEPARTMENTS,
         required: true
     },
     assigneeUserId: {
@@ -28,7 +28,7 @@ const templateTasksSchema = new mongoose.Schema({
     },
     phase: {
         type: String,
-        enum: ['pre_start', 'week_1', 'week_2', 'week_3_plus']
+        enum: PHASES
     },
     order: {
     type: Number,

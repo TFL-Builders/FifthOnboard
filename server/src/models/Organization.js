@@ -22,6 +22,16 @@ const organizationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    defaultDepartmentMap: {
+        type: Map,
+        of: mongoose.Schema.Types.ObjectId, 
+        default: {}
+    },
+    defaultManagerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
     deletedAt: {
         type: Date,
         default: null

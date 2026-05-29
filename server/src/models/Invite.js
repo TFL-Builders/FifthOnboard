@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { DEPARTMENTS, USER_ROLES } from "../config/constants.js";
 
 const inviteSchema = new mongoose.Schema({
     organizationId: {
@@ -14,7 +15,12 @@ const inviteSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'hr', 'manager', 'employee', 'task_owner']
+        enum: USER_ROLES
+    },
+    department: {
+        type: String,
+        enum: DEPARTMENTS,
+        default: null
     },
     token: {
         type: String,

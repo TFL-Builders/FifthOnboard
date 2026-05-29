@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { DEPARTMENTS, PHASES, TASK_STATUSES } from "../config/constants.js";
 
 const attachmentSchema = new mongoose.Schema({
     fileName:  {
@@ -53,20 +54,21 @@ const taskSchema = new mongoose.Schema({
         ref: 'User',
         default: null
     },
-    assigneeRole: {
+    assigneeDepartment: {
         type: String,
-        enum: ['hr', 'manager', 'new_hire', 'it', 'finance', 'custom']
+        enum: DEPARTMENTS
     },
     dueAt: {
         type: Date
     },
     phase: {
         type: String,
-        enum: ['pre_start', 'week_1', 'week_2', 'week_3_plus']
+        enum: PHASES
     },
     status: {
         type: String,
-        enum: ['pending', 'in_progress', 'done', 'blocked']
+        enum: TASK_STATUSES,
+        default: 'pending'
     },
     blockedReason: {
         type: String

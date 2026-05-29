@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ONBOARDING_STATUSES } from "../config/constants.js";
 
 const onboardingSchema = new mongoose.Schema({
     organizationId: {
@@ -11,6 +12,10 @@ const onboardingSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Template'
     },
+    templateName: {
+        type: String,
+        default: null
+    },
     newHireName: {
         type: String,
         required: true
@@ -18,6 +23,7 @@ const onboardingSchema = new mongoose.Schema({
     newHireEmail: {
         type: String,
         required: true,
+        unique: true,
         lowercase: true,
         trim: true
     },
@@ -28,7 +34,7 @@ const onboardingSchema = new mongoose.Schema({
     managerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false
     },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
@@ -37,10 +43,22 @@ const onboardingSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'completed', 'archived', 'cancelled']
+        enum: ONBOARDING_STATUSES,
+        default: 'active'
+    },
+    warnings: {
+        hasUnassignedTasks: {
+            type: Boolean,
+            default: false
+        },
+        hasNoManager: {
+            type: Boolean,
+            default: false
+        }
     },
     progressPercent: {
         type: Number,
+        default: 0,
         min: 0,
         max: 100
     },
