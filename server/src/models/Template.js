@@ -100,9 +100,6 @@ templateSchema.pre('save', async function() {
             trim: true
         })
     }
-    next();
-
-template
 });
 
 // so it shows up in toJSON/toObject output
