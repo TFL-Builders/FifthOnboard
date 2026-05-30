@@ -29,8 +29,8 @@ export async function sendWelcomeEmail(email, organizationName, inviteLink){
             to: email,
             subject: `Welcome to ${organizationName}`,
             html: `<h2>You've been invited!</h2>
-                <p>You have been added to ${organizationName} on Columbus. Click the link below to set up your account and get started.</p>
-                <a href="${inviteLink}">Accept Invitation & Set Up Account</a>
+                <p>You have been added to ${organizationName} on Columbus. Click the link below to start your onboarding.</p>
+                <a href="${inviteLink}">Accept Invitation & Start Onboarding.</a>
                 <p>If you weren't expecting this invitation, you can safely ignore this email.</p>`
         });
         console.log('invite link for new hire: ', inviteLink);

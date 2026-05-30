@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { schemas as authSchemas } from "../schemas/auth.schemas.js";
 import { schemas as templateSchemas } from "../schemas/template.schemas.js";
+import { schemas as hireSchemas } from '../schemas/hire.schemas.js';
 
 const schemas = {
   ...authSchemas,
-  ...templateSchemas
+  ...templateSchemas,
+  ...hireSchemas
 }
 
 export function validate(schemaName) {

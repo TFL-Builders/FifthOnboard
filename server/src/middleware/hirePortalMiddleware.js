@@ -11,7 +11,6 @@ export async function validateHireToken(req, res, next) {
         }
 
         const tokenHash = hashToken(token);
-
         const onboarding = await Onboarding.findOne({hirePortalTokenHash: tokenHash, deletedAt: null}).populate('organizationId', 'name');
 
         if (!onboarding) {
