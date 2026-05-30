@@ -7,6 +7,7 @@ import Task from "../models/Task.js";
 import Organization from "../models/Organization.js";
 import Comment from "../models/Comment.js";
 import { DEPARTMENTS, ONBOARDING_STATUSES, TASK_STATUSES } from "../config/constants.js";
+import { organizationGuard } from "../middleware/organizationGuard.js";
 
 export async function createOnboarding(req, res){
     
@@ -392,6 +393,37 @@ export async function getOnboardingTasks(req, res){
     const onboardingId = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(onboardingId)) {
         return res.status(400).json({ error: "Invalid onboarding ID" });
+    }
+
+    if(req.query.recentlyCompleted === "true"){
+        const recentFilter = { organizationId: orgId, status: "done"}
+        if(req.user.role === "manager"){
+            const managerId = req.user.userId;
+            const managerOnboardings = await Onboarding.find({organizationId: orgId, managerId}).select('_id')
+            recentFilter.onboardingId = {$in: managerOnboardings.map(o => o._id)};
+        }
+
+        const recentTaks = Tasks.find(recentFilter).sort({ completedAt: -1 })
+        .limit(10)
+        .populate('onboardingId', 'newHireName')
+        .populate('assigneeUserId', 'name avatarColor')
+        .populate('completedBy', 'name avatarColor')
+        .select('title status completedAt completedBy assigneeUserId onboardingId');
+
+        
+        return res.status(200).json({
+            data: recentTasks.map(t => ({
+                id: t._id,
+                title: t.title,
+                completedAt: t.completedAt,
+                completedBy: {
+                    name: t.completedBy?.name ?? "Unknown",
+                    avatarColor: t.completedBy?.avatarColor ?? "#3B5BDB"
+                },
+                onboardingId: t.onboardingId?._id,
+                newHireName: t.onboardingId?.newHireName ?? "Unknown"
+            }))
+        });
     }
 
     let taskFilter = { onboardingId, organizationId: orgId }

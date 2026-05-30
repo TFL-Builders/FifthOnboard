@@ -20,6 +20,10 @@ const onboardingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    job: {
+        type: String,
+        default: null
+    },
     newHireEmail: {
         type: String,
         required: true,
