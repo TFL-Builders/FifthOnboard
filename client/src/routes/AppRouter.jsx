@@ -10,6 +10,10 @@ import PublicRoute from './PublicRoute'
 import TemplatesPage from '../pages/templates/TemplatesPage'
 import TemplateEditorPage from '../pages/templates/TemplateEditorPage'
 import TemplatePreviewPage from '../pages/templates/TemplatePreviewPage'
+import OnboardingsPage from '../pages/onboardings/OnboardingsPage'
+import OnboardingWizardPage from '../pages/onboardings/OnboardingWizardPage'
+import OnboardingDetailPage from '../pages/onboardings/OnboardingDetailPage'
+import OnboardingEditPage from '../pages/onboardings/OnboardingEditPage'
 
 function DashboardPlaceholder() {
   return (
@@ -78,6 +82,12 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+
+        {/* onboardings */}
+        <Route path="/onboardings" element={<ProtectedRoute><OnboardingsPage /></ProtectedRoute>} />
+        <Route path="/onboardings/new" element={<ProtectedRoute><OnboardingWizardPage /></ProtectedRoute>} />
+        <Route path="/onboardings/:id" element={<ProtectedRoute><OnboardingDetailPage /></ProtectedRoute>} />
+        <Route path="/onboardings/:id/edit" element={<ProtectedRoute><OnboardingEditPage /></ProtectedRoute>} />
 
         {/* fallback routes */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

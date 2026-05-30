@@ -17,13 +17,22 @@ const PHASE_LABELS = {
   week_3_plus: 'Week 3+',
 }
 
-const ROLE_CONFIG = {
-  hr:       { label: 'HR',       bg: 'rgba(14,165,233,0.12)',  color: '#0EA5E9' },
-  manager:  { label: 'Manager',  bg: 'rgba(217,119,6,0.12)',   color: '#D97706' },
-  new_hire: { label: 'New Hire', bg: 'rgba(22,163,74,0.12)',   color: '#16A34A' },
-  it:       { label: 'IT',       bg: 'rgba(59,91,219,0.12)',   color: '#3B5BDB' },
-  finance:  { label: 'Finance',  bg: 'rgba(217,119,6,0.12)',   color: '#D97706' },
-  custom:   { label: 'Custom',   bg: 'rgba(71,85,105,0.12)',   color: '#475569' },
+const DEPT_LABELS = {
+  hr:       'HR',
+  manager:  'Manager',
+  new_hire: 'New Hire',
+  it:       'IT',
+  finance:  'Finance',
+  custom:   'Custom',
+}
+
+const DEPT_CONFIG = {
+  hr:       { bg: 'rgba(14,165,233,0.12)',  color: '#0EA5E9' },
+  manager:  { bg: 'rgba(217,119,6,0.12)',   color: '#D97706' },
+  new_hire: { bg: 'rgba(22,163,74,0.12)',   color: '#16A34A' },
+  it:       { bg: 'rgba(59,91,219,0.12)',   color: '#3B5BDB' },
+  finance:  { bg: 'rgba(217,119,6,0.12)',   color: '#D97706' },
+  custom:   { bg: 'rgba(71,85,105,0.12)',   color: '#475569' },
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -159,7 +168,9 @@ function Chip({ bg, color, children }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function TaskCard({ task }) {
-  const role = ROLE_CONFIG[task.assigneeRole] ?? ROLE_CONFIG.custom
+  const dept    = task.assigneeDepartment ?? 'custom'
+  const config  = DEPT_CONFIG[dept] ?? DEPT_CONFIG.custom
+  const role    = { label: DEPT_LABELS[dept] ?? 'Custom', ...config }
 
   return (
     <div

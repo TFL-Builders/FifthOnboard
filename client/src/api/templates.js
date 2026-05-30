@@ -35,3 +35,11 @@ export const deleteTemplate = (id) =>
 // GET /templates/seed — returns the unwrapped seed template object
 export const getSeedTemplate = () =>
   api.get('/templates/seed').then((r) => r.data.data)
+
+// GET /templates?onboarding=true
+export const getTemplatesForWizard = () =>
+  api.get('/templates?onboarding=true')
+
+// GET /templates/:id?departmentsOnly=true
+export const getTemplateDepartments = (id) =>
+  api.get(`/templates/${id}?departmentsOnly=true`).then((r) => r.data.data.departments)
