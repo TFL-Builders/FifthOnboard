@@ -22,7 +22,6 @@ const AVATAR_COLORS = ['#F87171', '#FB923C', '#FBBF24', '#34D399', '#60A5FA', '#
  
  
 // ─── Static Data Definitions ──────────────────────────────────────────────────
- 
 const ORG_DEFS = [
   { name: 'Acme Corp',       accentColor: '#6366F1', slug: 'acme-corp'      },
   { name: 'Globex Inc',      accentColor: '#10B981', slug: 'globex-inc'     },
@@ -31,6 +30,7 @@ const ORG_DEFS = [
   { name: 'Hooli Solutions', accentColor: '#8B5CF6', slug: 'hooli-solutions' }
 ];
  
+
 // One set of users per org — seeded with deterministic emails
 const USER_DEFS = [
   { role: 'admin',      name: 'Alex Admin',    suffix: 'alex.admin'    },
@@ -101,7 +101,7 @@ const NEW_HIRE_DEFS = [
   { name: 'Drew Callahan',   email: 'drew.callahan',  startOffsetDays: -30, status: 'archived',  progress: 40  },
   { name: 'Avery Simmons',   email: 'avery.simmons',  startOffsetDays: -20, status: 'cancelled', progress: 10  }
 ];
- 
+
 const COMMENT_BODIES = [
   'Just finished this — all good!',
   'Blocked waiting on IT to provision access.',
@@ -151,7 +151,7 @@ async function seed() {
   for (const org of orgs) {
     const orgUsers = await User.insertMany(USER_DEFS.map(u => ({
       organizationId:  org._id,
-      email:           `${u.suffix}@${org.slug}.dev`,
+      email:           `${u.suffix}@mail.com`,
       passwordHash,
       name:            `${u.name}`,
       role:            u.role,
