@@ -14,6 +14,6 @@ const addComment = z.object({
 })
 
 export const schemas = {
-    updateTask,
-    addComment
+    updateTask: updateTask,
+    addComment: addComment
 }

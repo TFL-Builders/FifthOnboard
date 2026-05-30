@@ -8,8 +8,8 @@ const objectId = z.string().refine(
 );
 
 const departmentMapSchema = z.record(
-  z.enum(DEPARTMENTS),
-  objectId
+    z.string(),
+    objectId
 );
 
 const basedOnboardingSchema = z.object({

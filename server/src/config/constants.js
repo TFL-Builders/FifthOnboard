@@ -199,6 +199,8 @@ export const engineeringSeedTemplate = {
 
 export const DEPARTMENTS = ["hr", "manager", "it", "finance", "custom", 'new_hire'];
 
+export const ASSIGNEE_DEPARTMENTS = ["hr", "manager", "it", "finance", "custom"];
+
 export const ONBOARDING_STATUSES = ["active", "completed", "archived", "cancelled"];
 
 export const TASK_STATUSES = ["pending", "in_progress", "done", "blocked"];

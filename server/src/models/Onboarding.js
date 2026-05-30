@@ -23,7 +23,6 @@ const onboardingSchema = new mongoose.Schema({
     newHireEmail: {
         type: String,
         required: true,
-        unique: true,
         lowercase: true,
         trim: true
     },

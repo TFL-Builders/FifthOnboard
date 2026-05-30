@@ -48,8 +48,8 @@ export async function createOnboarding(req, res){
         const resolvedManagerId = managerId ?? orgDef.defaultManagerId ?? null;
         const hasNoManager = !resolvedManagerId;
         const hasUnassignedTasks = templateDepartments.some(
-            department => !finalDepartmentMap[department]
-        );
+            department => department !== "manager" && !finalDepartmentMap[department]
+        ) || (templateDepartments.includes("manager") && !resolvedManagerId);
 
         const warnings = {
             hasNoManager,
@@ -73,6 +73,9 @@ export async function createOnboarding(req, res){
             hirePortalTokenHash: tokenHash,
             warnings
         })
+
+        console.log("resolvedManagerId:", resolvedManagerId);
+        console.log("finalDepartmentMap:", finalDepartmentMap);
 
         
         const taskDocs = 
@@ -161,7 +164,7 @@ export async function listOnboardings(req, res){
             newHireName: o.newHireName,
             templateName: o.templateName,
             manager: o.managerId?.name ?? "Unassigned",
-            managerId: o.managerId ?? null,
+            managerId: o.managerId._id ?? null,
             progressPercent: o.progressPercent,
             status: o.status,
             startDate: o.startDate,

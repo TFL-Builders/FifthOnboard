@@ -2,7 +2,7 @@ import { z } from "zod";
 import { schemas as authSchemas } from "../schemas/auth.schemas.js";
 import { schemas as templateSchemas } from "../schemas/template.schemas.js";
 import { schemas as onboardingSchemas } from "../schemas/onboarding.schemas.js"
-import { schemas as taskSchemas } from "../schemas/task.schema.js"
+import { schemas as taskSchemas } from "../schemas/task.schemas.js"
 
 const schemas = {
   ...authSchemas,
@@ -17,7 +17,7 @@ export function validate(schemaName) {
 
     if (!result.success) {
       return res.status(400).json({ 
-        errors: result.error.errors.map(e => ({
+        errors: result.error.issues.map(e => ({
           field: e.path[0],
           message: e.message
         }))
