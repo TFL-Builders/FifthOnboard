@@ -75,7 +75,7 @@ const templateSchema = new mongoose.Schema({
     deletedAt: {
         type: Date,
         default: null
-    },
+    }
 }, {timestamps: true});
 
 templateSchema.index({organizationId: 1, isArchived: 1});

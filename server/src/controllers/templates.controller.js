@@ -184,7 +184,7 @@ export async function updateTemplate(req, res){
             { _id: templateId, organizationId: orgId, deletedAt: null },
             { $set: { name, slug, description, templateTasks } },
             { new: true, runValidators: true }
-        ).select('name description createdBy templateTasks updatedAt').populate('createdBy', 'name');;
+        ).select('name description createdBy templateTasks updatedAt').populate('createdBy', 'name');
 
         if (!updated){
             console.log("Error: Template not found");

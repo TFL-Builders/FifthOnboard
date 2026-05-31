@@ -83,7 +83,7 @@ const onboardingSchema = new mongoose.Schema({
 
 onboardingSchema.pre('save', async function(){
     if (this.isNew && this.startDate) {
-        this.hirePortalExpiresAt = new Date(this.startDate.getTime() + 90 * 24 * 60 * 60 * 1000)
+        this.hirePortalExpiresAt = new Date(this.startDate.getTime() + 90 * 24 * 60 * 60 * 1000) //90 days
     }
 })
 

@@ -5,7 +5,7 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 })
-
+console.log(import.meta.env.VITE_API_URL);
 // Attach access token to every request
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken
