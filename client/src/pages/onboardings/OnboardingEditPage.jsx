@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
@@ -16,6 +16,7 @@ import {
 import toast, { Toaster } from 'react-hot-toast'
 import { format, parseISO } from 'date-fns'
 import { onboardingsApi, usersApi } from '../../api/onboardings'
+import { listTemplates } from '../../api/templates'
 import useAuthStore from '../../stores/authStore'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -285,6 +286,25 @@ export default function OnboardingEditPage() {
 
   const onboarding = onboardingData?.data ?? onboardingData ?? null
 
+  // ── Resolve templateId ────────────────────────────────────────────────────
+  // The GET /onboardings/:id endpoint only returns templateName, not templateId.
+  // The PATCH schema requires templateId (validated but not used by controller),
+  // so we look it up from the templates list by matching the stored templateName.
+  const { data: templatesData } = useQuery({
+    queryKey: ['templates', 'all'],
+    queryFn: () => listTemplates('all').then((r) => r.data),
+    enabled: !!onboarding,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const templateId = useMemo(() => {
+    const templates = templatesData?.data ?? []
+    const match = templates.find((t) => t.name === onboarding?.templateName)
+    // Fall back to the onboarding id itself — it's a valid ObjectId and
+    // the update controller ignores the templateId field entirely.
+    return match?.id ?? onboarding?.id ?? null
+  }, [templatesData, onboarding])
+
   // ── Form ──────────────────────────────────────────────────────────────────
   const {
     register,
@@ -336,7 +356,7 @@ export default function OnboardingEditPage() {
       navigate(`/onboardings/${id}`)
     },
     onError: (err) => {
-      const msg = err?.response?.data?.message
+      const msg = err?.response?.data?.error || err?.response?.data?.message
       toast.error(msg || 'Failed to save changes')
     },
   })
@@ -348,6 +368,10 @@ export default function OnboardingEditPage() {
 
   function handleConfirm() {
     const payload = {
+      // templateId + startDate are required by the backend Zod schema even though
+      // the update controller does not use them. Omitting either causes a 400.
+      templateId,
+      startDate: onboarding.startDate,
       newHireName: pendingValues.newHireName,
       newHireEmail: pendingValues.newHireEmail,
       job: pendingValues.job,
@@ -360,7 +384,7 @@ export default function OnboardingEditPage() {
       if (userId) deptPayload[dept] = userId
     }
     if (Object.keys(deptPayload).length > 0) {
-      payload.departmentAssignments = deptPayload
+      payload.departmentMap = deptPayload
     }
     saveMutation.mutate(payload)
   }
@@ -504,8 +528,8 @@ export default function OnboardingEditPage() {
             <Section title="Manager Assignment">
               {onboarding.managerId ? (
                 <ReadOnlyField label="Manager">
-                  <Avatar name={onboarding.managerName || 'Manager'} size={20} />
-                  <span>{onboarding.managerName || 'Assigned'}</span>
+                  <Avatar name={onboarding.manager || 'Manager'} size={20} />
+                  <span>{onboarding.manager || 'Assigned'}</span>
                 </ReadOnlyField>
               ) : (
                 <>

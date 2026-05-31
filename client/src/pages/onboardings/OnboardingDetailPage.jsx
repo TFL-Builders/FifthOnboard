@@ -228,10 +228,11 @@ function TaskComments({ taskId }) {
         <div className="space-y-3 mb-3">
           {comments.map((c, i) => (
             <div key={c.id ?? i} className="flex gap-2">
-              <Avatar name={c.authorName || 'User'} size={22} />
+              {/* backend returns { author, authorColor } — NOT authorName */}
+              <Avatar name={c.author || 'User'} avatarColor={c.authorColor} size={22} />
               <div className="flex-1">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-[12px] font-medium" style={{ color: 'var(--text-primary)' }}>{c.authorName || 'User'}</span>
+                  <span className="text-[12px] font-medium" style={{ color: 'var(--text-primary)' }}>{c.author || 'User'}</span>
                   <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{fmtDate(c.createdAt)}</span>
                 </div>
                 <p className="text-[12px] mt-0.5 leading-relaxed" style={{ color: 'var(--text-primary)' }}>{c.body}</p>
@@ -282,7 +283,10 @@ function TaskCard({ task, isHR, userId, onboarding }) {
   const [pendingStatus, setPendingStatus] = useState(null)
   const [blockedReason, setBlockedReason] = useState('')
 
-  const canEdit = isHR || task.assigneeUserId === userId
+  // Backend returns `assignee` (name string) for pending/in_progress tasks,
+  // and does NOT return assigneeUserId. Server enforces its own permission check,
+  // so show the button for all users and let the 403 surface if needed.
+  const canEdit = true
 
   const updateMutation = useMutation({
     mutationFn: (data) => tasksApi.update(task.id, data),
@@ -420,14 +424,14 @@ function TaskCard({ task, isHR, userId, onboarding }) {
 
             {/* Meta row */}
             <div className="flex flex-wrap items-center gap-2 mt-2">
-              {/* Assignee */}
+              {/* Assignee — backend returns field as `assignee` (name string) */}
               <div className="flex items-center gap-1">
-                {task.assigneeName
-                  ? <Avatar name={task.assigneeName} size={18} />
+                {task.assignee
+                  ? <Avatar name={task.assignee} size={18} />
                   : <User size={13} style={{ color: 'var(--text-secondary)' }} aria-hidden="true" />
                 }
                 <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-                  {task.assigneeName || 'Unassigned'}
+                  {task.assignee || 'Unassigned'}
                 </span>
               </div>
 
@@ -594,7 +598,9 @@ export default function OnboardingDetailPage() {
     isLoading: tasksLoading,
   } = useQuery({
     queryKey: ['onboardingTasks', id],
-    queryFn: () => onboardingsApi.getTasks(id).then((r) => r.data),
+    // Pass all statuses explicitly — backend default excludes blocked tasks
+    queryFn: () =>
+      onboardingsApi.getTasks(id, { status: 'pending,in_progress,done,blocked' }).then((r) => r.data),
     enabled: !!id,
   })
 
@@ -605,9 +611,10 @@ export default function OnboardingDetailPage() {
     const seen = new Set()
     const opts = []
     for (const t of allTasks) {
-      if (t.assigneeName && !seen.has(t.assigneeName)) {
-        seen.add(t.assigneeName)
-        opts.push({ value: t.assigneeName, label: t.assigneeName })
+      // Backend returns assignee name as `assignee`, not `assigneeName`
+      if (t.assignee && !seen.has(t.assignee)) {
+        seen.add(t.assignee)
+        opts.push({ value: t.assignee, label: t.assignee })
       }
     }
     return opts
@@ -619,7 +626,7 @@ export default function OnboardingDetailPage() {
       if (showNewHireOnly && t.assigneeDepartment !== 'new_hire') return false
       if (statusFilters.size > 0 && !statusFilters.has(t.status)) return false
       if (deptFilter && t.assigneeDepartment !== deptFilter) return false
-      if (assigneeFilter && t.assigneeName !== assigneeFilter) return false
+      if (assigneeFilter && t.assignee !== assigneeFilter) return false
       return true
     })
   }, [allTasks, statusFilters, deptFilter, assigneeFilter, showNewHireOnly])
@@ -696,7 +703,7 @@ export default function OnboardingDetailPage() {
     )
   }
 
-  const progress = onboarding.progress ?? 0
+  const progress = onboarding.progressPercent ?? 0
 
   return (
     <>
@@ -811,7 +818,7 @@ export default function OnboardingDetailPage() {
               </div>
               <div className="flex items-center gap-1.5">
                 <User size={13} aria-hidden="true" />
-                <span>{onboarding.managerName || 'No manager'}</span>
+                <span>{onboarding.manager || 'No manager'}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CalendarDays size={13} aria-hidden="true" />

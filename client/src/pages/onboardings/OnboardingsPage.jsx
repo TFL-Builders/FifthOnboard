@@ -8,6 +8,7 @@ import {
   XCircle,
   AlertTriangle,
   Search,
+  SearchX,
   Users,
   CalendarDays,
   ChevronDown,
@@ -110,7 +111,7 @@ function isOverdue(tasks = []) {
 // useDebounced
 // ─────────────────────────────────────────────────────────────────────────────
 
-function useDebounced(value, delay = 300) {
+function useDebounced(value, delay = 400) {
   const [debounced, setDebounced] = useState(value)
   useEffect(() => {
     const t = setTimeout(() => setDebounced(value), delay)
@@ -310,7 +311,7 @@ function SelectField({ value, onChange, options, placeholder, icon: Icon }) {
 
 function OnboardingRow({ onboarding, isHR, onView, onEdit, onCancel }) {
   const [hovered, setHovered] = useState(false)
-  const progress = onboarding.progress ?? 0
+  const progress = onboarding.progressPercent ?? 0
   const pColor = PROGRESS_COLOR(progress)
   const overdue = isOverdue(onboarding.tasks)
   const noManager = onboarding.warnings?.hasNoManager
@@ -367,9 +368,9 @@ function OnboardingRow({ onboarding, isHR, onView, onEdit, onCancel }) {
       <td className="px-4 py-3">
         <span
           className="text-[13px]"
-          style={{ color: onboarding.managerName ? 'var(--text-primary)' : 'var(--text-secondary)' }}
+          style={{ color: onboarding.manager ? 'var(--text-primary)' : 'var(--text-secondary)' }}
         >
-          {onboarding.managerName || 'Unassigned'}
+          {onboarding.manager || 'Unassigned'}
         </span>
       </td>
 
@@ -458,15 +459,17 @@ function IconBtn({ onClick, label, children, danger = false }) {
 // Recently Completed Panel
 // ─────────────────────────────────────────────────────────────────────────────
 
-function RecentlyCompletedPanel({ onboardings = [] }) {
-  // Get most recent onboarding and fetch its recently-completed tasks
-  const mostRecentId = onboardings[0]?.id
-
+function RecentlyCompletedPanel({ anchorId }) {
+  // anchorId is a stable onboarding ID independent of any filter the user has
+  // applied to the main list. The backend ignores the :id param when
+  // recentlyCompleted=true and scans ALL org tasks — we just need any valid ID
+  // to satisfy the route. The static query key means this panel NEVER re-fetches
+  // when the user changes filters on the main table.
   const { data, isLoading } = useQuery({
-    queryKey: ['recentTasks', mostRecentId],
+    queryKey: ['recentTasks'],
     queryFn: () =>
-      onboardingsApi.getTasks(mostRecentId, { recentlyCompleted: true }).then((r) => r.data),
-    enabled: !!mostRecentId,
+      onboardingsApi.getTasks(anchorId, { recentlyCompleted: true }).then((r) => r.data),
+    enabled: !!anchorId,
   })
 
   const tasks = data?.data ?? []
@@ -505,30 +508,36 @@ function RecentlyCompletedPanel({ onboardings = [] }) {
 
       {!isLoading && tasks.length > 0 && (
         <div className="space-y-0">
-          {tasks.map((task, i) => (
-            <div
-              key={task.id ?? i}
-              className="flex items-start gap-2.5 py-3"
-              style={{ borderBottom: i < tasks.length - 1 ? '1px solid var(--border-color)' : 'none' }}
-            >
-              <Avatar
-                name={task.completedByName || task.assigneeName || '?'}
-                size={26}
-              />
-              <div className="min-w-0 flex-1">
-                <p className="text-[12px] font-medium leading-snug truncate" style={{ color: 'var(--text-primary)' }}>
-                  {task.title}
-                </p>
-                <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-                  in {task.onboardingName || onboardings[0]?.newHireName || 'Unknown'}'s onboarding
-                </p>
-                <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-                  Completed by {task.completedByName || task.assigneeName || 'Unknown'} ·{' '}
-                  {relativeTime(task.completedAt)}
-                </p>
+          {tasks.map((task, i) => {
+            // Backend returns: completedBy: { name, avatarColor }, newHireName
+            const completerName = task.completedBy?.name ?? 'Unknown'
+            const completerColor = task.completedBy?.avatarColor ?? undefined
+            return (
+              <div
+                key={task.id ?? i}
+                className="flex items-start gap-2.5 py-3"
+                style={{ borderBottom: i < tasks.length - 1 ? '1px solid var(--border-color)' : 'none' }}
+              >
+                <Avatar
+                  name={completerName}
+                  color={completerColor}
+                  size={26}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[12px] font-medium leading-snug truncate" style={{ color: 'var(--text-primary)' }}>
+                    {task.title}
+                  </p>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                    {/* backend returns newHireName — NOT onboardingName */}
+                    in {task.newHireName ?? 'Unknown'}'s onboarding
+                  </p>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                    Completed by {completerName} · {relativeTime(task.completedAt)}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
@@ -539,7 +548,30 @@ function RecentlyCompletedPanel({ onboardings = [] }) {
 // Empty state
 // ─────────────────────────────────────────────────────────────────────────────
 
-function EmptyState({ isHR, onNew }) {
+function EmptyState({ isHR, onNew, hasFilters = false }) {
+  if (hasFilters) {
+    return (
+      <tr>
+        <td colSpan={6}>
+          <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+            <div
+              className="flex h-12 w-12 items-center justify-center rounded-[10px] mb-4"
+              style={{ backgroundColor: 'rgba(100,116,139,0.08)' }}
+            >
+              <SearchX size={22} style={{ color: 'var(--text-secondary)' }} aria-hidden="true" />
+            </div>
+            <p className="text-[15px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+              No onboardings match your search
+            </p>
+            <p className="text-[14px] max-w-[280px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Try adjusting your filters or search term.
+            </p>
+          </div>
+        </td>
+      </tr>
+    )
+  }
+
   return (
     <tr>
       <td colSpan={6}>
@@ -614,6 +646,18 @@ export default function OnboardingsPage() {
   })
 
   const onboardings = data?.data ?? []
+
+  // ── Stable anchor for the RecentlyCompleted panel ─────────────────────────
+  // The panel needs a valid onboarding ID to construct the URL, but the backend
+  // ignores the :id and scans all org tasks when recentlyCompleted=true.
+  // We fetch with no filters (default = non-cancelled) so this is independent
+  // of whatever filter the user has set on the main list.
+  const { data: anchorData } = useQuery({
+    queryKey: ['onboardingsAnchor'],
+    queryFn: () => onboardingsApi.list({}).then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  })
+  const anchorId = anchorData?.data?.[0]?.id
 
   // ── Manager options (derived from data) ───────────────────────────────────
   const managerOptions = useMemo(() => {
@@ -813,7 +857,11 @@ export default function OnboardingsPage() {
                       Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}
 
                     {!isLoading && !isError && onboardings.length === 0 && (
-                      <EmptyState isHR={isHR} onNew={() => navigate('/onboardings/new')} />
+                      <EmptyState
+                        isHR={isHR}
+                        onNew={() => navigate('/onboardings/new')}
+                        hasFilters={!!hasActiveFilters}
+                      />
                     )}
 
                     {!isLoading && !isError && onboardings.map((o) => (
@@ -833,7 +881,7 @@ export default function OnboardingsPage() {
 
             {/* Right — recently completed (30%) */}
             <div className="w-[300px] shrink-0 hidden lg:block">
-              <RecentlyCompletedPanel onboardings={onboardings} />
+              <RecentlyCompletedPanel anchorId={anchorId} />
             </div>
           </div>
         </div>

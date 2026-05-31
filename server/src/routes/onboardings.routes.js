@@ -7,7 +7,6 @@ import {
     listOnboardings, 
     getOnboarding, 
     updateOnboarding, 
-    getOnboardingComments, 
     getOnboardingTasks, 
     createOnboarding,
     cancelOnboarding
@@ -20,7 +19,6 @@ const router = express.Router();
 router.get("/", ...managerprotect, listOnboardings);
 router.get("/:id", ...managerprotect, getOnboarding);
 router.get("/:id/tasks", ...managerprotect, getOnboardingTasks);
-router.get("/:id/comments", ...managerprotect, getOnboardingComments);
 router.post("/", ...protect, validate("createOnboarding"), createOnboarding);
 router.patch("/:id", ...protect, validate("updateOnboarding"), updateOnboarding);
 router.patch("/:id/cancel", ...protect, cancelOnboarding);

@@ -836,7 +836,7 @@ export default function OnboardingWizardPage() {
       }
     },
     onError: (err) => {
-      const msg = err?.response?.data?.message || 'Failed to create onboarding'
+      const msg = err?.response?.data?.error || err?.response?.data?.message || 'Failed to create onboarding'
       toast.error(msg)
     },
   })
@@ -849,12 +849,11 @@ export default function OnboardingWizardPage() {
   const handleStep4Submit = ({ startDate }) => {
     createMutation.mutate({
       newHireName: hireInfo.fullName,
-      email: hireInfo.workEmail,
+      newHireEmail: hireInfo.workEmail,
       job: hireInfo.jobTitle || undefined,
       templateId: selectedTemplate?.id,
       startDate,
-      managerName: managerName || undefined,
-      departmentAssignments: deptAssignments,
+      departmentMap: deptAssignments,
     })
   }
 

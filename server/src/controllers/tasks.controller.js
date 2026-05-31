@@ -132,3 +132,37 @@ export async function addComment(req, res) {
         res.status(500).json({ error: "Unable to add comment" });
     }
 }
+
+export async function getTaskComments(req, res) {
+    const { id: taskId } = req.params;
+    const orgId = req.organizationId;
+
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+        return res.status(400).json({ error: "Invalid task ID" });
+    }
+
+    try {
+        const comments = await Comment.find({
+            taskId,
+            organizationId: orgId,
+            deletedAt: null
+        })
+        .populate('authorId', 'name avatarColor')
+        .select('_id taskId authorId authorDisplayName body createdAt')
+        .sort({ createdAt: 1 }); // oldest first for thread order
+
+        const result = comments.map(c => ({
+            id: c._id,
+            author: c.authorId?.name ?? c.authorDisplayName ?? "Unknown",
+            authorColor: c.authorId?.avatarColor ?? "#3B5BDB",
+            body: c.body,
+            createdAt: c.createdAt
+        }));
+
+        res.status(200).json({ data: result });
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ error: "Unable to get task comments" });
+    }
+}

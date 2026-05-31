@@ -27,7 +27,7 @@ import Button from '../../components/ui/Button'
 // Constants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const ASSIGNEE_ROLES = [
+const ASSIGNEE_DEPARTMENTS = [
   { value: 'hr',       label: 'HR'       },
   { value: 'manager',  label: 'Manager'  },
   { value: 'new_hire', label: 'New hire' },
@@ -46,7 +46,7 @@ const PHASES = [
 const EMPTY_TASK = {
   title:          '',
   description:    '',
-  assigneeRole:   'hr',
+  assigneeDepartment:   'hr',
   phase:          'pre_start',
   dueOffsetDays:  0,
   order:          0,
@@ -60,7 +60,7 @@ const EMPTY_TASK = {
 const taskSchema = z.object({
   title:          z.string().min(1, 'Title is required'),
   description:    z.string().max(500).optional().or(z.literal('')),
-  assigneeRole:   z.enum(['hr', 'manager', 'new_hire', 'it', 'finance', 'custom']),
+  assigneeDepartment:   z.enum(['hr', 'manager', 'new_hire', 'it', 'finance', 'custom']),
   phase:          z.enum(['pre_start', 'week_1', 'week_2', 'week_3_plus']),
   dueOffsetDays:  z.coerce.number().int().default(0),
   order:          z.coerce.number().default(0),
@@ -307,9 +307,9 @@ function TaskCard({ index, register, errors, remove, dragHandleProps = null }) {
             id={`task-role-${index}`}
             className={`${fieldBase} h-[38px] px-3 cursor-pointer ${fieldBorder}`}
             style={{ color: 'var(--text-primary)' }}
-            {...register(`templateTasks.${index}.assigneeRole`)}
+            {...register(`templateTasks.${index}.assigneeDepartment`)}
           >
-            {ASSIGNEE_ROLES.map((r) => (
+            {ASSIGNEE_DEPARTMENTS.map((r) => (
               <option key={r.value} value={r.value}>
                 {r.label}
               </option>
@@ -512,7 +512,7 @@ export default function TemplateEditorPage() {
       description:   seedData.description ?? '',
       templateTasks: seedData.tasks ?? [],  // API field `tasks` → form field `templateTasks`
     })
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps — intentionally mount-once
+  }, []) 
 
   // ── Mutations ──────────────────────────────────────────────────────────────
   const createMutation = useMutation({

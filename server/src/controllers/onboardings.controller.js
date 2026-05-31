@@ -10,10 +10,16 @@ import { DEPARTMENTS, ONBOARDING_STATUSES, TASK_STATUSES } from "../config/const
 import { organizationGuard } from "../middleware/organizationGuard.js";
 
 export async function createOnboarding(req, res){
+
+    console.log("HITTING THE CREATE ENDPOINT")
     
-    const { templateId, newHireName, newHireEmail, startDate, departmentMap, managerId } = req.body;
+    const { templateId, newHireName, newHireEmail, startDate, departmentMap, managerId, job } = req.body;
     const orgId = req.organizationId;
     const userId = req.user.userId;
+
+    console.log("orgId for create: ", orgId);
+    console.log("userId for create: ", userId);
+    console.log("templateId: ", templateId)
 
     try{
         const exist = await Onboarding.findOne({ 
@@ -21,6 +27,8 @@ export async function createOnboarding(req, res){
           newHireEmail, 
           status: { $ne: "cancelled" } 
         })
+
+        console.log("exists?: ", exist)
 
         if (exist) {
             console.log("error: An active onboarding already exists for this email" )
@@ -64,6 +72,7 @@ export async function createOnboarding(req, res){
         const newOnboarding = await Onboarding.create({
             organizationId: orgId,
             templateId,
+            job,
             templateName: template.name,
             newHireName,
             newHireEmail,
@@ -123,8 +132,13 @@ export async function createOnboarding(req, res){
 }
 
 export async function listOnboardings(req, res){
-
+    
     const orgId = req.organizationId;
+
+    console.log("user in control:", req.user);
+    console.log("User org: ", orgId);
+    console.log("User query:", req.query);
+
     const validStatuses = ONBOARDING_STATUSES
     let onboardingFilter = { organizationId: orgId, deletedAt: null }
 
@@ -153,24 +167,34 @@ export async function listOnboardings(req, res){
         onboardingFilter.startDate = { $gte: new Date(req.query.startDate) };
     }
 
+    console.log("User onboarding filter: ", onboardingFilter);
+
     try{
-        const onboardings = await Onboarding.find(onboardingFilter).populate('managerId', 'name').select('newHireName templateName managerId progressPercent status warnings startDate').sort({ createdAt: -1 });
+        const onboardings = await Onboarding.find(onboardingFilter).populate('managerId', 'name').select('newHireName templateName managerId progressPercent status warnings startDate job').sort({ createdAt: -1 });
+
+        console.log("User Onboardings: ", onboardings)
 
         if (onboardings.length === 0){
             return res.status(200).json({ data: [] });
         }
 
+        console.log("onba id:", onboardings[0]._id );
+
+        
         const result = onboardings.map(o => ({
             id: o._id,
             newHireName: o.newHireName,
+            job: o.job,
             templateName: o.templateName,
             manager: o.managerId?.name ?? "Unassigned",
-            managerId: o.managerId._id ?? null,
+            managerId: o.managerId?._id ?? null,
             progressPercent: o.progressPercent,
             status: o.status,
             startDate: o.startDate,
             warnings: o.warnings,
         }));
+        console.log("mana: ", result[0].manager);
+
 
         res.status(200).json({ data: result });
 
@@ -197,7 +221,7 @@ export async function getOnboarding(req, res){
     }
 
     try{
-        const onboarding = await Onboarding.findOne(onboardingFilter).populate('managerId', 'name').populate('createdBy', 'name').select('_id newHireName newHireEmail templateName managerId progressPercent status warnings startDate hirePortalExpiresAt createdAt createdBy');
+        const onboarding = await Onboarding.findOne(onboardingFilter).populate('managerId', 'name').populate('createdBy', 'name').select('_id newHireName job newHireEmail templateName managerId progressPercent status warnings startDate hirePortalExpiresAt createdAt createdBy');
 
         if (!onboarding){
             return res.status(404).json({error: "Onboarding not found"});
@@ -206,6 +230,7 @@ export async function getOnboarding(req, res){
         const result = {
             id: onboarding._id,
             newHireName: onboarding.newHireName,
+            job: onboarding.job,
             newHireEmail: onboarding.newHireEmail,
             templateName: onboarding.templateName,
             manager: onboarding.managerId?.name ?? "Unassigned",
@@ -232,7 +257,9 @@ export async function updateOnboarding(req, res){
 
     const orgId = req.organizationId;
     const onboardingId = req.params.id;
-    const{newHireEmail, newHireName, managerId, departmentMap} = req.body;
+    const{newHireEmail, newHireName, job, managerId, departmentMap} = req.body;
+    
+    console.log("UPDATE ROUTE GOT HIT");
 
     if (!mongoose.Types.ObjectId.isValid(onboardingId)) {
         console.log("error: Invalid template ID" )
@@ -293,7 +320,7 @@ export async function updateOnboarding(req, res){
 
         
         
-        const updateFields = { newHireName, newHireEmail };
+        const updateFields = { newHireName, newHireEmail, job };
         if (managerId && !onboarding.managerId) {
             updateFields.managerId = managerId;
         }
@@ -330,6 +357,7 @@ export async function updateOnboarding(req, res){
             id: updatedOnboarding._id,
             newHireName: updatedOnboarding.newHireName,
             newHireEmail: updatedOnboarding.newHireEmail,
+            job: updatedOnboarding.job,
             templateName: updatedOnboarding.templateName,
             manager: updatedOnboarding.managerId?.name ?? "Unassigned",
             createdBy: updatedOnboarding.createdBy?.name ?? "Unknown",
@@ -403,16 +431,14 @@ export async function getOnboardingTasks(req, res){
             recentFilter.onboardingId = {$in: managerOnboardings.map(o => o._id)};
         }
 
-        const recentTaks = Tasks.find(recentFilter).sort({ completedAt: -1 })
+        const recentTasks = await Task.find(recentFilter).sort({ completedAt: -1 })
         .limit(10)
         .populate('onboardingId', 'newHireName')
         .populate('assigneeUserId', 'name avatarColor')
         .populate('completedBy', 'name avatarColor')
         .select('title status completedAt completedBy assigneeUserId onboardingId');
 
-        
-        return res.status(200).json({
-            data: recentTasks.map(t => ({
+        const result = recentTasks.map(t => ({
                 id: t._id,
                 title: t.title,
                 completedAt: t.completedAt,
@@ -423,6 +449,10 @@ export async function getOnboardingTasks(req, res){
                 onboardingId: t.onboardingId?._id,
                 newHireName: t.onboardingId?.newHireName ?? "Unknown"
             }))
+
+        
+        return res.status(200).json({
+            data: result
         });
     }
 
@@ -500,57 +530,5 @@ export async function getOnboardingTasks(req, res){
     }catch(error){
         console.log(error.message);
         res.status(500).json({error: "Unable to get Onboarding tasks"})
-    }
-}
-
-export async function getOnboardingComments(req, res){
-    const orgId = req.organizationId;
-    const onboardingId = req.params.id;
-    if (!mongoose.Types.ObjectId.isValid(onboardingId)) {
-        return res.status(400).json({ error: "Invalid onboarding ID" });
-    }
-
-    let taskFilter = { onboardingId, organizationId: orgId }
-    
-    try{
-        const tasks = await Task.find(taskFilter).select('_id title status');
-        if (tasks.length === 0) {
-            return res.status(200).json({ data: [] });
-        }
-
-        const taskIds = tasks.map(t => t._id)
-        const taskMap = {};
-        tasks.forEach(t => taskMap[t._id.toString()] = {
-            title: t.title,
-            status: t.status
-        });
-
-        const comments = await Comment.find({
-            taskId: { $in: taskIds },
-            organizationId: orgId,
-            deletedAt: null
-        })
-        .populate('authorId', 'name')
-        .select('_id taskId authorId authorDisplayName body createdAt')
-        .sort({ createdAt: -1 });
-
-        const taskComments = comments.map(comment => {
-            return {
-                id: comment._id,
-                taskId: comment.taskId,
-                taskTitle: taskMap[comment.taskId.toString()]?.title ?? "Unknown task",
-                taskStatus: taskMap[comment.taskId.toString()]?.status,
-                author: comment.authorId?.name ?? comment.authorDisplayName ?? "Unknown",
-                body: comment.body,
-                createdAt: comment.createdAt
-            }
-        })
-    
-
-        res.status(200).json({data: taskComments});
-
-    }catch(error){
-        console.log(error.message);
-        res.status(500).json({error: "Unable to get task comments"})
     }
 }
