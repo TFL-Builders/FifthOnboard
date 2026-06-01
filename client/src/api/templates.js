@@ -36,9 +36,9 @@ export const deleteTemplate = (id) =>
 export const getSeedTemplate = () =>
   api.get('/templates/seed').then((r) => r.data.data)
 
-// GET /templates?onboarding=true
+// GET /templates?filter=active — used by the wizard (active templates with taskCount)
 export const getTemplatesForWizard = () =>
-  api.get('/templates?onboarding=true')
+  api.get('/templates', { params: { filter: 'active' } })
 
 // GET /templates/:id?departmentsOnly=true
 export const getTemplateDepartments = (id) =>

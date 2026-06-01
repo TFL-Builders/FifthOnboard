@@ -14,6 +14,8 @@ import OnboardingsPage from '../pages/onboardings/OnboardingsPage'
 import OnboardingWizardPage from '../pages/onboardings/OnboardingWizardPage'
 import OnboardingDetailPage from '../pages/onboardings/OnboardingDetailPage'
 import OnboardingEditPage from '../pages/onboardings/OnboardingEditPage'
+import HirePortalPage from '../pages/hire/HirePortalPage'
+import HirePortalErrorPage from '../pages/hire/HirePortalErrorPage'
 
 function DashboardPlaceholder() {
   return (
@@ -88,6 +90,10 @@ export default function AppRouter() {
         <Route path="/onboardings/new" element={<ProtectedRoute><OnboardingWizardPage /></ProtectedRoute>} />
         <Route path="/onboardings/:id" element={<ProtectedRoute><OnboardingDetailPage /></ProtectedRoute>} />
         <Route path="/onboardings/:id/edit" element={<ProtectedRoute><OnboardingEditPage /></ProtectedRoute>} />
+
+        {/* hire portal — no auth required, token-gated via URL */}
+        <Route path="/hire/error" element={<HirePortalErrorPage />} />
+        <Route path="/hire/:token" element={<HirePortalPage />} />
 
         {/* fallback routes */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

@@ -26,7 +26,7 @@ export async function listTemplates(req, res){
                 organizationId: orgId,
                 isArchived: false,
                 deletedAt: null
-            }).select('_id name');
+            }).select('_id name templateTasks');
             return res.status(200).json({ data: templates });
         }
 

@@ -17,10 +17,12 @@ import {
   Rocket,
   UserCheck,
   ClipboardList,
+  Mail,
+  CheckCircle2,
 } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import { format, parseISO, isAfter, startOfDay } from 'date-fns'
-import { onboardingsApi } from '../../api/onboardings'
+import { onboardingsApi, hireApi } from '../../api/onboardings'
 import { getTemplatesForWizard, getTemplateDepartments } from '../../api/templates'
 import useAuthStore from '../../stores/authStore'
 import Button from '../../components/ui/Button'
@@ -702,6 +704,7 @@ function Step4({ formData, template, managerName, deptAssignments, onBack, onSub
 
 function PortalTokenModal({ hireName, token, onboardingId, onClose }) {
   const [copied, setCopied] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
   const portalUrl = `${window.location.origin}/hire/${token}`
   const navigate = useNavigate()
 
@@ -711,11 +714,70 @@ function PortalTokenModal({ hireName, token, onboardingId, onClose }) {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleGo = () => {
+  const handleGoToOnboarding = () => {
     onClose()
     navigate(`/onboardings/${onboardingId}`)
   }
 
+  const handleGoToOnboardings = () => {
+    onClose()
+    navigate('/onboardings')
+  }
+
+  const emailMutation = useMutation({
+    mutationFn: () => hireApi.sendPortalEmail(onboardingId, portalUrl),
+    onSuccess: () => setEmailSent(true),
+    onError: () => {},
+  })
+
+  // ── Success state ──────────────────────────────────────────────────────────
+  if (emailSent) {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ backgroundColor: 'rgba(0,0,0,0.50)' }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="portal-modal-title"
+      >
+        <div
+          className="w-full max-w-md rounded-[14px] p-6 space-y-5"
+          style={{
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.14)',
+          }}
+        >
+          <div className="flex flex-col items-center text-center gap-3 py-2">
+            <div
+              className="flex h-14 w-14 items-center justify-center rounded-full"
+              style={{ backgroundColor: 'rgba(34,197,94,0.12)' }}
+            >
+              <CheckCircle2 size={28} style={{ color: '#16a34a' }} aria-hidden="true" />
+            </div>
+            <div>
+              <h2
+                id="portal-modal-title"
+                className="text-[17px] font-semibold"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Email sent!
+              </h2>
+              <p className="mt-1 text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                The portal link has been sent to <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{hireName}</span>'s email address.
+              </p>
+            </div>
+          </div>
+
+          <Button onClick={handleGoToOnboardings} className="w-full gap-1.5">
+            Go to onboardings
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Default state ──────────────────────────────────────────────────────────
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -787,11 +849,36 @@ function PortalTokenModal({ hireName, token, onboardingId, onClose }) {
           </p>
         </div>
 
+        {/* Error message */}
+        {emailMutation.isError && (
+          <div
+            className="flex items-start gap-2 px-3 py-2.5 rounded-[8px]"
+            style={{ backgroundColor: 'rgba(220,38,38,0.07)', border: '1px solid rgba(220,38,38,0.20)' }}
+          >
+            <AlertTriangle size={13} style={{ color: '#dc2626' }} className="mt-0.5 shrink-0" aria-hidden="true" />
+            <p className="text-[12px]" style={{ color: '#dc2626' }}>
+              Failed to send email. Please copy the link manually.
+            </p>
+          </div>
+        )}
+
         {/* Actions */}
-        <Button onClick={handleGo} className="w-full gap-1.5">
-          <ExternalLink size={14} aria-hidden="true" />
-          Go to onboarding
-        </Button>
+        <div className="flex flex-col gap-2 pt-1">
+          <Button
+            onClick={() => emailMutation.mutate()}
+            loading={emailMutation.isPending}
+            disabled={emailMutation.isPending}
+            variant="secondary"
+            className="w-full gap-1.5"
+          >
+            <Mail size={14} aria-hidden="true" />
+            Send email with link to {hireName}
+          </Button>
+          <Button onClick={handleGoToOnboarding} className="w-full gap-1.5">
+            <ExternalLink size={14} aria-hidden="true" />
+            Go to onboarding
+          </Button>
+        </div>
       </div>
     </div>
   )
