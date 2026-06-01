@@ -117,7 +117,7 @@ export async function updateTask(req, res) {
 
         const update= await Task.findOneAndUpdate(
             {_id: taskId, organizationId: orgId}, 
-            {...(status && {$set: {status}}), ...(attachment && {$push: {attachments: attachment}})}, 
+            {...(status && {$set: {status, completedAt: new Date()}}), ...(attachment && {$push: {attachments: attachment}})}, 
             {new: true, runValidators: true});
 
         if (!update) {

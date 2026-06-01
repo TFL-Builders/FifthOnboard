@@ -438,6 +438,9 @@ export async function getOnboardingTasks(req, res){
         .populate('completedBy', 'name avatarColor')
         .select('title status completedAt completedBy assigneeUserId onboardingId');
 
+        console.log("RECENT FILTER:", recentFilter);
+        console.log("RECENT TASKS: ", recentTasks);
+
         const result = recentTasks.map(t => ({
                 id: t._id,
                 title: t.title,
@@ -449,6 +452,8 @@ export async function getOnboardingTasks(req, res){
                 onboardingId: t.onboardingId?._id,
                 newHireName: t.onboardingId?.newHireName ?? "Unknown"
             }))
+
+            console.log("RECENT SHAPED RESULTS: ", result);
 
         
         return res.status(200).json({
