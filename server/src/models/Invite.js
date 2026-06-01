@@ -16,7 +16,7 @@ const inviteSchema = new mongoose.Schema({
         type: String,
         enum: ['admin', 'hr', 'manager', 'employee', 'task_owner']
     },
-    token: {
+    tokenHash: {
         type: String,
         required: true,
     },
