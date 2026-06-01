@@ -82,6 +82,7 @@ export async function updateTask(req, res) {
         const orgId = onboarding.organizationId;
         const {taskId} = req.params;
         const {status, attachment} = req.body;
+        console.log(req.body);
 
         if (!mongoose.Types.ObjectId.isValid(taskId)) {
             console.log('Invalid task ID.')
@@ -108,6 +109,10 @@ export async function updateTask(req, res) {
         if (status === 'done' && task.requiresUpload && !attachment && task.attachments.length === 0) {
             console.log('This task requires a file upload before completion.');
             return res.status(400).json({error: 'This task requires a file upload before completion.'});
+        }
+
+        if (attachment) {
+            attachment.uploadedByNewHire = onboarding._id;
         }
 
         const update= await Task.findOneAndUpdate(
@@ -251,7 +256,8 @@ export async function postComment (req, res) {
 }
 
 export async function getComments(req, res) {
-    const { id: taskId } = req.params;
+    const {taskId} = req.params;
+    console.log(taskId)
     const orgId = req.onboarding.organizationId;
     const onboarding = req.onboarding
 
@@ -312,14 +318,6 @@ export async function sendNewEmail(req, res) {
         }
         const email = onboarding.newHireEmail;
         const {name: organizationName} = onboarding.organizationId;
-
-        // const token = crypto.randomBytes(32).toString('hex');
-        // const tokenHash = hashToken(token);
-
-        // await Onboarding.findOneAndUpdate(
-        //     { _id: onboardingId, organizationId: orgId },
-        //     { hirePortalTokenHash: tokenHash }
-        // )
 
         const inviteLink = portalLink;
         console.log('new-hire-link: ', inviteLink);

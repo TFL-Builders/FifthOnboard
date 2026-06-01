@@ -3,8 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Clock, Loader2, CheckCircle2, XCircle, ChevronDown, ChevronUp,
-  MessageCircle, Paperclip, CalendarDays, LinkIcon, AlertTriangle,
-  Sparkles, Check,
+  MessageCircle, Paperclip, CalendarDays,
 } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import { format, isToday, isPast, parseISO } from 'date-fns'
@@ -15,8 +14,8 @@ import { hirePortalApi } from '../../api/hire'
 const PHASE_ORDER = ['pre_start', 'week_1', 'week_2', 'week_3_plus']
 const PHASE_LABELS = {
   pre_start: 'Before Day One',
-  week_1: 'Week 1',
-  week_2: 'Week 2',
+  week_1:    'Week 1',
+  week_2:    'Week 2',
   week_3_plus: 'Week 3+',
 }
 
@@ -96,11 +95,14 @@ function PageSkeleton() {
   )
 }
 
-// ─── Due Date Pill ─────────────────────────────────────────────────────────────
+// ─── Due Date Pill ────────────────────────────────────────────────────────────
+// FIX: backend returns `dueAt`, not `dueDate`
 
-function DueDatePill({ dueDate, status }) {
-  if (!dueDate || status === 'done') return null
-  const d = parseISO(dueDate)
+function DueDatePill({ dueAt, status }) {
+  if (!dueAt || status === 'done') return null
+  let d
+  try { d = parseISO(dueAt) } catch { return null }
+
   let label, color
   if (isToday(d)) {
     label = 'Due today'; color = '#D97706'
@@ -134,6 +136,8 @@ function StatusIcon({ status }) {
 }
 
 // ─── Comment Section ──────────────────────────────────────────────────────────
+// FIX: backend returns { id, author (string), authorColor (string), body, createdAt }
+// Not { _id, author: { name, avatarColor } }
 
 function CommentSection({ token, taskId }) {
   const queryClient = useQueryClient()
@@ -142,13 +146,21 @@ function CommentSection({ token, taskId }) {
 
   const { data: comments = [], isLoading } = useQuery({
     queryKey: ['hire-comments', token, taskId],
-    queryFn: () => hirePortalApi.getComments(token, taskId).then(r => r.data.data ?? r.data),
+    queryFn: () => hirePortalApi.getComments(token, taskId).then(r => r.data.data),
   })
 
   const postMutation = useMutation({
-    mutationFn: (data) => hirePortalApi.postComment(token, taskId, data),
-    onMutate: (data) => {
-      const temp = { _id: `opt-${Date.now()}`, body: data.body, authorName: 'You', createdAt: new Date().toISOString(), _optimistic: true }
+    mutationFn: (payload) => hirePortalApi.postComment(token, taskId, payload),
+    onMutate: (payload) => {
+      // Match the exact shape the backend returns so rendering is consistent
+      const temp = {
+        id: `opt-${Date.now()}`,
+        author: 'You',
+        authorColor: '#3B5BDB',
+        body: payload.body,
+        createdAt: new Date().toISOString(),
+        _optimistic: true,
+      }
       setOptimistic(prev => [...prev, temp])
       return temp
     },
@@ -158,7 +170,7 @@ function CommentSection({ token, taskId }) {
       queryClient.invalidateQueries({ queryKey: ['hire', token] })
     },
     onError: (_, __, ctx) => {
-      setOptimistic(prev => prev.filter(c => c._id !== ctx._id))
+      setOptimistic(prev => prev.filter(c => c.id !== ctx.id))
       toast.error('Failed to post comment')
     },
   })
@@ -180,12 +192,13 @@ function CommentSection({ token, taskId }) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
           {allComments.map(c => (
-            <div key={c._id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', opacity: c._optimistic ? 0.6 : 1 }}>
-              <Avatar name={c.authorName ?? c.author?.name ?? 'U'} avatarColor={c.author?.avatarColor} size={26} />
+            // FIX: use c.id (not c._id); author is a plain string; color is c.authorColor
+            <div key={c.id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', opacity: c._optimistic ? 0.6 : 1 }}>
+              <Avatar name={c.author ?? 'U'} avatarColor={c.authorColor} size={26} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {c.authorName ?? c.author?.name ?? 'User'}
+                    {c.author ?? 'User'}
                   </span>
                   <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
                     {format(parseISO(c.createdAt), 'MMM d, h:mm a')}
@@ -216,7 +229,8 @@ function CommentSection({ token, taskId }) {
           onClick={handlePost}
           disabled={!body.trim() || postMutation.isPending}
           style={{
-            padding: '8px 14px', borderRadius: 6, border: 'none', cursor: body.trim() ? 'pointer' : 'not-allowed',
+            padding: '8px 14px', borderRadius: 6, border: 'none',
+            cursor: body.trim() ? 'pointer' : 'not-allowed',
             background: body.trim() ? '#3B5BDB' : 'var(--border-color)',
             color: body.trim() ? '#fff' : 'var(--text-secondary)',
             fontSize: 13, fontWeight: 600, transition: 'background 0.15s',
@@ -231,6 +245,9 @@ function CommentSection({ token, taskId }) {
 }
 
 // ─── Task Card ────────────────────────────────────────────────────────────────
+// FIX: use task.id (not task._id) everywhere — backend shapes id: task._id
+// FIX: pass task.id to CommentSection (not task._id)
+// FIX: use task.dueAt (not task.dueDate) for DueDatePill
 
 function TaskCard({ task, token }) {
   const queryClient = useQueryClient()
@@ -242,8 +259,9 @@ function TaskCard({ task, token }) {
   const [uploadProgress, setUploadProgress] = useState(0)
   const fileRef = useRef()
 
+  // FIX: use task.id — not task._id
   const updateMutation = useMutation({
-    mutationFn: (data) => hirePortalApi.updateTask(token, task._id, data),
+    mutationFn: (data) => hirePortalApi.updateTask(token, task.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hire', token] })
     },
@@ -257,7 +275,7 @@ function TaskCard({ task, token }) {
       return
     }
     setSelectedStatus(newStatus)
-    if (newStatus === 'blocked') return // wait for reason
+    if (newStatus === 'blocked') return // wait for reason input
     updateMutation.mutate({ status: newStatus })
   }
 
@@ -275,15 +293,31 @@ function TaskCard({ task, token }) {
     setUploading(true)
     setUploadProgress(0)
     try {
-      const { data: signData } = await hirePortalApi.signUpload(token, task._id)
-      const sig = signData.data ?? signData
+      // FIX: use task.id — not task._id
+      const { data: signData } = await hirePortalApi.signUpload(token, task.id)
+      const sig = signData.data
+      console.log(sig);
+
+      // FIX: correct field names from backend sign response:
+      //   sig.sign            → Cloudinary 'signature' param
+      //   sig.cloud_name      → Cloudinary cloud name in the URL
+      //   sig.cloudinary_api_key → Cloudinary 'api_key' param
+      //   sig.allowed_formats → must be included (it was part of the signature)
+      //   sig.folder          → must be included (it was part of the signature)
+      //   sig.timestamp       → must be included (it was part of the signature)
+      //   VITE_CLOUDINARY_UPLOAD_PRESET → must be included if backend signed with it
 
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('api_key', sig.apiKey)
+      formData.append('api_key', sig.cloudinary_api_key)
       formData.append('timestamp', sig.timestamp)
-      formData.append('signature', sig.signature)
-      if (sig.folder) formData.append('folder', sig.folder)
+      formData.append('signature', sig.sign)
+      formData.append('folder', sig.folder)
+      formData.append('allowed_formats', sig.allowed_formats)
+
+      // upload_preset was included in the backend signature string — must match
+      const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+      if (uploadPreset) formData.append('upload_preset', uploadPreset)
 
       const xhr = new XMLHttpRequest()
       xhr.upload.onprogress = (ev) => {
@@ -293,18 +327,27 @@ function TaskCard({ task, token }) {
       const result = await new Promise((resolve, reject) => {
         xhr.onload = () => {
           if (xhr.status === 200) resolve(JSON.parse(xhr.responseText))
-          else reject(new Error('Upload failed'))
+          else reject(new Error(`Cloudinary upload failed: ${xhr.responseText}`))
         }
         xhr.onerror = () => reject(new Error('Upload failed'))
-        xhr.open('POST', `https://api.cloudinary.com/v1_1/${sig.cloudName}/upload`)
+        // FIX: sig.cloud_name — not sig.cloudName
+        xhr.open('POST', `https://api.cloudinary.com/v1_1/${sig.cloud_name}/upload`)
         xhr.send(formData)
       })
 
       const ext = file.name.split('.').pop().toLowerCase()
-      const mimeMap = { pdf: 'application/pdf', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', mp4: 'video/mp4', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
+      const mimeMap = {
+        pdf: 'application/pdf',
+        jpg: 'image/jpeg', jpeg: 'image/jpeg',
+        png: 'image/png', gif: 'image/gif',
+        mp4: 'video/mp4',
+        doc: 'application/msword',
+        docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      }
       const mimeType = mimeMap[ext] ?? (result.resource_type === 'image' ? 'image/jpeg' : 'application/octet-stream')
 
-      await hirePortalApi.updateTask(token, task._id, {
+      // FIX: use task.id — not task._id
+      await hirePortalApi.updateTask(token, task.id, {
         attachment: {
           url: result.secure_url,
           fileName: result.original_filename ?? file.name,
@@ -315,7 +358,8 @@ function TaskCard({ task, token }) {
 
       toast.success('File uploaded successfully')
       queryClient.invalidateQueries({ queryKey: ['hire', token] })
-    } catch {
+    } catch (err) {
+      console.error(err)
       toast.error('Upload failed. Please try again.')
     } finally {
       setUploading(false)
@@ -371,8 +415,9 @@ function TaskCard({ task, token }) {
           )}
 
           {/* Meta row */}
+          {/* FIX: pass dueAt (not dueDate) */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8, alignItems: 'center' }}>
-            <DueDatePill dueDate={task.dueDate} status={task.status} />
+            <DueDatePill dueAt={task.dueAt} status={task.status} />
             <span style={{
               fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 9999,
               background: s.bg, color: s.color,
@@ -392,8 +437,8 @@ function TaskCard({ task, token }) {
             </div>
           )}
 
-          {/* Attachments */}
-          {isDone && task.requiresUpload && task.attachments?.length > 0 && (
+          {/* Attachments — shown even when done */}
+          {task.requiresUpload && task.attachments?.length > 0 && (
             <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
               {task.attachments.map((att, i) => (
                 <a
@@ -417,9 +462,12 @@ function TaskCard({ task, token }) {
 
       {/* Actions */}
       <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+
         {/* Status selector */}
         <div>
-          <p style={{ margin: '0 0 6px', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Update status</p>
+          <p style={{ margin: '0 0 6px', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Update status
+          </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {STATUS_OPTIONS.map(opt => {
               const ss = STATUS_STYLES[opt]
@@ -434,8 +482,8 @@ function TaskCard({ task, token }) {
                     border: active ? `2px solid ${ss.color}` : '2px solid transparent',
                     background: active ? ss.bg : 'var(--bg-app)',
                     color: active ? ss.color : 'var(--text-secondary)',
-                    cursor: 'pointer', transition: 'all 0.15s',
-                    minHeight: 32,
+                    cursor: updateMutation.isPending ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.15s', minHeight: 32,
                   }}
                 >
                   {STATUS_LABELS[opt]}
@@ -444,7 +492,7 @@ function TaskCard({ task, token }) {
             })}
           </div>
 
-          {/* Blocked reason input */}
+          {/* Blocked reason input — shown only when switching TO blocked */}
           {selectedStatus === 'blocked' && task.status !== 'blocked' && (
             <div style={{ marginTop: 8 }}>
               <input
@@ -487,7 +535,7 @@ function TaskCard({ task, token }) {
           )}
         </div>
 
-        {/* Upload */}
+        {/* File upload — only when requiresUpload and task not yet done */}
         {task.requiresUpload && !isDone && (
           <div>
             <input ref={fileRef} type="file" style={{ display: 'none' }} onChange={handleFileUpload} />
@@ -513,6 +561,7 @@ function TaskCard({ task, token }) {
         )}
 
         {/* Comments toggle */}
+        {/* FIX: pass task.id (not task._id) to CommentSection */}
         <button
           onClick={() => setCommentsOpen(p => !p)}
           style={{
@@ -527,7 +576,7 @@ function TaskCard({ task, token }) {
           {commentsOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
 
-        {commentsOpen && <CommentSection token={token} taskId={task._id} />}
+        {commentsOpen && <CommentSection token={token} taskId={task.id} />}
       </div>
     </div>
   )
@@ -562,7 +611,7 @@ function CompletionBanner({ status }) {
           display: 'inline-block', padding: '3px 10px', borderRadius: 9999,
           background: 'rgba(22,163,74,0.12)', color: '#16A34A', fontSize: 12, fontWeight: 600,
         }}>
-          Onboarding status: {status.replace('_', ' ')}
+          Onboarding status: {status.replace(/_/g, ' ')}
         </span>
       )}
     </div>
@@ -599,10 +648,14 @@ export default function HirePortalPage() {
   if (isLoading || !data) return <PageSkeleton />
 
   const {
-    newHireName, job, status, startDate, newHireProgressPercent = 0,
+    newHireName, job, status, startDate,
+    newHireProgressPercent = 0,
     organizationName, manager, managerEmail, managerAvatarColor,
-    tasks = [], newHireDoneStatus,
+    tasks = [],
   } = data
+
+  // FIX: backend does NOT return newHireDoneStatus — derive from progress
+  const newHireDoneStatus = newHireProgressPercent === 100
 
   const filteredTasks = filter === 'all' ? tasks : tasks.filter(t => t.status === filter)
 
@@ -621,7 +674,7 @@ export default function HirePortalPage() {
         @keyframes fadeIn  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .hire-task-card { animation: fadeIn 0.2s ease; }
         @media (prefers-reduced-motion: reduce) {
-          .animate-spin, .animate-pulse { animation: none !important; }
+          .animate-spin, .animate-pulse, .hire-task-card { animation: none !important; }
         }
       `}</style>
 
@@ -689,7 +742,7 @@ export default function HirePortalPage() {
           </div>
         )}
 
-        {/* Progress section */}
+        {/* Progress / completion */}
         <div style={{
           background: 'var(--bg-card)', border: '1px solid var(--border-color)',
           borderRadius: 8, padding: '16px 20px', marginBottom: 24,
@@ -731,8 +784,7 @@ export default function HirePortalPage() {
                   border: active ? `2px solid ${f === 'all' ? '#3B5BDB' : ss.color}` : '2px solid var(--border-color)',
                   background: active ? (f === 'all' ? 'rgba(59,91,219,0.10)' : ss.bg) : 'var(--bg-card)',
                   color: active ? (f === 'all' ? '#3B5BDB' : ss.color) : 'var(--text-secondary)',
-                  transition: 'all 0.15s',
-                  minHeight: 32,
+                  transition: 'all 0.15s', minHeight: 32,
                 }}
               >
                 {FILTER_LABELS[f]}
@@ -741,7 +793,7 @@ export default function HirePortalPage() {
           })}
         </div>
 
-        {/* Task list */}
+        {/* Task list grouped by phase */}
         {Object.keys(groupedByPhase).length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: 14 }}>
             No tasks match this filter.
@@ -766,8 +818,9 @@ export default function HirePortalPage() {
                     </span>
                   )}
                 </div>
+                {/* FIX: use task.id as React key (not task._id) */}
                 {phaseTasks.map(task => (
-                  <div key={task._id} className="hire-task-card">
+                  <div key={task.id} className="hire-task-card">
                     <TaskCard task={task} token={token} />
                   </div>
                 ))}
