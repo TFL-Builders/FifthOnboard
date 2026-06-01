@@ -11,11 +11,15 @@ export async function validateHireToken(req, res, next) {
         }
 
         const tokenHash = hashToken(token);
-        const onboarding = await Onboarding.findOne({hirePortalTokenHash: tokenHash, deletedAt: null}).populate('organizationId', 'name');
+        const onboarding = await Onboarding.findOne({hirePortalTokenHash: tokenHash, deletedAt: null}).populate('organizationId', 'name').populate('managerId', 'name email avatarColor');
 
         if (!onboarding) {
             console.log('Portal not found.')
             return res.status(404).json({error: 'Portal not found.'})
+        }
+
+        if (onboarding.status === 'cancelled') {
+            return res.status(410).json({ error: 'This onboarding has been cancelled.' });
         }
 
         if (onboarding.hirePortalExpiresAt < new Date()) {

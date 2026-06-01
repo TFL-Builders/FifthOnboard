@@ -432,7 +432,7 @@ export async function getOnboardingTasks(req, res){
         }
 
         const recentTasks = await Task.find(recentFilter).sort({ completedAt: -1 })
-        .limit(10)
+        .limit(5)
         .populate('onboardingId', 'newHireName')
         .populate('assigneeUserId', 'name avatarColor')
         .populate('completedBy', 'name avatarColor')
