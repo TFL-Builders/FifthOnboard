@@ -65,6 +65,12 @@ const onboardingSchema = new mongoose.Schema({
         min: 0,
         max: 100
     },
+    newHireProgressPercent: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
     hirePortalTokenHash: {
         type: String,
     },

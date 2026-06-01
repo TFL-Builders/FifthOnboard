@@ -18,10 +18,13 @@ const attachmentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    uploadedByNewHire: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Onboarding',
+    },
     uploadedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
     },
     uploadedAt: {
         type: Date,

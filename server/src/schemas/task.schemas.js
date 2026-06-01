@@ -10,7 +10,7 @@ const updateTask = z.object({
 )
 
 const addComment = z.object({
-    body: z.string().min(1).max(4000)
+    body: z.string().trim().min(1).max(4000)
 })
 
 export const schemas = {

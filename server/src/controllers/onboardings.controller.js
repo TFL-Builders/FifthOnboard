@@ -432,11 +432,14 @@ export async function getOnboardingTasks(req, res){
         }
 
         const recentTasks = await Task.find(recentFilter).sort({ completedAt: -1 })
-        .limit(10)
+        .limit(5)
         .populate('onboardingId', 'newHireName')
         .populate('assigneeUserId', 'name avatarColor')
         .populate('completedBy', 'name avatarColor')
         .select('title status completedAt completedBy assigneeUserId onboardingId');
+
+        console.log("RECENT FILTER:", recentFilter);
+        console.log("RECENT TASKS: ", recentTasks);
 
         const result = recentTasks.map(t => ({
                 id: t._id,
@@ -449,6 +452,8 @@ export async function getOnboardingTasks(req, res){
                 onboardingId: t.onboardingId?._id,
                 newHireName: t.onboardingId?.newHireName ?? "Unknown"
             }))
+
+            console.log("RECENT SHAPED RESULTS: ", result);
 
         
         return res.status(200).json({

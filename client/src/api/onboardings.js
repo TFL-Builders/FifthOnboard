@@ -22,6 +22,12 @@ export const tasksApi = {
   getComments: (taskId) => api.get(`/tasks/${taskId}/comments`),
 }
 
+export const hireApi = {
+  // POST /hire/:onboardingId/send-email  — sends the portal link to the new hire's email
+  sendPortalEmail: (onboardingId, portalLink) =>
+    api.post(`/hire/${onboardingId}/send-email`, { portalLink }),
+}
+
 export const usersApi = {
   // Phase 7 — not yet available but expected shape:
   // GET /users?department=X&status=active

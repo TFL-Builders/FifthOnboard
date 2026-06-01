@@ -21,7 +21,13 @@
       "Bash(py \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"HR SaaS onboarding dashboard professional clean\" --design-system -p \"Columbus App\")",
       "Bash(npx vite *)",
       "Bash(python skills/ui-ux-pro-max/scripts/search.py \"HR SaaS onboarding dashboard admin panel professional\" --design-system -p \"Columbus\")",
-      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"HR SaaS onboarding dashboard\" --design-system)"
+      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"HR SaaS onboarding dashboard\" --design-system)",
+      "Bash(python skills/ui-ux-pro-max/scripts/search.py \"onboarding portal new hire employee welcome mobile-first\" --design-system -p \"HirePortal\")",
+      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"onboarding portal new hire employee welcome mobile-first\" --design-system -p \"HirePortal\")",
+      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"mobile task list progress tracking\" --domain ux)",
+      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"animation loading skeleton\" --domain ux)",
+      "Bash(cat client/src/App.jsx)",
+      "Bash(cat client/src/main.jsx)"
     ]
   }
 }
