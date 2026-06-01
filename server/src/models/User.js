@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcryptjs from "bcryptjs";
+import { DEPARTMENTS, USER_ROLES } from "../config/constants.js";
 
 const salt_rounds = 10;
 const userSchema = new mongoose.Schema({
@@ -33,7 +34,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'hr', 'manager', 'employee', 'task_owner']
+        enum: USER_ROLES
     },
     avatarColor: {
         type: String
@@ -56,6 +57,11 @@ const userSchema = new mongoose.Schema({
         default: null,
         required: false
     },
+    department: {
+        type: String,
+        enum: DEPARTMENTS,
+        default: null
+    },
     deletedAt: {
         type: Date,
         default: null
@@ -71,13 +77,28 @@ const userSchema = new mongoose.Schema({
 }, {timestamps: true});
 
 
-userSchema.pre("save", async function() {
-  if (!this.passwordHash || !this.isModified("passwordHash")) return;
+const AVATAR_COLORS = [
+    "#3B5BDB", "#0EA5E9", "#16A34A", "#D97706",
+    "#DC2626", "#7C3AED", "#DB2777", "#0891B2",
+    "#059669", "#EA580C"
+];
 
-  this.passwordHash = await bcryptjs.hash(this.passwordHash, parseInt(process.env.BCRYPTJS_SALT_ROUNDS));
+userSchema.pre("save", async function() {
+    if (!this.passwordHash || !this.isModified("passwordHash")) return;
+        this.passwordHash = await bcryptjs.hash(
+        this.passwordHash, 
+        parseInt(process.env.BCRYPTJS_SALT_ROUNDS)
+    );
+
+    if (!this.avatarColor && this.name) {
+        let hash = 0;
+        for (let i = 0; i < this.name.length; i++) {
+            hash = this.name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        this.avatarColor = AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+    }
 });
 
-// instance method — available on every user document
 userSchema.methods.comparePassword = async function(plainTextPassword) {
   return bcryptjs.compare(plainTextPassword, this.passwordHash);
 };

@@ -1,9 +1,10 @@
 import { z } from "zod";
+import { DEPARTMENTS, PHASES } from "../config/constants.js";
 
 const templateTaskSchema = z.object({
     title: z.string().trim().min(2).max(120),
-    assigneeRole: z.enum(["hr", "manager", "new_hire", "it", "finance", "custom"]),
-    phase: z.enum(["pre_start", "week_1", "week_2", "week_3_plus"]),
+    assigneeDepartment: z.enum(DEPARTMENTS),
+    phase: z.enum(PHASES),
     dueOffsetDays: z.number().int().default(0),
     order: z.number().int().min(0).default(0),
     requiresUpload: z.boolean().default(false),

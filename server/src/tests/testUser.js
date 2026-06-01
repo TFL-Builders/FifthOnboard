@@ -5,25 +5,44 @@ import User from '../models/user.js';
 
 const testUser = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI);
+        await mongoose.connect("mongodb://localhost:27017/columbus")
         console.log('MongoDB Connected');
 
-        // create a test user
-        const user = await User.create({
-            organizationId: new mongoose.Types.ObjectId(),
-            email: 'test@example.com',
-            passwordHash: 'hashedpassword123',
-            name: 'Test User',
-            role: 'employee',
-            status: 'active'
+        const orgId = '6a1acc61bee1030094da295d'
+
+        const hrUser = await User.create({
+            organizationId: orgId,
+            email: "maya@test.com",
+            passwordHash: "test1234",
+            name: "Maya Johnson",
+            role: "hr",
+            department: "hr",
+            status: "active",
+        });
+
+        const itUser = await User.create({
+            organizationId: orgId,
+            email: "priya@test.com",
+            passwordHash: "test1234",
+            name: "Priya Patel",
+            role: "task_owner",
+            department: "it",
+            status: "active",
+        });
+
+        const managerUser = await User.create({
+            organizationId: orgId,
+            email: "john@test.com",
+            passwordHash: "test1234",
+            name: "John Smith",
+            role: "manager",
+            department: "manager",
+            status: "active",
         });
 
         
 
-        console.log('User created:', user);
-        console.log('User id:', user._id.toString());
-        console.log(typeof(user._id));
-
+        console.log('Users created:');
         // clean up - delete the test user after
         
 

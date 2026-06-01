@@ -1,4 +1,4 @@
-const engineeringSeedTemplate = {
+export const engineeringSeedTemplate = {
   name: "Engineering Onboarding",
   description:
     "A standard onboarding plan for new engineers — covers account provisioning, environment setup, first contributions, and 30/60/90-day check-ins.",
@@ -6,7 +6,7 @@ const engineeringSeedTemplate = {
     // ─── pre_start ───
     {
       title: "Provision laptop and peripherals",
-      assigneeRole: "it",
+      assigneeDepartment: "it",
       phase: "pre_start",
       dueOffsetDays: -5,
       order: 0,
@@ -14,7 +14,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Create company email and SSO account",
-      assigneeRole: "it",
+      assigneeDepartment: "it",
       phase: "pre_start",
       dueOffsetDays: -3,
       order: 1,
@@ -22,7 +22,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Add to GitHub, Slack, and 1Password",
-      assigneeRole: "it",
+      assigneeDepartment: "it",
       phase: "pre_start",
       dueOffsetDays: -3,
       order: 2,
@@ -30,7 +30,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Send welcome packet and first-day logistics",
-      assigneeRole: "hr",
+      assigneeDepartment: "hr",
       phase: "pre_start",
       dueOffsetDays: -3,
       order: 3,
@@ -38,7 +38,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Assign onboarding buddy",
-      assigneeRole: "manager",
+      assigneeDepartment: "manager",
       phase: "pre_start",
       dueOffsetDays: -2,
       order: 4,
@@ -46,7 +46,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Prepare first-week schedule and intro meetings",
-      assigneeRole: "manager",
+      assigneeDepartment: "manager",
       phase: "pre_start",
       dueOffsetDays: -1,
       order: 5,
@@ -56,7 +56,7 @@ const engineeringSeedTemplate = {
     // ─── week_1 ───
     {
       title: "Sign employment contract and NDA",
-      assigneeRole: "new_hire",
+      assigneeDepartment: "new_hire",
       phase: "week_1",
       dueOffsetDays: 0,
       order: 0,
@@ -64,7 +64,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Submit tax and ID documents",
-      assigneeRole: "new_hire",
+      assigneeDepartment: "new_hire",
       phase: "week_1",
       dueOffsetDays: 0,
       order: 1,
@@ -72,7 +72,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "HR orientation and company overview",
-      assigneeRole: "hr",
+      assigneeDepartment: "hr",
       phase: "week_1",
       dueOffsetDays: 0,
       order: 2,
@@ -80,7 +80,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "First 1:1 with manager",
-      assigneeRole: "manager",
+      assigneeDepartment: "manager",
       phase: "week_1",
       dueOffsetDays: 0,
       order: 3,
@@ -88,7 +88,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Set up local development environment",
-      assigneeRole: "new_hire",
+      assigneeDepartment: "new_hire",
       phase: "week_1",
       dueOffsetDays: 1,
       order: 4,
@@ -96,7 +96,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Read the engineering handbook",
-      assigneeRole: "new_hire",
+      assigneeDepartment: "new_hire",
       phase: "week_1",
       dueOffsetDays: 2,
       order: 5,
@@ -104,7 +104,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Complete security and compliance training",
-      assigneeRole: "new_hire",
+      assigneeDepartment: "new_hire",
       phase: "week_1",
       dueOffsetDays: 3,
       order: 6,
@@ -112,7 +112,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Open and merge a first PR (README or starter task)",
-      assigneeRole: "new_hire",
+      assigneeDepartment: "new_hire",
       phase: "week_1",
       dueOffsetDays: 5,
       order: 7,
@@ -122,7 +122,7 @@ const engineeringSeedTemplate = {
     // ─── week_2 ───
     {
       title: "Pair with a teammate on an open ticket",
-      assigneeRole: "new_hire",
+      assigneeDepartment: "new_hire",
       phase: "week_2",
       dueOffsetDays: 7,
       order: 0,
@@ -130,7 +130,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Ship first independent change to production",
-      assigneeRole: "new_hire",
+      assigneeDepartment: "new_hire",
       phase: "week_2",
       dueOffsetDays: 12,
       order: 1,
@@ -138,7 +138,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Enroll in benefits and retirement plan",
-      assigneeRole: "new_hire",
+      assigneeDepartment: "new_hire",
       phase: "week_2",
       dueOffsetDays: 14,
       order: 2,
@@ -146,7 +146,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "Week-2 check-in with manager",
-      assigneeRole: "manager",
+      assigneeDepartment: "manager",
       phase: "week_2",
       dueOffsetDays: 14,
       order: 3,
@@ -156,7 +156,7 @@ const engineeringSeedTemplate = {
     // ─── week_3_plus ───
     {
       title: "Present a short demo or learning to the team",
-      assigneeRole: "new_hire",
+      assigneeDepartment: "new_hire",
       phase: "week_3_plus",
       dueOffsetDays: 21,
       order: 0,
@@ -164,7 +164,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "30-day review and goal-setting",
-      assigneeRole: "manager",
+      assigneeDepartment: "manager",
       phase: "week_3_plus",
       dueOffsetDays: 30,
       order: 1,
@@ -172,7 +172,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "30-day HR check-in",
-      assigneeRole: "hr",
+      assigneeDepartment: "hr",
       phase: "week_3_plus",
       dueOffsetDays: 30,
       order: 2,
@@ -180,7 +180,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "60-day progress review",
-      assigneeRole: "manager",
+      assigneeDepartment: "manager",
       phase: "week_3_plus",
       dueOffsetDays: 60,
       order: 3,
@@ -188,7 +188,7 @@ const engineeringSeedTemplate = {
     },
     {
       title: "90-day performance review",
-      assigneeRole: "manager",
+      assigneeDepartment: "manager",
       phase: "week_3_plus",
       dueOffsetDays: 90,
       order: 4,
@@ -197,4 +197,14 @@ const engineeringSeedTemplate = {
   ],
 };
 
-export default engineeringSeedTemplate;
+export const DEPARTMENTS = ["hr", "manager", "it", "finance", "custom", 'new_hire'];
+
+export const ASSIGNEE_DEPARTMENTS = ["hr", "manager", "it", "finance", "custom"];
+
+export const ONBOARDING_STATUSES = ["active", "completed", "archived", "cancelled"];
+
+export const TASK_STATUSES = ["pending", "in_progress", "done", "blocked"];
+
+export const USER_ROLES = ["admin", "hr", "manager", "employee", "task_owner"];
+
+export const PHASES = ["pre_start", "week_1", "week_2", "week_3_plus"];

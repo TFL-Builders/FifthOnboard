@@ -10,7 +10,18 @@
       "Skill(ui-ux-pro-max)",
       "Skill(ui-ux-pro-max:*)",
       "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"SaaS HR onboarding authentication login signup professional calm precision\" --design-system -p \"Columbus\" -f markdown)",
-      "Bash(python \"C:/Projects/Columbus App/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"SaaS dashboard HR onboarding professional minimal clean\" --design-system -f markdown -p \"Columbus\")"
+      "Bash(python \"C:/Projects/Columbus App/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"SaaS dashboard HR onboarding professional minimal clean\" --design-system -f markdown -p \"Columbus\")",
+      "Bash(cat \"/mnt/skills/public/frontend-design/SKILL.md\" 2>/dev/null || echo \"File not found at that path\")",
+      "PowerShell(Get-ChildItem \"C:\\\\Projects\\\\Columbus App\\\\client\\\\src\" -Recurse -Name | Where-Object { $_ -notmatch \"node_modules\" })",
+      "PowerShell(New-Item -ItemType Directory -Force \"C:\\\\Projects\\\\Columbus App\\\\client\\\\src\\\\pages\\\\onboardings\")",
+      "Bash(cat \"/mnt/skills/public/frontend-design/SKILL.md\" 2>/dev/null || echo \"File not found\")",
+      "Bash(Get-ChildItem \"C:\\\\Projects\\\\Columbus App\\\\client\\\\src\" -Recurse -Name)",
+      "Bash(Select-Object -First 60)",
+      "Bash(python3 \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"HR SaaS onboarding dashboard professional clean\" --design-system -p \"Columbus App\")",
+      "Bash(py \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"HR SaaS onboarding dashboard professional clean\" --design-system -p \"Columbus App\")",
+      "Bash(npx vite *)",
+      "Bash(python skills/ui-ux-pro-max/scripts/search.py \"HR SaaS onboarding dashboard admin panel professional\" --design-system -p \"Columbus\")",
+      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"HR SaaS onboarding dashboard\" --design-system)"
     ]
   }
 }
