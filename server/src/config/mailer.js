@@ -1,8 +1,22 @@
 import { Resend } from 'resend';
+import handlebars from 'handlebars';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function sendResetEmail(email, resetLink){
-    const resend = new Resend(process.env.RESEND_API_KEY);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+function loadTemplate(templateName, context) {
+    const filePath = path.join(__dirname, 'email-templates', `${templateName}.hbs`);
+    const source = fs.readFileSync(filePath, 'utf8');
+    const compiled = handlebars.compile(source);
+    return compiled(context);
+}
+
+export async function sendResetEmail(email, resetLink) {
     try{
        await resend.emails.send({
           from: "Columbus <noreply@yourdomain.com>",
@@ -21,21 +35,63 @@ export async function sendResetEmail(email, resetLink){
     }
 }
 
-export async function sendWelcomeEmail(email, organizationName, portalLink){
-    const resend = new Resend(process.env.RESEND_API_KEY);
+export async function sendOnboardingEmail(email, organizationName, portalLink) {
+    const html = loadTemplate('onboarding-welcome', { organizationName, portalLink })
     try {
         await resend.emails.send({
             from: 'Columbus <noreply@domain.com>',
             to: email,
             subject: `Welcome to ${organizationName}`,
-            html: `<h2>You've been invited!</h2>
-                <p>You have been added to ${organizationName} on Columbus. Click the link below to start your onboarding.</p>
-                <a href="${portalLink}">Accept Invitation & Start Onboarding.</a>
-                <p>If you weren't expecting this invitation, you can safely ignore this email.</p>`
+            html
         });
-        console.log('invite link for new hire: ', portalLink);
+        console.log('Portal link for new hire: ', portalLink);
     } catch(error) {
-        console.log('Enail send error: ', error.message);
+        console.log('Email send error: ', error.message);
+        throw error;
+    }
+}
+
+export async function sendtaskAssignedEmail(email) {
+    const html = loadTemplate('task-assigned', {})
+    try {
+        await resend.emails.send({
+            from: 'Columbus <noreply@gomain.com>',
+            to: email,
+            subject: 'Task Assigned',
+            html
+        });
+    } catch(error){
+        console.log('Email send error: ', error.message);
+        throw error;
+    }
+}
+
+export async function sendTaskDueSoonEmail(email) {
+    const html = loadTemplate('task-due-soon', {})
+    try {
+        await resend.emails.send({
+            from: 'Columbus <noreply@gomain.com>',
+            to: email,
+            subject: 'Task Due Soon',
+            html
+        });
+    } catch(error){
+        console.log('Email send error: ', error.message);
+        throw error;
+    }
+}
+
+export async function sendOverdueEmail(email) {
+    const html = loadTemplate('task-overdue', {})
+    try {
+        await resend.emails.send({
+            from: 'Columbus <noreply@gomain.com>',
+            to: email,
+            subject: 'Task Overdue',
+            html
+        });
+    } catch(error){
+        console.log('Email send error: ', error.message);
         throw error;
     }
 }

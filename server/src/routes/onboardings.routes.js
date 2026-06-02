@@ -13,12 +13,12 @@ import {
 } from "../controllers/onboardings.controller.js"
 
 const protect = [verifyAccessToken(), requireRole("hr", "admin"), organizationGuard];
-const managerprotect = [verifyAccessToken(), requireRole("hr", "admin", "manager"), organizationGuard];
+const managerProtect = [verifyAccessToken(), requireRole("hr", "admin", "manager"), organizationGuard];
 const router = express.Router();
 
-router.get("/", ...managerprotect, listOnboardings);
-router.get("/:id", ...managerprotect, getOnboarding);
-router.get("/:id/tasks", ...managerprotect, getOnboardingTasks);
+router.get("/", ...managerProtect, listOnboardings);
+router.get("/:id", ...managerProtect, getOnboarding);
+router.get("/:id/tasks", ...managerProtect, getOnboardingTasks);
 router.post("/", ...protect, validate("createOnboarding"), createOnboarding);
 router.patch("/:id", ...protect, validate("updateOnboarding"), updateOnboarding);
 router.patch("/:id/cancel", ...protect, cancelOnboarding);

@@ -16,6 +16,8 @@ apiRouter.use('/invites', inviteRoutes);
 apiRouter.use('/users', userRoutes);
 apiRouter.use("/onboardings", onboardingRoutes);
 apiRouter.use("/tasks", taskRoutes);
+apiRouter.use("/users", userRoutes);
+
 
 // health check
 apiRouter.get("/health", (req, res) => {

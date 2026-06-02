@@ -6,11 +6,11 @@ import { organizationGuard } from '../middleware/organizationGuard.js';
 
 const router = express.Router();
 const protect = [verifyAccessToken(), requireRole("hr", "admin"), organizationGuard];
-const managerprotect = [verifyAccessToken(), requireRole("hr", "admin", "manager"), organizationGuard];
+const managerProtect = [verifyAccessToken(), requireRole("hr", "admin", "manager"), organizationGuard];
 
-router.post('/', ...managerprotect, sendInvite);
+router.post('/', ...managerProtect, sendInvite);
 router.post('/accept/:token', acceptInvite);
-router.get("/", ...managerprotect, getInvites)
+router.get("/", ...managerProtect, getInvites)
 router.delete("/:id", ...protect, deleteInvite)
 
 export default router;

@@ -208,3 +208,5 @@ export const TASK_STATUSES = ["pending", "in_progress", "done", "blocked"];
 export const USER_ROLES = ["admin", "hr", "manager", "employee", "task_owner"];
 
 export const PHASES = ["pre_start", "week_1", "week_2", "week_3_plus"];
+
+export const USER_STATUSES = ['active', 'pending', 'invited', 'disabled']
