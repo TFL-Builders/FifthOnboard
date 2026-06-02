@@ -5,7 +5,7 @@ import User from '../models/User.js';
 
 export async function sendInvite(req, res) {
     try {
-        const {email, role} = req.body;
+        const {email, role, department} = req.body;
         const orgId = req.organizationId;
         const exist = await User.findOne({email, organizationId: orgId});
 
@@ -26,7 +26,9 @@ export async function sendInvite(req, res) {
             organizationId: orgId,
             email,
             role,
+            department,
             tokenHash,
+            status: 'pending',
             invitedBy: req.user.userId
         })
 
@@ -69,7 +71,7 @@ export async function acceptInvite(req, res) {
             organizationId: invite.organizationId
         })
 
-        const accepted = await Invite.findOneAndUpdate({tokenHash: tokenHash}, {$set: {acceptedAt: new Date()}}, {new: true})
+        const accepted = await Invite.findOneAndUpdate({tokenHash: tokenHash}, {$set: {acceptedAt: new Date(), status: 'accepted'}}, {new: true})
         if (!accepted) {
             console.log('Invite could not be accepted')
             return res.status(500).json({error: 'Invite could not be accepted'}); 
@@ -81,4 +83,67 @@ export async function acceptInvite(req, res) {
         console.log(error.message);
         res.status(500).json({error: 'Something went wrong'});
     }
+}
+
+export async function getInvites(req, res){
+    const orgId = req.organizationId;
+    
+    try{
+        const invites = await Invite.find({organizationId: orgId, status: 'pending', expiresAt: null}).select('_id email role department status createdAt expiresAt');
+
+        const inviteList = invites.map(invite => ({
+            id: invite._id,
+            email: invite.email,
+            role: invite.role,
+            department: invite.department,
+            status: invite.status,
+            createdAt: invite.createdAt,
+            expiresAt: invite.expiresAt
+        }))
+
+        if (onboardings.length === 0){
+            return res.status(200).json({ data: [] });
+        }
+
+        res.status(200).json({
+            data: inviteList
+        })
+    }catch(error){
+        console.log(error.message);
+        res.status(500).json({error: "Error Invites couldn't be gotten"});
+    }
+}   
+
+export async function deleteInvite(req, res){
+    const inviteId = req.params.id;
+    const orgId = req.organizationId;
+
+    if (!mongoose.Types.ObjectId.isValid(inviteId)) {
+         console.log("error: Invalid invite ID" )
+         return res.status(400).json({ error: "Invalid onboarding ID" });
+    }
+    
+    try{
+        const invite = await Invite.findOne({_id: inviteId, organizationId: orgId});
+    
+        if (!invite){
+            console.log("Error: Invite not found");
+            res.status(404).json({error: "Invite not found"})
+        }
+    
+        if (invite.status === 'accepted'){
+            console.log("Error: Delete operation failed");
+            res.status(409).json({error: "Delete operation failed"})
+        }
+    
+        invite.expiresAt = new Date();
+        await invite.save();
+    
+        res.status(200).json({message: "Invite has been successfully revoked"});
+
+    }catch(error){
+        console.log(error.message);
+        res.status(500).json({error: "Delete operation failed"});
+    }
+
 }

@@ -26,6 +26,10 @@ const inviteSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    status: {
+        type: String,
+        enum: ['pending', 'accepted']
+    },
     invitedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

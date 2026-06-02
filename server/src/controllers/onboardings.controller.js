@@ -10,16 +10,10 @@ import { DEPARTMENTS, ONBOARDING_STATUSES, TASK_STATUSES } from "../config/const
 import { organizationGuard } from "../middleware/organizationGuard.js";
 
 export async function createOnboarding(req, res){
-
-    console.log("HITTING THE CREATE ENDPOINT")
     
     const { templateId, newHireName, newHireEmail, startDate, departmentMap, managerId, job } = req.body;
     const orgId = req.organizationId;
     const userId = req.user.userId;
-
-    console.log("orgId for create: ", orgId);
-    console.log("userId for create: ", userId);
-    console.log("templateId: ", templateId)
 
     try{
         const exist = await Onboarding.findOne({ 
@@ -27,8 +21,6 @@ export async function createOnboarding(req, res){
           newHireEmail, 
           status: { $ne: "cancelled" } 
         })
-
-        console.log("exists?: ", exist)
 
         if (exist) {
             console.log("error: An active onboarding already exists for this email" )
@@ -53,7 +45,10 @@ export async function createOnboarding(req, res){
 
         
         const orgDefaultDepartmentMap = Object.fromEntries(orgDef?.defaultDepartmentMap ?? new Map());
-        const finalDepartmentMap = {...orgDefaultDepartmentMap, ...departmentMap};
+        const finaleDepartmentMap = {...orgDefaultDepartmentMap, ...departmentMap};
+        const cleanDepartmentMap = { ...finaleDepartmentMap };
+        delete cleanDepartmentMap["manager"];
+        const finalDepartmentMap = cleanDepartmentMap;
         const resolvedManagerId = managerId ?? orgDef.defaultManagerId ?? null;
         const hasNoManager = !resolvedManagerId;
         const hasUnassignedTasks = templateDepartments.some(
@@ -134,11 +129,6 @@ export async function createOnboarding(req, res){
 export async function listOnboardings(req, res){
     
     const orgId = req.organizationId;
-
-    console.log("user in control:", req.user);
-    console.log("User org: ", orgId);
-    console.log("User query:", req.query);
-
     const validStatuses = ONBOARDING_STATUSES
     let onboardingFilter = { organizationId: orgId, deletedAt: null }
 
@@ -167,19 +157,12 @@ export async function listOnboardings(req, res){
         onboardingFilter.startDate = { $gte: new Date(req.query.startDate) };
     }
 
-    console.log("User onboarding filter: ", onboardingFilter);
-
     try{
         const onboardings = await Onboarding.find(onboardingFilter).populate('managerId', 'name').select('newHireName templateName managerId progressPercent status warnings startDate job').sort({ createdAt: -1 });
-
-        console.log("User Onboardings: ", onboardings)
 
         if (onboardings.length === 0){
             return res.status(200).json({ data: [] });
         }
-
-        console.log("onba id:", onboardings[0]._id );
-
         
         const result = onboardings.map(o => ({
             id: o._id,
@@ -193,8 +176,6 @@ export async function listOnboardings(req, res){
             startDate: o.startDate,
             warnings: o.warnings,
         }));
-        console.log("mana: ", result[0].manager);
-
 
         res.status(200).json({ data: result });
 
@@ -258,8 +239,6 @@ export async function updateOnboarding(req, res){
     const orgId = req.organizationId;
     const onboardingId = req.params.id;
     const{newHireEmail, newHireName, job, managerId, departmentMap} = req.body;
-    
-    console.log("UPDATE ROUTE GOT HIT");
 
     if (!mongoose.Types.ObjectId.isValid(onboardingId)) {
         console.log("error: Invalid template ID" )
@@ -438,9 +417,6 @@ export async function getOnboardingTasks(req, res){
         .populate('completedBy', 'name avatarColor')
         .select('title status completedAt completedBy assigneeUserId onboardingId');
 
-        console.log("RECENT FILTER:", recentFilter);
-        console.log("RECENT TASKS: ", recentTasks);
-
         const result = recentTasks.map(t => ({
                 id: t._id,
                 title: t.title,
@@ -452,9 +428,6 @@ export async function getOnboardingTasks(req, res){
                 onboardingId: t.onboardingId?._id,
                 newHireName: t.onboardingId?.newHireName ?? "Unknown"
             }))
-
-            console.log("RECENT SHAPED RESULTS: ", result);
-
         
         return res.status(200).json({
             data: result

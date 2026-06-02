@@ -27,6 +27,7 @@ passport.use(new GoogleStrategy({
                 googleId: profile.id,
                 name: profile.displayName,
                 role: invite.role,
+                department: invite.department,
                 organizationId: invite.organizationId,
                 status: "active"
               });

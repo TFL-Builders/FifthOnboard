@@ -21,7 +21,7 @@ export async function sendResetEmail(email, resetLink){
     }
 }
 
-export async function sendWelcomeEmail(email, organizationName, inviteLink){
+export async function sendWelcomeEmail(email, organizationName, portalLink){
     const resend = new Resend(process.env.RESEND_API_KEY);
     try {
         await resend.emails.send({
@@ -30,10 +30,10 @@ export async function sendWelcomeEmail(email, organizationName, inviteLink){
             subject: `Welcome to ${organizationName}`,
             html: `<h2>You've been invited!</h2>
                 <p>You have been added to ${organizationName} on Columbus. Click the link below to start your onboarding.</p>
-                <a href="${inviteLink}">Accept Invitation & Start Onboarding.</a>
+                <a href="${portalLink}">Accept Invitation & Start Onboarding.</a>
                 <p>If you weren't expecting this invitation, you can safely ignore this email.</p>`
         });
-        console.log('invite link for new hire: ', inviteLink);
+        console.log('invite link for new hire: ', portalLink);
     } catch(error) {
         console.log('Enail send error: ', error.message);
         throw error;

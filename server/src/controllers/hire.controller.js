@@ -82,7 +82,6 @@ export async function updateTask(req, res) {
         const orgId = onboarding.organizationId;
         const {taskId} = req.params;
         const {status, attachment} = req.body;
-        console.log(req.body);
 
         if (!mongoose.Types.ObjectId.isValid(taskId)) {
             console.log('Invalid task ID.')
@@ -257,7 +256,6 @@ export async function postComment (req, res) {
 
 export async function getComments(req, res) {
     const {taskId} = req.params;
-    console.log(taskId)
     const orgId = req.onboarding.organizationId;
     const onboarding = req.onboarding
 
@@ -319,9 +317,8 @@ export async function sendNewEmail(req, res) {
         const email = onboarding.newHireEmail;
         const {name: organizationName} = onboarding.organizationId;
 
-        const inviteLink = portalLink;
-        console.log('new-hire-link: ', inviteLink);
-        await sendWelcomeEmail(email, organizationName, inviteLink);
+        console.log('new-hire-link: ', portalLink);
+        await sendWelcomeEmail(email, organizationName, portalLink);
         console.log('Email sent: ', email);
 
         res.status(200).json({
