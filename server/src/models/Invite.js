@@ -49,7 +49,7 @@ const inviteSchema = new mongoose.Schema({
     }
 });
 
-inviteSchema.index({token: 1}, {unique: true});
+inviteSchema.index({tokenHash: 1}, {unique: true});
 inviteSchema.index({organizationId: 1, email:1});
 inviteSchema.index({expiresAt: 1}, {expireAfterSeconds: 0});
 

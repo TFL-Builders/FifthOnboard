@@ -9,7 +9,7 @@ export async function getUsers(req, res) {
         const orgId = req.organizationId;
         const { role, department, status, search } = req.query
         
-        let userFilter = { organizationId: orgId, deletedAt: null , role: {$ne: 'admin'}}
+        let userFilter = { organizationId: orgId, deletedAt: null }
         
         if(role) {
             if (!USER_ROLES.includes(role)) {
@@ -193,7 +193,7 @@ export async function getUserTasks(req, res) {
 export async function deleteUser(req, res){
     const disableId = req.params.id;
     const orgId = req.organizationId;
-    const reassignToId = req.body.id ?? null;
+    const reassignToId = req.body?.id ?? null;
 
     const roleHierarchy = {
         admin:      4,

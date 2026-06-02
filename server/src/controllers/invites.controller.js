@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import crypto from 'crypto';
 import { hashToken } from '../config/jwt.js';
 import Invite from '../models/Invite.js';
@@ -13,7 +14,7 @@ export async function sendInvite(req, res) {
             console.log('Email already exists in organization.');
             return res.status(409).json({error: 'Email already exists in organization.'});
         }
-        const pendingInvite = await Invite.findOne({email, organizationId: orgId, acceptedAt: null});
+        const pendingInvite = await Invite.findOne({email, organizationId: orgId});
         if (pendingInvite) {
             console.log('An invite has already been sent to this email.');
             return res.status(409).json({error: 'An invite has already been sent to this email.'});
@@ -33,6 +34,7 @@ export async function sendInvite(req, res) {
         })
 
         const inviteLink = `${process.env.CLIENT_URL}/accept-invite/${token}`
+        console.log(token);
         console.log('invite_link: ', inviteLink)
         // await sendInviteEmail() dont forget to make the function to actually send the mail
 
@@ -47,7 +49,7 @@ export async function sendInvite(req, res) {
 export async function acceptInvite(req, res) {
     try {
         const {token} = req.params;
-        const {password} = req.body;
+        const {name, password} = req.body;
         const tokenHash = hashToken(token);
         const invite = await Invite.findOne({tokenHash: tokenHash});
 
@@ -55,7 +57,7 @@ export async function acceptInvite(req, res) {
             console.log('Invite not found.');
             return res.status(404).json({error: 'Invite not found.'})
         }
-        if (new Date() > invite.expiresAt) {
+        if (Date.now() > invite.expiresAt?.getTime()) {
             console.log('Invite link expired');
             return res.status(410).json({error: 'Invite link expired.'});
         } 
@@ -66,6 +68,8 @@ export async function acceptInvite(req, res) {
 
         const user = await User.create({
             email: invite.email,
+            name: name,
+            department: invite.department,
             passwordHash: password,
             role: invite.role,
             organizationId: invite.organizationId
@@ -89,7 +93,7 @@ export async function getInvites(req, res){
     const orgId = req.organizationId;
     
     try{
-        const invites = await Invite.find({organizationId: orgId, status: 'pending', expiresAt: null}).select('_id email role department status createdAt expiresAt');
+        const invites = await Invite.find({organizationId: orgId, status: 'pending', acceptedAt: null}).select('_id email role department status createdAt expiresAt');
 
         const inviteList = invites.map(invite => ({
             id: invite._id,
@@ -101,7 +105,7 @@ export async function getInvites(req, res){
             expiresAt: invite.expiresAt
         }))
 
-        if (onboardings.length === 0){
+        if (invites.length === 0){
             return res.status(200).json({ data: [] });
         }
 
@@ -128,12 +132,12 @@ export async function deleteInvite(req, res){
     
         if (!invite){
             console.log("Error: Invite not found");
-            res.status(404).json({error: "Invite not found"})
+            return res.status(404).json({error: "Invite not found"})
         }
     
         if (invite.status === 'accepted'){
             console.log("Error: Delete operation failed");
-            res.status(409).json({error: "Delete operation failed"})
+           return  res.status(409).json({error: "Delete operation failed"})
         }
     
         invite.expiresAt = new Date();
