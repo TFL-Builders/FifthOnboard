@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import bcryptjs from "bcryptjs";
-import { DEPARTMENTS, USER_ROLES } from "../config/constants.js";
+import { DEPARTMENTS, USER_ROLES, USER_STATUSES } from "../config/constants.js";
 
 const salt_rounds = 10;
 const userSchema = new mongoose.Schema({
@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'pending', 'invited', 'disabled']
+        enum: USER_STATUSES
     },
     theme: {
         type: String,

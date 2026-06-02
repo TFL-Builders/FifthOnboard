@@ -5,7 +5,7 @@ import { requireRole } from "../middleware/requireRoleMiddleware.js";
 import { organizationGuard } from '../middleware/organizationGuard.js';
 
 const router = express.Router();
-const protect = [verifyAccessToken(), requireRole("hr", "admin"), organizationGuard];
+const protect = [verifyAccessToken(), requireRole("hr", "admin", 'manager'), organizationGuard];
 
 router.post('/', ...protect, sendInvite);
 router.post('/accept/:token', acceptInvite);

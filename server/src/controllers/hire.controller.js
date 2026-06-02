@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { hashToken } from "../config/jwt.js";
-import { sendWelcomeEmail } from '../config/mailer.js';
+import { sendOnboardingEmail } from '../config/mailer.js';
 import cloudinary from '../config/cloudinary.js';
 import Onboarding from '../models/Onboarding.js';
 import Task from '../models/Task.js';
@@ -319,9 +319,8 @@ export async function sendNewEmail(req, res) {
         const email = onboarding.newHireEmail;
         const {name: organizationName} = onboarding.organizationId;
 
-        const inviteLink = portalLink;
-        console.log('new-hire-link: ', inviteLink);
-        await sendWelcomeEmail(email, organizationName, inviteLink);
+        console.log('new-hire-link: ', portalLink);
+        await sendOnboardingEmail(email, organizationName, portalLink);
         console.log('Email sent: ', email);
 
         res.status(200).json({
