@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import useAuthStore from '../stores/authStore'
 import Spinner from '../components/ui/Spinner'
+import AppShell from '../components/layout/AppShell'
 
 export default function ProtectedRoute({ children }) {
   const { isAuthenticated, isLoading, user } = useAuthStore()
@@ -27,5 +28,5 @@ export default function ProtectedRoute({ children }) {
   }
 
   // active authenticated user — render the page
-  return children
+  return <AppShell>{children}</AppShell>
 }

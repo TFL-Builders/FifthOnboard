@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
@@ -24,6 +24,8 @@ import toast, { Toaster } from 'react-hot-toast'
 import { format, parseISO, isAfter, startOfDay } from 'date-fns'
 import { onboardingsApi, hireApi } from '../../api/onboardings'
 import { getTemplatesForWizard, getTemplateDepartments } from '../../api/templates'
+import { settingsApi } from '../../api/settings'
+import api from '../../api/axios'
 import useAuthStore from '../../stores/authStore'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -347,68 +349,256 @@ function Step2({ selectedId, onSelect, onBack, onNext }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Step 3 helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DEPT_LABELS_WIZARD = {
+  hr: 'HR', manager: 'Manager', it: 'IT', finance: 'Finance', custom: 'Custom',
+}
+
+function WizardUserPicker({ pickerUsers, isLoading, onSelect, onClear, isOpen, onToggle }) {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+    function handle(e) {
+      if (ref.current && !ref.current.contains(e.target)) onToggle()
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [isOpen, onToggle])
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={onToggle}
+        className="flex items-center gap-1 h-7 px-2.5 rounded-[6px] text-[12px] font-medium
+          cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        style={{
+          backgroundColor: 'var(--bg-app)',
+          border: '1px solid var(--border-color)',
+          color: 'var(--text-secondary)',
+        }}
+        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--border-color)')}
+        onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'var(--bg-app)')}
+      >
+        Change user
+        <ChevronRight size={11} style={{ transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform 150ms' }} aria-hidden="true" />
+      </button>
+
+      {isOpen && (
+        <div
+          className="absolute left-0 z-30 mt-1.5 w-[240px] rounded-[10px] border overflow-hidden"
+          style={{
+            backgroundColor: 'var(--bg-card)',
+            borderColor: 'var(--border-color)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
+          }}
+        >
+          <button
+            onClick={() => { onClear(); onToggle() }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-[12px] cursor-pointer transition-colors
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)' }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-app)')}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+          >
+            <AlertTriangle size={11} aria-hidden="true" />
+            Leave unassigned
+          </button>
+          <div className="max-h-[200px] overflow-y-auto">
+            {isLoading && (
+              <div className="p-3 space-y-2">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full shrink-0 animate-pulse" style={{ backgroundColor: 'var(--border-color)' }} />
+                    <div className="h-3 rounded animate-pulse flex-1" style={{ backgroundColor: 'var(--border-color)' }} />
+                  </div>
+                ))}
+              </div>
+            )}
+            {!isLoading && (!pickerUsers || pickerUsers.length === 0) && (
+              <p className="px-3 py-4 text-[12px] text-center" style={{ color: 'var(--text-secondary)' }}>
+                No users found in this department
+              </p>
+            )}
+            {!isLoading && pickerUsers?.map(u => (
+              <button
+                key={u.id}
+                onClick={() => { onSelect(u); onToggle() }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-left cursor-pointer transition-colors
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-app)')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <Avatar name={u.name} color={u.avatarColor} size={24} />
+                <span className="text-[13px]" style={{ color: 'var(--text-primary)' }}>{u.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Step 3 — Manager & Department Mapping
 // ─────────────────────────────────────────────────────────────────────────────
 
-function Step3({ hireName, templateId, managerName, deptAssignments, onManagerChange, onDeptChange, onBack, onNext }) {
+function Step3({ hireName, templateId, managerId, managerUser, deptAssignments, deptUsers, onManagerChange, onDeptChange, onBack, onNext }) {
+  const [openPicker, setOpenPicker] = useState(null)
+  const prefilledRef = useRef(false)
+
+  // Fetch template departments
   const { data: deptData, isLoading: deptLoading } = useQuery({
     queryKey: ['templateDepts', templateId],
     queryFn: () => getTemplateDepartments(templateId),
     enabled: !!templateId,
   })
 
-  // Filter out 'new_hire'
   const departments = (Array.isArray(deptData) ? deptData : []).filter(
     (d) => d !== 'new_hire' && d !== 'new-hire',
   )
 
+  // Fetch org settings for defaults
+  const { data: orgSettings } = useQuery({
+    queryKey: ['settings'],
+    queryFn: () => settingsApi.get().then((r) => r.data.data),
+  })
+
+  // Fetch all user picker lists in one shot
+  const allDepts = ['_manager', ...departments]
+  const { data: pickerLists, isLoading: loadingPickers } = useQuery({
+    queryKey: ['users', 'picker', 'wizard', templateId],
+    queryFn: async () => {
+      const results = await Promise.all(
+        ['_manager', 'hr', 'manager', 'it', 'finance', 'custom'].map((key) => {
+          const params =
+            key === '_manager' || key === 'manager'
+              ? { view: 'picker', role: 'manager', status: 'active' }
+              : { view: 'picker', department: key, status: 'active' }
+          return api.get('/users', { params }).then((r) => ({ key, users: r.data.data || [] }))
+        })
+      )
+      return Object.fromEntries(results.map((r) => [r.key, r.users]))
+    },
+    enabled: !deptLoading && departments.length > 0,
+  })
+
+  // Pre-fill from org defaults once (when both settings + departments are ready)
+  useEffect(() => {
+    if (prefilledRef.current || !orgSettings || deptLoading || departments.length === 0) return
+    prefilledRef.current = true
+
+    if (!managerId && orgSettings.defaultManagerId) {
+      onManagerChange(orgSettings.defaultManagerId)
+    }
+
+    departments.forEach((dept) => {
+      if (!deptAssignments[dept] && orgSettings.defaultDepartmentMap?.[dept]) {
+        onDeptChange(dept, orgSettings.defaultDepartmentMap[dept])
+      }
+    })
+  }, [orgSettings, deptLoading, departments.length]) // eslint-disable-line
+
+  function togglePicker(key) {
+    setOpenPicker((prev) => (prev === key ? null : key))
+  }
+
+  function isOrgDefault(dept) {
+    if (!orgSettings) return false
+    if (dept === '_manager') {
+      return managerUser?.id === orgSettings.defaultManagerId?.id && !!managerUser
+    }
+    return deptUsers[dept]?.id === orgSettings.defaultDepartmentMap?.[dept]?.id && !!deptUsers[dept]
+  }
+
   const hasUnassigned = departments.some((d) => !deptAssignments[d])
-  const hasNoManager = !managerName
+  const hasNoManager = !managerId
 
   return (
     <div>
-      {/* Section A — Manager */}
+      {/* ── Manager section ── */}
       <div className="mb-6">
         <h3 className="text-[14px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
           Who is {hireName || 'the new hire'}'s manager?
         </h3>
         <p className="text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
-          Manager assignment is not yet available — you can assign one later.
+          Select a manager or leave unassigned — you can update this later.
         </p>
+
         <div
-          className="flex items-center gap-3 p-3 rounded-[10px] border"
-          style={{ backgroundColor: 'var(--bg-app)', borderColor: 'var(--border-color)' }}
+          className="rounded-[12px] border p-4"
+          style={{
+            backgroundColor: 'var(--bg-card)',
+            borderColor: managerId ? 'var(--border-color)' : 'rgba(217,119,6,0.35)',
+          }}
         >
-          <div
-            className="h-9 w-9 rounded-full flex items-center justify-center shrink-0"
-            style={{ backgroundColor: 'var(--border-color)' }}
-            aria-hidden="true"
-          >
-            <Users size={16} style={{ color: 'var(--text-secondary)' }} />
+          {/* Current manager display */}
+          <div className="flex items-center gap-3 mb-3">
+            {managerUser ? (
+              <>
+                <Avatar name={managerUser.name} color={managerUser.avatarColor} size={36} />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                      {managerUser.name}
+                    </span>
+                    {isOrgDefault('_manager') && (
+                      <span
+                        className="text-[11px] font-medium px-1.5 py-0.5 rounded-full shrink-0"
+                        style={{ backgroundColor: 'rgba(217,119,6,0.12)', color: '#d97706' }}
+                      >
+                        Org Default
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>Manager</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div
+                  className="h-9 w-9 rounded-full flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: 'rgba(217,119,6,0.08)' }}
+                  aria-hidden="true"
+                >
+                  <Users size={16} style={{ color: '#d97706' }} />
+                </div>
+                <span className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+                  No manager assigned
+                </span>
+              </div>
+            )}
           </div>
-          <div>
-            <p className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>
-              No managers found. You can assign one later.
-            </p>
-          </div>
+
+          <WizardUserPicker
+            pickerUsers={pickerLists?.['_manager']}
+            isLoading={loadingPickers}
+            onSelect={onManagerChange}
+            onClear={() => onManagerChange(null)}
+            isOpen={openPicker === '_manager'}
+            onToggle={() => togglePicker('_manager')}
+          />
         </div>
       </div>
 
-      {/* Section B — Departments */}
+      {/* ── Departments section ── */}
       <div>
         <h3 className="text-[14px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
           Department task assignments
         </h3>
         <p className="text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
-          Map departments from the selected template to assignees.
+          Map departments from the selected template to assignees. Org defaults are pre-filled.
         </p>
 
         {deptLoading && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-[72px] rounded-[10px] border animate-pulse"
+                className="h-[110px] rounded-[12px] border animate-pulse"
                 style={{ backgroundColor: 'var(--bg-app)', borderColor: 'var(--border-color)' }}
               />
             ))}
@@ -427,46 +617,72 @@ function Step3({ hireName, templateId, managerName, deptAssignments, onManagerCh
         )}
 
         {!deptLoading && departments.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {departments.map((dept) => {
-              const assigned = deptAssignments[dept]
+              const assignedUser = deptUsers[dept] ?? null
+              const isDefault = isOrgDefault(dept)
+              const label = DEPT_LABELS_WIZARD[dept] ?? dept
+
               return (
                 <div
                   key={dept}
-                  className="flex items-center justify-between gap-4 p-3.5 rounded-[10px] border"
+                  className="rounded-[12px] border p-4 transition-colors"
                   style={{
                     backgroundColor: 'var(--bg-card)',
-                    borderColor: assigned ? 'var(--border-color)' : 'rgba(217,119,6,0.35)',
+                    borderColor: assignedUser ? 'var(--border-color)' : 'rgba(217,119,6,0.35)',
                   }}
                 >
-                  <div className="flex items-center gap-3">
+                  {/* Dept header */}
+                  <div className="flex items-center gap-2.5 mb-3">
                     <div
                       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px]"
                       style={{ backgroundColor: 'rgba(59,91,219,0.08)' }}
                     >
                       <Users size={14} className="text-primary" aria-hidden="true" />
                     </div>
-                    <div>
-                      <p className="text-[13px] font-medium capitalize" style={{ color: 'var(--text-primary)' }}>
-                        {dept.replace(/_/g, ' ')} Department
+                    <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+                      {label} Department
+                    </span>
+                  </div>
+
+                  {/* Assigned user display */}
+                  <div
+                    className="flex items-center gap-3 p-3 rounded-[8px] mb-3"
+                    style={{
+                      backgroundColor: 'var(--bg-app)',
+                      border: '1px solid var(--border-color)',
+                    }}
+                  >
+                    {assignedUser ? (
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Avatar name={assignedUser.name} color={assignedUser.avatarColor} size={28} />
+                        <span className="text-[13px] font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                          {assignedUser.name}
+                        </span>
+                        {isDefault && (
+                          <span
+                            className="text-[11px] font-medium px-1.5 py-0.5 rounded-full shrink-0"
+                            style={{ backgroundColor: 'rgba(217,119,6,0.12)', color: '#d97706' }}
+                          >
+                            Org Default
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-[12px]" style={{ color: '#d97706' }}>
+                        Unassigned — tasks will need manual assignment
                       </p>
-                      {!assigned && (
-                        <p className="text-[11px]" style={{ color: '#d97706' }}>
-                          Unassigned — assign now
-                        </p>
-                      )}
-                      {assigned && (
-                        <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-                          Assigned: {assigned}
-                        </p>
-                      )}
-                    </div>
+                    )}
                   </div>
-                  <div className="text-right">
-                    <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>
-                      No users found, using org default
-                    </p>
-                  </div>
+
+                  <WizardUserPicker
+                    pickerUsers={pickerLists?.[dept]}
+                    isLoading={loadingPickers}
+                    onSelect={(u) => onDeptChange(dept, u)}
+                    onClear={() => onDeptChange(dept, null)}
+                    isOpen={openPicker === dept}
+                    onToggle={() => togglePicker(dept)}
+                  />
                 </div>
               )
             })}
@@ -905,8 +1121,10 @@ export default function OnboardingWizardPage() {
   // Wizard state
   const [hireInfo, setHireInfo] = useState({ fullName: '', workEmail: '', jobTitle: '' })
   const [selectedTemplate, setSelectedTemplate] = useState(null)
-  const [managerName, setManagerName] = useState('')
-  const [deptAssignments, setDeptAssignments] = useState({})
+  const [managerId, setManagerId] = useState(null)
+  const [managerUser, setManagerUser] = useState(null)         // { id, name, avatarColor }
+  const [deptAssignments, setDeptAssignments] = useState({})   // { dept: userId }
+  const [deptUsers, setDeptUsers] = useState({})               // { dept: userObj }
 
   // Portal modal
   const [portalData, setPortalData] = useState(null)
@@ -940,7 +1158,10 @@ export default function OnboardingWizardPage() {
       job: hireInfo.jobTitle || undefined,
       templateId: selectedTemplate?.id,
       startDate,
-      departmentMap: deptAssignments,
+      managerId: managerId || undefined,
+      departmentMap: Object.fromEntries(
+        Object.entries(deptAssignments).filter(([, v]) => v)
+      ),
     })
   }
 
@@ -1027,12 +1248,18 @@ export default function OnboardingWizardPage() {
               <Step3
                 hireName={hireInfo.fullName}
                 templateId={selectedTemplate?.id}
-                managerName={managerName}
+                managerId={managerId}
+                managerUser={managerUser}
                 deptAssignments={deptAssignments}
-                onManagerChange={setManagerName}
-                onDeptChange={(dept, val) =>
-                  setDeptAssignments((prev) => ({ ...prev, [dept]: val }))
-                }
+                deptUsers={deptUsers}
+                onManagerChange={(user) => {
+                  setManagerId(user?.id ?? null)
+                  setManagerUser(user ?? null)
+                }}
+                onDeptChange={(dept, user) => {
+                  setDeptAssignments((prev) => ({ ...prev, [dept]: user?.id ?? null }))
+                  setDeptUsers((prev) => ({ ...prev, [dept]: user ?? null }))
+                }}
                 onBack={() => setStep(1)}
                 onNext={() => setStep(3)}
               />
@@ -1042,8 +1269,10 @@ export default function OnboardingWizardPage() {
               <Step4
                 formData={hireInfo}
                 template={selectedTemplate}
-                managerName={managerName}
-                deptAssignments={deptAssignments}
+                managerName={managerUser?.name ?? ''}
+                deptAssignments={Object.fromEntries(
+                  Object.entries(deptUsers).map(([d, u]) => [d, u?.name ?? ''])
+                )}
                 onBack={() => setStep(2)}
                 onSubmit={handleStep4Submit}
                 isSubmitting={createMutation.isPending}

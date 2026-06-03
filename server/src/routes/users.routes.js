@@ -7,10 +7,11 @@ import { deleteUser, getUser, getUsers, getUserTasks } from '../controllers/user
 const router = express.Router();
 const protect = [verifyAccessToken(), requireRole("hr", "admin"), organizationGuard];
 const managerProtect = [verifyAccessToken(), requireRole("hr", "admin", "manager"), organizationGuard];
+const selfOrAdminProtect = [verifyAccessToken(), requireRole("hr", "admin", "manager", "task_owner", "employee"), organizationGuard];
 
 router.get('/', ...managerProtect, getUsers);
 router.get('/:id', ...protect, getUser);
-router.get('/:id/tasks', ...protect, getUserTasks);
-router.delete("/:id/delete", ...protect, deleteUser)
+router.get('/:id/tasks', ...selfOrAdminProtect, getUserTasks);
+router.delete("/:id", ...protect, deleteUser)
 
 export default router;

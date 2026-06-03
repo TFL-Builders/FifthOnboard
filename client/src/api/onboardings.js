@@ -35,4 +35,5 @@ export const usersApi = {
     api.get(`/users`, { params: { department, status: 'active' } }),
   listManagers: () =>
     api.get(`/users`, { params: { role: 'manager', status: 'active' } }),
+  getUserTasks: (userId, params) => api.get(`/users/${userId}/tasks`, { params }),
 }

@@ -7,6 +7,8 @@ import ResetPasswordPage from '../pages/auth/ResetPasswordPage'
 import SetupPage from '../pages/auth/SetupPage'
 import ProtectedRoute from './ProtectedRoute'
 import PublicRoute from './PublicRoute'
+import DashboardPage from '../pages/dashboard/DashboardPage'
+import MyTasksPage from '../pages/tasks/MyTasksPage'
 import TemplatesPage from '../pages/templates/TemplatesPage'
 import TemplateEditorPage from '../pages/templates/TemplateEditorPage'
 import TemplatePreviewPage from '../pages/templates/TemplatePreviewPage'
@@ -16,15 +18,19 @@ import OnboardingDetailPage from '../pages/onboardings/OnboardingDetailPage'
 import OnboardingEditPage from '../pages/onboardings/OnboardingEditPage'
 import HirePortalPage from '../pages/hire/HirePortalPage'
 import HirePortalErrorPage from '../pages/hire/HirePortalErrorPage'
+import PeoplePage from '../pages/people/PeoplePage'
+import PersonDetailPage from '../pages/people/PersonDetailPage'
+import SettingsPage from '../pages/settings/SettingsPage'
+import useAuthStore from '../stores/authStore'
 
-function DashboardPlaceholder() {
+function DashboardGate() {
+  const user = useAuthStore(s => s.user)
+  const isTaskOwner = ['task_owner', 'employee'].includes(user?.role)
+  if (isTaskOwner) return <Navigate to="/my-tasks" replace />
   return (
-    <div
-      className="flex items-center justify-center min-h-screen"
-      style={{ backgroundColor: 'var(--bg-app)', color: 'var(--text-primary)' }}
-    >
-      <p className="text-[18px] font-semibold">Columbus — Dashboard (coming soon)</p>
-    </div>
+    <ProtectedRoute>
+      <DashboardPage />
+    </ProtectedRoute>
   )
 }
 
@@ -42,11 +48,14 @@ export default function AppRouter() {
         <Route path="/setup" element={<SetupRoute><SetupPage /></SetupRoute>} />
 
         {/* protected routes — redirect unauthenticated users away */}
+        <Route path="/dashboard" element={<DashboardGate />} />
+
+        {/* task owner inbox */}
         <Route
-          path="/dashboard"
+          path="/my-tasks"
           element={
             <ProtectedRoute>
-              <DashboardPlaceholder />
+              <MyTasksPage />
             </ProtectedRoute>
           }
         />
@@ -90,6 +99,13 @@ export default function AppRouter() {
         <Route path="/onboardings/new" element={<ProtectedRoute><OnboardingWizardPage /></ProtectedRoute>} />
         <Route path="/onboardings/:id" element={<ProtectedRoute><OnboardingDetailPage /></ProtectedRoute>} />
         <Route path="/onboardings/:id/edit" element={<ProtectedRoute><OnboardingEditPage /></ProtectedRoute>} />
+
+        {/* settings */}
+        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+
+        {/* people */}
+        <Route path="/people" element={<ProtectedRoute><PeoplePage /></ProtectedRoute>} />
+        <Route path="/people/:id" element={<ProtectedRoute><PersonDetailPage /></ProtectedRoute>} />
 
         {/* hire portal — no auth required, token-gated via URL */}
         <Route path="/hire/error" element={<HirePortalErrorPage />} />

@@ -27,7 +27,19 @@
       "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"mobile task list progress tracking\" --domain ux)",
       "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"animation loading skeleton\" --domain ux)",
       "Bash(cat client/src/App.jsx)",
-      "Bash(cat client/src/main.jsx)"
+      "Bash(cat client/src/main.jsx)",
+      "Bash(python \"C:\\\\Projects\\\\Columbus App\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"SaaS HR onboarding dashboard admin sidebar\" --design-system -p \"Columbus\")",
+      "Bash(python3 \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"SaaS onboarding task inbox dashboard professional\" --design-system -p \"Columbus MyTasksPage\" -f markdown)",
+      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"SaaS onboarding task inbox dashboard professional\" --design-system -p \"Columbus MyTasksPage\" -f markdown)",
+      "Bash(python skills/ui-ux-pro-max/scripts/search.py \"SaaS HR dashboard people management professional\" --design-system -p \"Columbus\")",
+      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"SaaS HR dashboard people management professional\" --design-system -p \"Columbus\")",
+      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"table modal dialog form data management\" --domain ux)",
+      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"layout responsive form\" --stack react)",
+      "Bash(findstr /S \"res.status\" server\\\\src\\\\controllers\\\\*.js)",
+      "Bash(findstr -i \"message\\\\|error\")",
+      "Bash(python3 \"C:\\\\Projects\\\\Columbus App\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"HR SaaS onboarding dashboard settings page professional\" --design-system -p \"Columbus App\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Projects\\\\Columbus App\\\\client\\\\src\\\\routes\" -File)",
+      "Bash(Select-Object Name)"
     ]
   }
 }

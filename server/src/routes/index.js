@@ -6,6 +6,7 @@ import inviteRoutes from './invites.routes.js'
 import onboardingRoutes from "./onboardings.routes.js"
 import taskRoutes from "./tasks.routes.js"
 import userRoutes from "./users.routes.js"
+import dashboardRoutes from "./dashboard.routes.js"
 
 export const apiRouter = express.Router();
 
@@ -16,7 +17,7 @@ apiRouter.use('/invites', inviteRoutes);
 apiRouter.use('/users', userRoutes);
 apiRouter.use("/onboardings", onboardingRoutes);
 apiRouter.use("/tasks", taskRoutes);
-apiRouter.use("/users", userRoutes);
+apiRouter.use("/dashboard", dashboardRoutes);
 
 
 // health check

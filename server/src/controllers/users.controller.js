@@ -39,6 +39,19 @@ export async function getUsers(req, res) {
         }
         
         console.log(userFilter)
+
+        if (req.query.view){
+            const users = await User.find(userFilter).select('_id name email avatarColor ');
+
+            const viewResult = users.map(u => ({
+                id: u._id,
+                name: u.name,
+                email: u.email,
+                avatarColor: u.avatarColor,
+            }));
+
+            return res.status(200).json({ data: viewResult });
+        }
         const users = await User.find(userFilter).select('name email role department status avatarColor createdAt');
 
         const result = users.map(u => ({
@@ -104,7 +117,7 @@ export async function getUserTasks(req, res) {
 
         const taskFilter = { organizationId: orgId, assigneeUserId: employeeId }
         
-        if (req.query.disable) {
+        if (req.query.disabled) {
             taskFilter.status = {$ne: 'done'};
 
             const [onboardingIds, totalTasks] = await Promise.all([
@@ -115,16 +128,13 @@ export async function getUserTasks(req, res) {
             const result = await Onboarding.find({organizationId: orgId, _id: {$in: onboardingIds}}).populate('templateId', 'name').select('_id newHireName');
 
             const affectedOnboardings = result.map(onboarding => {
+                const tasks = totalTasks.filter(task =>
+                    task.onboardingId.toString() === onboarding._id.toString()
+                )
 
-                const tasks = totalTasks.map(task => {
-                        if (task.onboardingId.toString() === onboarding._id.toString()){
-                            return task;
-                        }
-                    })
-                
                 return {
                     id: onboarding._id,
-                    newHireName,
+                    newHireName: onboarding.newHireName,
                     onboardingTaskCount: tasks.length
                 }
             })
@@ -134,7 +144,7 @@ export async function getUserTasks(req, res) {
                 totalTaskCount: totalTasks.length,
             }
 
-            res.status(200).json({data: finalResult});
+            return res.status(200).json({data: finalResult});
         }
         
         if (req.query.status) {
@@ -175,7 +185,9 @@ export async function getUserTasks(req, res) {
                             status: task.status,
                             phase: task.phase,
                             dueAt: task.dueAt,
-                            requiresUpload: task.requiresUpload
+                            requiresUpload: task.requiresUpload,
+                            blockedReason: task.blockedReason ?? null,
+                            completedAt: task.completedAt ?? null,
                         }
                     }
                 )
@@ -193,7 +205,7 @@ export async function getUserTasks(req, res) {
 export async function deleteUser(req, res){
     const disableId = req.params.id;
     const orgId = req.organizationId;
-    const reassignToId = req.body?.id ?? null;
+    const reassignToId = req.body?.reassignTo ?? null;
 
     const roleHierarchy = {
         admin:      4,
