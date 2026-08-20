@@ -1,7 +1,7 @@
 
  const Login = () => {
   return (
-    <div className="border-2 border-solid full-login flex justify-center align-center">
+    <div className=" full-login flex justify-center align-center">
         <div className="flex justify-center items-center flex-col text-center main-login bg-amber-300 shadow">
             <div className="page-container bg-[#F9FAFB]">
                 <div className="card flex flex-col justify-around gap-8 h-80">
@@ -17,7 +17,7 @@
                                 <label htmlFor="pass" className="text-left">Password</label>
                                 <input type="password" id="pass" placeholder="Enter password"/>
                                 </form>
-                                <button type="submit" className="bg-[#06B6D4] w-100 h-12 rounded-lg">Sign In</button>
+                                <button type="submit" className="bg-primary w-100 h-12 rounded-lg">Sign In</button>
                             </div> 
 
                             <div>

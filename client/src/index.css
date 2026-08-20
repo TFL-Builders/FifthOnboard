@@ -1,5 +1,11 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-background: #F9FAFB;
+  --color-primary: #06B6D4;
+
+}
+
 .login-form input{
   /* border: 1px solid black; */
   height: 48px;
