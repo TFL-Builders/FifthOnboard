@@ -12,9 +12,7 @@
 
 .main-login{
   max-width: 448px;
-  background-color: #F9FAFB;
-  height: 578.99px;
-  border-radius: 0px 25px 0px 25px;
+  /* min-height: 578.99px; */
   /* box-shadow: ; */
 }
 
@@ -28,5 +26,13 @@
 
 
 .page-container{
-  height: 443.67px;
+  /* min-height: 443.67px; */
 } 
+
+.login-form label{
+  padding-bottom: 4px;
+}
+
+.welcome{
+  padding-top: 20px;
+}
