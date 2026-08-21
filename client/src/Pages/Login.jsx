@@ -18,7 +18,7 @@
                                 <label htmlFor="pass" className="text-left">Password</label>
                                 <input type="password" id="pass" placeholder="Enter password" className="border border-solid border-[#E5E7EB]"/>
                                 </form>
-                                <button type="submit" className="bg-[#06B6D4] w-100 h-12 rounded-lg">Sign In</button>
+                                <button type="submit" className="bg-[#06B6D4] w-100 h-12 rounded-lg text-[white]">Sign In</button>
                                 <div className="flex justify-center items-center gap-50 text-[13px] p-2">
                                     <div><a href="" className="text-[#06B6D4]">Create Account</a></div>
                                     <div><a href="" className="text-[#06B6D4]">Forgot Password</a></div>
