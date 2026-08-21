@@ -1,9 +1,9 @@
 
  const Login = () => {
   return (
-    <div className="full-login flex justify-center items-center bg-[#F9FAFB]">
+    <div className="full-login flex justify-center items-center bg-background">
         <div className="flex flex-col text-center main-login">
-            <div className="page-container bg-[#F9FAFB] flex justify-center items-center flex-col  shadow-2xl rounded-b-2xl mb-5">
+            <div className="page-container bg-background flex justify-center items-center flex-col  shadow-2xl rounded-b-2xl mb-5">
                 <div className="card flex flex-col justify-around gap-8">
                             <div className="flex flex-col">
                                 <p className="text-[36px]  font-bold welcome">Welcome Back</p>
@@ -18,10 +18,10 @@
                                 <label htmlFor="pass" className="text-left">Password</label>
                                 <input type="password" id="pass" placeholder="Enter password" className="border border-solid border-[#E5E7EB]"/>
                                 </form>
-                                <button type="submit" className="bg-[#06B6D4] w-100 h-12 rounded-lg text-[white]">Sign In</button>
+                                <button type="submit" className="bg-primary w-100 h-12 rounded-lg text-[white]">Sign In</button>
                                 <div className="flex justify-center items-center gap-50 text-[13px] p-2">
-                                    <div><a href="" className="text-[#06B6D4]">Create Account</a></div>
-                                    <div><a href="" className="text-[#06B6D4]">Forgot Password</a></div>
+                                    <div><a href="" className="text-primary">Create Account</a></div>
+                                    <div><a href="" className="text-primary">Forgot Password</a></div>
                                 </div>
                             </div> 
 
