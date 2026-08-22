@@ -3,42 +3,13 @@
 @theme {
   --color-background: #F9FAFB;
   --color-primary: #06B6D4;
-
-}
-
-.login-form input{
-  /* border: 1px solid black; */
-  height: 48px;
-  width: 400px;
-  border-radius: 5px;
-  margin-bottom: 24px;
-  padding-left: 10px;
-  background-color: #FFFFFF;
-}
-
-.main-login{
-  max-width: 448px;
-  /* min-height: 578.99px; */
-  /* box-shadow: ; */
-}
-
-.full-login{
-  height: 100vh;
-}
-
-.card{
-  padding: 0 24px;
 }
 
 
-.page-container{
-  /* min-height: 443.67px; */
-} 
 
-.login-form label{
-  padding-bottom: 4px;
-}
 
-.welcome{
-  padding-top: 20px;
-}
+
+
+
+ 
+

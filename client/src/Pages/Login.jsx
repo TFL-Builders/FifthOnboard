@@ -1,22 +1,22 @@
 
  const Login = () => {
   return (
-    <div className="full-login flex justify-center items-center bg-background">
-        <div className="flex flex-col text-center main-login">
+    <div className="full-login flex justify-center items-center bg-background h-screen">
+        <div className="flex flex-col text-center main-login max-w-md">
             <div className="page-container bg-background flex justify-center items-center flex-col  shadow-2xl rounded-b-2xl mb-5">
-                <div className="card flex flex-col justify-around gap-8">
+                <div className="card flex flex-col justify-around gap-8 px-6">
                             <div className="flex flex-col">
-                                <p className="text-[36px]  font-bold welcome">Welcome Back</p>
+                                <p className="text-[36px] pt-5 font-bold welcome">Welcome Back</p>
                                 <div className="h-6 text-[#64748B]">Sign in to your account to continue</div>
                             </div>
 
                             <div>
                                 <div>
                                 <form action="/submit_form" method="post" className="flex flex-col login-form">
-                                <label htmlFor="email-add" className="text-left">Email Address</label>
-                                <input type="email" id="email-add" placeholder="Enter your email address" className="border border-solid border-[#E5E7EB]"/>
-                                <label htmlFor="pass" className="text-left">Password</label>
-                                <input type="password" id="pass" placeholder="Enter password" className="border border-solid border-[#E5E7EB]"/>
+                                <label htmlFor="email-add" className="text-left pb-1">Email Address</label>
+                                <input type="email" id="email-add" placeholder="Enter your email address" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white"/>
+                                <label htmlFor="pass" className="text-left pb-1">Password</label>
+                                <input type="password" id="pass" placeholder="Enter password" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white"/>
                                 </form>
                                 <button type="submit" className="bg-primary w-100 h-12 rounded-lg text-[white]">Sign In</button>
                                 <div className="flex justify-center items-center gap-50 text-[13px] p-2">
