@@ -1,17 +1,19 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
  const CreateAcc = () => {
     const [showCreatePassword, setShowCreatePassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
-    <div className="full-create flex justify-center items-center bg-background h-screen">
+    <div className="full-create flex justify-center items-center bg-background min-h-screen py-10 overflow-y-auto">
         <div className="flex flex-col text-center main-login max-w-md">
             <div className="page-container flex justify-center items-center flex-col  shadow-2xl rounded-b-2xl mb-5">
                 <div className="card flex flex-col justify-around gap-8 px-6">
-                            <div className="flex flex-col">
-                                <p className="text-[36px] pt-5 font-bold creating">Cr<span className="text-primary">ea</span>te <span className="text-primary">A</span>ccount</p>
-                                <div className="h-6 text-[#64748B]">Fill in the details for your account to be born</div>
+                            <div className="flex flex-col gap-1">
+                                <p className="text-[13px] uppercase tracking-wide text-primary font-semibold pt-5">Staff Onboarding Platform</p>
+                                <p className="text-[36px] font-bold creating">Cr<span className="text-primary">ea</span>te <span className="text-primary">A</span>ccount</p>
+                                <div className="text-[#64748B]">Set up your organization's onboarding workspace in minutes.</div>
                             </div>
 
                             
@@ -63,6 +65,11 @@ import { useState } from "react";
 
                                 </form>
                                 <button form="create-form" type="submit" className="bg-primary w-100 h-12 rounded-lg text-[white] border border-primary mb-4 hover:bg-background hover:border-primary hover:text-primary">Create</button>
+
+                                <div className="flex justify-center items-center gap-1 text-[13px] p-2">
+                                    <span className="text-[#64748B]">Already have an account?</span>
+                                    <Link to="/" className="text-primary hover:brightness-150 transition">Sign In</Link>
+                                </div>
 
                                 <div>
                                         <div className="border-t border-[#E2E8F0]"></div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
  const Login = () => {
 const [showPassword, setShowPassword] = useState(false);
@@ -39,8 +40,8 @@ const [showPassword, setShowPassword] = useState(false);
                                 </form>
                                 <button form="login-form" type="submit" className="bg-primary w-100 h-12 rounded-lg text-[white] border border-primary hover:bg-background hover:border-primary hover:text-primary transition-colors duration-300">Sign In</button>
                                 <div className="flex justify-center items-center gap-50 text-[13px] p-2">
-                                    <div><a href="" className="text-primary hover:brightness-150 transition">Create Account</a></div>
-                                    <div><a href="" className="text-primary hover:brightness-150 transition">Forgot Password</a></div>
+                                    <div><Link to="/create-account" className="text-primary hover:brightness-150 transition">Create Account</Link></div>
+                                    <div><Link to="/forgot-password" className="text-primary hover:brightness-150 transition">Forgot Password</Link></div>
                         
                                 </div>
                             
