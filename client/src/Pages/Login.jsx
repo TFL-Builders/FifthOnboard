@@ -22,7 +22,7 @@ const [showPassword, setShowPassword] = useState(false);
 
                                 <label htmlFor="pass" className="text-left pb-1">Password</label>
                                 <div className="relative">
-                                    <input type={showPassword ? "text" : "password"} id="pass" placeholder="Enter password" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white"/>
+                                    <input type={showPassword ? "text" : "password"} id="pass" placeholder="Enter password" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"/>
                                     <button type="button" onClick={() => setShowPassword((prev) => !prev)} className="absolute right-3 top-1/3 -translate-y-1/2 text-[#64748B] hover:text-primary transition-colors" tabIndex={-1}>
                                         {showPassword ?
                                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">

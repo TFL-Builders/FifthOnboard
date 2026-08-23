@@ -21,12 +21,15 @@ import { useState } from "react";
                                 <label htmlFor="user-create" className="text-left pb-1"><span className="text-primary">User</span>name</label>
                                 <input type="text" id="user-create" placeholder="Enter your name" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white"/>
 
+                                <label htmlFor="user-org" className="text-left pb-1">Organization name</label>
+                                <input type="text" id="user-org" placeholder="Enter your Organization" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white"/>
+
                                 <label htmlFor="email-create" className="text-left pb-1">Email Ad<span className="text-primary">dress</span></label>
                                 <input type="email" id="email-create" placeholder="Enter your email address" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white"/>
 
                                 <label htmlFor="pass-create" className="text-left pb-1"><span className="text-primary">Pass</span>word</label>
                                 <div className="relative">
-                                    <input type={showCreatePassword ? "text" : "password"} id="pass-create" placeholder="Enter password" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white"/>
+                                    <input type={showCreatePassword ? "text" : "password"} id="pass-create" placeholder="Enter password" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"/>
                                     <button type="button" onClick={() => setShowCreatePassword((prev) => !prev)} className="absolute right-3 top-1/3 -translate-y-1/2 text-[#64748B] hover:text-primary transition-colors" tabIndex={-1}>
                                         {showCreatePassword ?
                                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -42,7 +45,8 @@ import { useState } from "react";
                                 </div>
                                 
                                 <label htmlFor="pass-confirm" className="text-left pb-1">Confirm <span className="text-primary">Pass</span>word</label>
-                               <div className="relative">                                    <input type={showConfirmPassword ? "text" : "password"} id="pass-confirm" placeholder="Re-enter password" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white"/>
+                               <div className="relative">                                    
+                                    <input type={showConfirmPassword ? "text" : "password"} id="pass-confirm" placeholder="Re-enter password" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"/>
                                     <button type="button" onClick={() => setShowConfirmPassword((prev) => !prev)} className="absolute right-3 top-1/3 -translate-y-1/2 text-[#64748B] hover:text-primary transition-colors" tabIndex={-1}>
                                         {showConfirmPassword ?
                                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
