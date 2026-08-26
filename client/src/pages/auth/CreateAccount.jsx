@@ -83,7 +83,7 @@ import { Link } from "react-router-dom";
                             </div>
                 </div>
             </div>
-            <div className="text-[#64748B] c2026">© 2026 Contract Management Platform. All rights reserved.</div>
+            <div className="text-[#64748B] c2026">© 2026 Staff Onboarding Platform. All rights reserved.</div>
         </div>
     </div>
   )

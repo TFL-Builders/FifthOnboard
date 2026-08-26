@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-The React/Vite frontend for a "Contract Management Platform" onboarding app. This `client/` folder is part of a larger monorepo (there is a sibling `server/` — an Express + Mongoose API — one level up); this file covers the client only.
+The React/Vite frontend for a "Staff Onboarding Platform" onboarding app. This `client/` folder is part of a larger monorepo (there is a sibling `server/` — an Express + Mongoose API — one level up); this file covers the client only.
 
 ## Commands
 
