@@ -21,7 +21,6 @@ function App() {
           {/* App routes */}
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/invite-teammate" element={<InviteTeammate />} />
           </Route>
           
           <Route path="*" element={<Login />} />
