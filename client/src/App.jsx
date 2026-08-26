@@ -6,6 +6,7 @@ import Dashboard from './pages/app/Dashboard'
 import Layout from './layouts/Layout'
 import { AuthProvider } from './context/AuthContext'
 import './App.css'
+// import { InviteTeammate } from './Components/InviteTeammate' in case of editing
 
 function App() {
   return (
@@ -16,6 +17,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          {/* <Route path="/invite" element={<InviteTeammate />} /> in the event of editing required */}
+
 
           {/* App routes */}
           <Route element={<Layout />}>
