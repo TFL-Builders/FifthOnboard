@@ -1,4 +1,5 @@
 import {useState} from 'react'
+import { Link } from 'react-router-dom';
 
 const CheckCircleIcon = () => (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -106,11 +107,7 @@ const ResetPass = () => {
                                     <button form="resetpassword-form" type="submit" disabled={!canSubmit} className="bg-primary w-100 h-12 rounded-lg text-[white] border border-primary mb-4 hover:bg-background hover:border-primary hover:text-primary">Reset</button>
 
                                     <div className="flex justify-center text-[13px] p-1">
-                                        <div>
-                                            <a href="/login" className="text-primary hover:brightness-150 transition">
-                                                Back to Sign In
-                                            </a>
-                                        </div>
+                                            <Link to="/" className="text-primary hover:brightness-150 transition">Back to Sign In</Link>
                                     </div>
 
                                     <div>

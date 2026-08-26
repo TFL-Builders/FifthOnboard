@@ -5,6 +5,7 @@ import CreateAcc from './Pages/CreateAcc'
 // import ResetPass from './Pages/ResetPass'
 import { Sidebar } from './Components/Sidebar'
 import './App.css'
+import { InviteTeammate } from './Pages/InviteTeammate'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="*" element={<Sidebar />} />
         <Route path="/forgot-password" element={<ForgotPass />} />
         <Route path="/create-account" element={<CreateAcc />} />
+        <Route path="/invite-teammate" element={<InviteTeammate/>}/>
         
       </Routes>
     </BrowserRouter>

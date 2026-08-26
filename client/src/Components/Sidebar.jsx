@@ -1,6 +1,7 @@
 // import React from 'react'
 import { useState } from 'react'
 import Jaytester from '../assets/Jaytester.jpg'
+import Logo from '../assets/Fifthlab.png'
 
 export const Sidebar = () => {
     const [activePage,setActivePage] = useState('');
@@ -8,9 +9,9 @@ export const Sidebar = () => {
   return (
     <div className="FullBar w-[12vw] h-screen flex flex-col justify-between items-center">
         <div className="Sidebar flex flex-col justify-between h-screen w-full">
-            <div className="top w-full">
+            <div className="top w-full pt-2">
                 <div className="Logo text-2xl text-primary ml-1 p-2">
-                    FifthOnboard
+                    <img src={Logo} alt="Fifthlabs Logo" />
                     <hr className='border border-[#64748B] w-full mt-4'/>
                 </div>
                 
@@ -104,7 +105,7 @@ export const Sidebar = () => {
                 </div>
             </div>
             <div className="bottom flex flex-col gap-4 items-start pb-5">
-                <div className="UserInfo flex flex-row gap-4 p-2 ml-4 bg-[#F0F9FF] rounded-b-xl">
+                <div className="UserInfo flex flex-row gap-4 p-2 ml-4 bg-[#F0F9FF] rounded-xl hover:brightness">
                     <div className="profilePic border-2 border-primary rounded-full overflow-hidden h-10 w-10">
                         <img src={Jaytester} alt="Sampler Temple" className="w-full h-full object-cover" />
                     </div>
