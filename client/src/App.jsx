@@ -3,10 +3,11 @@ import Login from './pages/auth/Login'
 import CreateAccount from './pages/auth/CreateAccount'
 import ForgotPassword from './pages/auth/ForgotPassword'
 import Dashboard from './pages/app/Dashboard'
-import { InviteTeammate } from './pages/app/InviteTeammate'
 import Layout from './layouts/Layout'
 import { AuthProvider } from './context/AuthContext'
+import { Profile } from './pages/app/Profile'
 import './App.css'
+// import { InviteTeammate } from './Components/InviteTeammate' in case of editing
 
 function App() {
   return (
@@ -17,11 +18,13 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          {/* <Route path="/invite" element={<InviteTeammate />} /> in the event of editing required */}
 
           {/* App routes */}
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/invite-teammate" element={<InviteTeammate />} />
+            <Route path="/profile-page" element={<Profile/>}/>
+
           </Route>
           
           <Route path="*" element={<Login />} />
