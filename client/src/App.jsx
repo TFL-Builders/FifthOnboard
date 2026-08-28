@@ -1,12 +1,14 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Login from './pages/auth/Login'
-import CreateAccount from './pages/auth/CreateAccount'
-import ForgotPassword from './pages/auth/ForgotPassword'
-import Dashboard from './pages/app/Dashboard'
-import Layout from './layouts/Layout'
-import { AuthProvider } from './context/AuthContext'
-import { Profile } from './pages/app/Profile'
+import Login from './pages/auth/Login';
+import CreateAccount from './pages/auth/CreateAccount';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import Dashboard from './pages/app/Dashboard';
+import Layout from './layouts/Layout';
+import { AuthProvider } from './context/AuthContext';
+import { Profile } from './pages/app/Profile';
+import { People } from './pages/app/People';
 import './App.css'
+
 // import { InviteTeammate } from './Components/InviteTeammate' in case of editing
 
 function App() {
@@ -24,7 +26,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile-page" element={<Profile/>}/>
-
+            <Route path="/people" element={<People/>}/>
           </Route>
           
           <Route path="*" element={<Login />} />
