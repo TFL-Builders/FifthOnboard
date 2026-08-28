@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { PageHeading } from "../../Components/PageHeading";
+import { IconBadge } from "../../Components/IconBadge";
 
 export const Profile = () => {
     const [selected, setSelected] = useState("on");
@@ -12,12 +14,9 @@ export const Profile = () => {
     ]
 
   return (
-    <div className="p-8 bg-background h-full">
+    <div className="p-8 bg-background">
         <div className="size w-162.5">
-            <div className="pb-6">
-                <div className="profile-settings text-[30px]">Profile Settings</div>
-                <div className="manage text-[16px] text-[#64748B]">Manage your account information and profile picture</div>
-            </div>
+            <PageHeading title="Profile Settings" subtitle="Manage your account information and profile picture" />
 
             <div className="profilePic border border-[#64748B] rounded-xl mb-6">
                 <div className="top border-b border-[#64748B] p-4">
@@ -26,12 +25,12 @@ export const Profile = () => {
                 </div>
                 <div className="actualPic">
                     <div className="containpic flex p-4 items-center">
-                        <div className="svgfinallly bg-[#ECFEFF] rounded-full p-4">
+                        <IconBadge className="rounded-full p-4">
                             <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M30.0837 33.25V30.0833C30.0837 28.4036 29.4164 26.7927 28.2287 25.605C27.0409 24.4173 25.43 23.75 23.7503 23.75H14.2503C12.5706 23.75 10.9597 24.4173 9.77198 25.605C8.58425 26.7927 7.91699 28.4036 7.91699 30.0833V33.25" stroke="#0891B2" stroke-width="1.58333" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M19.0003 17.4167C22.4981 17.4167 25.3337 14.5811 25.3337 11.0833C25.3337 7.58553 22.4981 4.75 19.0003 4.75C15.5025 4.75 12.667 7.58553 12.667 11.0833C12.667 14.5811 15.5025 17.4167 19.0003 17.4167Z" stroke="#0891B2" stroke-width="1.58333" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                        </div>
+                        </IconBadge>
                         <div className="svgabout ml-4">
                             <button className="upload text-[15px] bg-primary p-2 text-[#FFFFFF] rounded-md mb-1"> <span className="pr-2">+</span> <span>Upload Photo</span></button> 
                             {/* work on the button and allow it to receive photos using JS */}
@@ -44,12 +43,12 @@ export const Profile = () => {
             <div className="profileNotifications border border-[#64748B] rounded-xl mb-6">
                 <div className="top border-b border-[#64748B] p-4 flex justify-between">
                     <div className="notifications flex ">
-                        <div className="bg-[#ECFEFF] p-2 mr-2 w-8.5 h-8.5 rounded-xl">
+                        <IconBadge className="p-2 mr-2 w-8.5 h-8.5 rounded-xl">
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M4.5 6C4.5 4.80653 4.97411 3.66193 5.81802 2.81802C6.66193 1.97411 7.80653 1.5 9 1.5C10.1935 1.5 11.3381 1.97411 12.182 2.81802C13.0259 3.66193 13.5 4.80653 13.5 6C13.5 11.25 15.75 12.75 15.75 12.75H2.25C2.25 12.75 4.5 11.25 4.5 6Z" stroke="#0891B2" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M7.72461 15.75C7.85015 15.9783 8.0347 16.1688 8.25898 16.3014C8.48326 16.434 8.73904 16.504 8.99961 16.504C9.26017 16.504 9.51596 16.434 9.74024 16.3014C9.96452 16.1688 10.1491 15.9783 10.2746 15.75" stroke="#0891B2" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                        </div>
+                        </IconBadge>
                         
                         <div className="word">
                             <div className="topword text-[16px]">Notification Settings</div>
@@ -124,7 +123,7 @@ export const Profile = () => {
                             <button
                                 type="button"
                                 onClick={() => setSoundOpen(!soundOpen)}
-                                className="w-136 h-12 text-left  p-2 rounded-lg border border-[#E5E7EB] focus:border-2 focus:border-black bg-white"
+                                className="w-136 h-12 text-left  p-2 rounded-lg border border-[#E5E7EB] focus:border-2 focus:border-primary bg-white"
                             >
                                 <span className={sound ? 'text-black' : 'text-[#808080]'}>
                                     {sound ? sounds.find((o) => o.value === sound)?.label : 'Select a sound'}
@@ -172,12 +171,12 @@ export const Profile = () => {
             </div>
             <div className="Account-info border border-[#64748B] rounded-xl">
                 <div className="introAccount p-4 flex gap-2 items-center border-b border-[#64748B]">
-                    <div className="svgFinallyAccount bg-[#ECFEFF] rounded-md p-2 w-8.5 h-8.5 flex justify-center items-center">
+                    <IconBadge className="rounded-md p-2 w-8.5 h-8.5">
                         <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M30.0837 33.25V30.0833C30.0837 28.4036 29.4164 26.7927 28.2287 25.605C27.0409 24.4173 25.43 23.75 23.7503 23.75H14.2503C12.5706 23.75 10.9597 24.4173 9.77198 25.605C8.58425 26.7927 7.91699 28.4036 7.91699 30.0833V33.25" stroke="#0891B2" stroke-width="1.58333" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M19.0003 17.4167C22.4981 17.4167 25.3337 14.5811 25.3337 11.0833C25.3337 7.58553 22.4981 4.75 19.0003 4.75C15.5025 4.75 12.667 7.58553 12.667 11.0833C12.667 14.5811 15.5025 17.4167 19.0003 17.4167Z" stroke="#0891B2" stroke-width="1.58333" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                    </div>
+                    </IconBadge>
                     <div className="info">
                         <div className="text-[16px] ">Account information</div>
                         <div className="text-[14px] text-[#64748B]">Your profile details and account settings</div>
@@ -192,7 +191,7 @@ export const Profile = () => {
                                     type="text"
                                     id="Username"
                                     placeholder="Sampler Temple"
-                                    className="border border-solid border-[#E5E7EB] h-12 w-73.5 rounded-[5px] mb-4 pl-2.5 bg-white"
+                                    className="border border-solid border-[#E5E7EB] focus:border-primary focus:outline-none h-12 w-73.5 rounded-[5px] mb-4 pl-2.5 bg-white"
                                 />  
                             </div>
 
@@ -202,7 +201,7 @@ export const Profile = () => {
                                 type="email"
                                 id="Email-show"
                                 placeholder="Sampler@organisation.com"
-                                className="border border-solid border-[#E5E7EB] h-12 w-73.5 rounded-[5px] mb-4 pl-2.5 bg-white"
+                                className="border border-solid border-[#E5E7EB] focus:border-primary focus:outline-none h-12 w-73.5 rounded-[5px] mb-4 pl-2.5 bg-white"
                             />
                             </div>
                         </div>
@@ -214,7 +213,7 @@ export const Profile = () => {
                                     type="text"
                                     id="sound"
                                     placeholder="User"
-                                    className="border border-solid border-[#E5E7EB] h-12 w-73.5 rounded-[5px] mb-4 pl-2.5 bg-white"
+                                    className="border border-solid border-[#E5E7EB] focus:border-primary focus:outline-none h-12 w-73.5 rounded-[5px] mb-4 pl-2.5 bg-white"
                                 />
                             </div>
                             
@@ -225,7 +224,7 @@ export const Profile = () => {
                                     type="text"
                                     id="Status"
                                     placeholder="Active"
-                                    className="border border-solid border-[#E5E7EB] h-12 w-58.5 rounded-[5px] mb-4 pl-2.5 bg-white"
+                                    className="border border-solid border-[#E5E7EB] focus:border-primary focus:outline-none h-12 w-58.5 rounded-[5px] mb-4 pl-2.5 bg-white"
                                     />
                                 </div>
                                 <svg className="mb-4" width="50" height="46" viewBox="0 0 50 46" fill="none" xmlns="http://www.w3.org/2000/svg">

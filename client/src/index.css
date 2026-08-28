@@ -1,8 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 @import 'tailwindcss';
 
 @theme {
   --color-background: #F9FAFB;
   --color-primary: #06B6D4;
+  --color-border: #E1E7EF;
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
 }
 
 
