@@ -1,9 +1,9 @@
 import { PageHeading } from "../../Components/PageHeading";
 
-export const Member = () => {
+export const Settings = () => {
   return (
     <div className="p-8 bg-background h-full">
-      <PageHeading title="People" subtitle="Manage your team members" />
+      <PageHeading title="Settings" subtitle="Manage your organization and workspace preferences" />
     </div>
   );
 };

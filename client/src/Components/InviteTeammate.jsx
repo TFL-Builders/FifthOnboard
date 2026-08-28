@@ -1,5 +1,6 @@
 // import { Link } from "react-router-dom"
 import { useState } from "react";
+import { Input } from "./Input";
 
 export const InviteTeammate = (onClose) => {
     const [roleOpen, setroleOpen] = useState(false);
@@ -33,14 +34,13 @@ export const InviteTeammate = (onClose) => {
                     </div>
                     <hr className="text-primary"/>
                     <form action="" id="Invite-Form" className="flex flex-col px-6 mb-4">
-                        <label htmlFor="work-email" className="text-left">Work Email</label>
-                        <input type="email" placeholder="name@company.com" className="border border-[#E5E7EB]  h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white appearance-none"/>
+                        <Input label="Work Email" id="work-email" type="email" placeholder="name@company.com" className="appearance-none"/>
                         <div className="roles text-left">Role</div>
                         <div className="relative w-full pb-4 ">
                             <button
                                 type="button"
                                 onClick={() => setroleOpen(!roleOpen)}
-                                className="w-full h-12 text-left  p-2 rounded-lg border border-[#E5E7EB] focus:border-2 focus:border-black bg-white"
+                                className="w-full h-12 text-left  p-2 rounded-lg border border-[#E5E7EB] focus:border-2 focus:border-primary bg-white"
                             >
                                 <span className={role ? 'text-black' : 'text-[#808080]'}>
                                     {role ? RoleOptions.find((o) => o.value === role)?.label : 'Select a role'}
@@ -77,7 +77,7 @@ export const InviteTeammate = (onClose) => {
                             <button
                                 type="button"
                                 onClick={() => setDepartmentOpen(!departmentOpen)}
-                                className="w-full h-12 text-left  p-2 rounded-lg border border-[#E5E7EB] bg-white focus:border-2 focus:border-black"
+                                className="w-full h-12 text-left  p-2 rounded-lg border border-[#E5E7EB] bg-white focus:border-2 focus:border-primary"
                             >
                                 <span className={department ? 'text-black' : 'text-[#808080]'}>
                                     {department ? DepartmentOptions.find((o) => o.value === department)?.label : 'Select a department'}
@@ -118,9 +118,9 @@ export const InviteTeammate = (onClose) => {
                     <div>
                     <hr className="text-primary"/>
                     <div className="final flex flex-row justify-end gap-4 m-4 mb-4">
-                        <div className="cancel border p-2 rounded-md text-red-400 hover:bg-red-800 hover:text-white">
+                        <button type="button" className="cancel border p-2 rounded-md text-red-400 hover:bg-red-800 hover:text-white">
                             Cancel
-                        </div>
+                        </button>
                         <button 
                         className="border 
                         p-2 rounded-md text-white bg-primary focus:bg-white focus:text-primary"

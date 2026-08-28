@@ -1,8 +1,8 @@
-
-
 import { Link } from "react-router-dom";
+import { Input } from "../../Components/Input";
+import { Button } from "../../Components/Button";
 
- const ForgotPass = () => {
+const ForgotPass = () => {
   return (
     <div className="full-login flex justify-center items-center bg-background h-screen">
         <div className="main-login flex flex-col text-center max-w-md">
@@ -14,9 +14,8 @@ import { Link } from "react-router-dom";
                     </div>
                     <div>
                         <form action="" id="emailForgot" className="flex flex-col">
-                            <label htmlFor="email"></label>
-                            <input type="email" placeholder="Enter your email" className="border border-solid border-[#E5E7EB] h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white"/>
-                            <button form="emailForgot" type="submit" className="bg-primary w-100 h-12 rounded-lg text-[white] border border-primary hover:bg-background hover:border-primary hover:text-primary">Submit</button>
+                            <Input type="email" id="email" placeholder="Enter your email"/>
+                            <Button form="emailForgot" type="submit">Submit</Button>
                         </form>
                     </div>
                     <div className="flex justify-center items-center gap-1 text-[13px] pb-4">
