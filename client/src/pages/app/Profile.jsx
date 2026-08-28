@@ -14,7 +14,7 @@ export const Profile = () => {
     ]
 
   return (
-    <div className="p-8 bg-background">
+    <div className="p-8 bg-background"> Functionality. See So that we continue using it. That's, that's why I'm interested in it. And you? yeah, but like I would want to And that's here, you know, we find the UI Also ensure that the Back end can handle, because most data analysts, They work with like a, a ton of data, so you're Looking at thousands of Data and rules of data and all of that, so make sure that it's a solid thing. But yeah, good, good projection anyway. Thank you, Rob. All right.
         <div className="size w-162.5">
             <PageHeading title="Profile Settings" subtitle="Manage your account information and profile picture" />
 
