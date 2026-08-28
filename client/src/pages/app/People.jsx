@@ -13,7 +13,7 @@ export const People = () => {
                 <div className="profile-settings text-[30px]">People</div>
                 <div className="manage text-[16px] text-[#64748B]">Manage your team members and pending invites</div>
           </div>
-          <div className="Invitebutton flex gap-2 bg-primary rounded-md p-2 w-42 h-10 cursor-pointer">
+          <div className="Invitebutton flex gap-2 bg-primary rounded-md p-2 w-45 h-10 cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="white" height="24px" width="24px" version="1.1" id="Layer_1" viewBox="0 0 512 512" xml:space="preserve">
               <g>
                 <g>
