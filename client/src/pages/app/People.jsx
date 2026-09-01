@@ -21,7 +21,7 @@ const members = [
   { id: 1, name: "Game", email: "game@gmail.com", role: "admin", department: null, status: "Active" },
   { id: 2, name: "John Smith", email: "john@test.com", role: "manager", department: "customerService", status: "Active" },
   { id: 3, name: "Jaja", email: "2023163@jkk1@nileuniversity.edu.ng", role: "taskOwner", department: "hr", status: "Disabled" },
-  { id: 1, name: "Heliopolis", email: "helio@polis.com", role: "new Hire", department: "fifthLab", status: "Active" },
+  { id: 4, name: "Heliopolis", email: "helio@polis.com", role: "newHire", department: "fifthLab", status: "Active" },
 ];
 
 const avatarColors = ["bg-emerald-600", "bg-amber-700", "bg-fuchsia-700", "bg-sky-700", "bg-rose-700"];
