@@ -29,7 +29,7 @@ export const Templates = () => {
   );
 
   return (
-    <div className="p-8 bg-background ">
+    <div className="p-8">
       <PageHeading title="Templates" subtitle="Create and manage reusable onboarding templates" />
 
       <div className="flex justify-between items-center mb-6 gap-4">
