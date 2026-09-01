@@ -48,7 +48,8 @@ Fixed scale — these are the base/desktop sizes; scale down on small screens wi
 
 A real component kit exists in `src/Components/` — import these rather than re-authoring the markup:
 
-- **`Button`** — `variant` prop: `"primary"` (default; full-width `w-100 h-12`, form-submit style, hover inverts to outline), `"action"` (compact, icon + label, toolbar context, e.g. "New Template"), `"secondary"` (bare outline, e.g. modal Cancel). Extra `className` merges in; everything else spreads onto the `<button>` (`type`, `form`, `onClick`, `disabled`, ...).
+- **`Button`** — `variant` prop: `"primary"` (default; full-width `w-100 h-12`, form-submit style, hover inverts to outline), `"action"` (compact, icon + label, toolbar context, e.g. "New Template"), `"secondary"` (bare outline, e.g. modal Cancel). All three variants are `flex items-center justify-center gap-2` — icon-plus-label children (e.g. `<Rocket size={16}/> Launch onboarding`) center and align on one line for free; don't add your own `flex`/`items-center` in the consuming `className`. Extra `className` merges in; everything else spreads onto the `<button>` (`type`, `form`, `onClick`, `disabled`, ...).
+- **`FilterDropdown`** — the "Filter" button + dropdown list used next to a search bar (`value`, `options: string[]`, `onChange`, optional `allLabel`). Button label shows the active value (or "Filter" when it equals `allLabel`). See `Templates.jsx` (category) and `Onboardings.jsx` (status) — use this instead of a bare `Select` for a search-bar-adjacent filter.
 - **`Input`** — labeled text input (`label`, `id`, plus native input props). Pass `noMargin` to drop its default `mb-4` when composing inside a `gap-*` flex/grid container (e.g. a grid cell — see Gotchas below). `label` accepts a node, so colored `<span>` fragments inside a label work fine.
 - **`PasswordInput`** — same API as `Input`, but self-contained: owns its own show/hide state and renders the eye-toggle button internally. Don't reimplement the toggle per page.
 - **`Textarea`** — same API as `Input`, multi-line, `rows={3}` default.
@@ -57,7 +58,13 @@ A real component kit exists in `src/Components/` — import these rather than re
 - **`IconBadge`** — tinted icon container (`bg-[#ECFEFF]`), size/radius/padding passed via `className` since usages vary (`rounded-full p-4`, `rounded-md p-2 w-9 h-9`, etc.).
 - **`Badge`** — pill/tag (`text-[12px] border border-[#E5E7EB] rounded-full px-2 py-0.5`) — see the category tag on template cards.
 - **`IconButton`** — small square icon-only button, `variant`: `"default"` or `"danger"` (red hover, for delete-style actions).
-- **`NewTemplateModal`** — full worked example of composing the above into a real form: overlay + centered panel (`fixed inset-0 bg-black/40` → `bg-white rounded-2xl shadow-2xl`, click-outside-to-close via `stopPropagation` on the inner panel), sectioned with bordered `border-border rounded-xl` cards, dynamic list state. Copy this shell for the next modal rather than re-deriving the overlay/panel pattern; `Components/InviteTeammate.jsx` is an older modal that predates this pattern and hasn't been converged onto it.
+- **`NewTemplateModal`** / **`NewOnboardingModal`** — worked examples of composing the above into real forms: overlay + centered panel (`fixed inset-0 bg-black/40` → `bg-white rounded-2xl shadow-2xl`, click-outside-to-close via `stopPropagation` on the inner panel), sectioned with bordered `border-border rounded-xl` cards. `NewOnboardingModal` additionally shows the multi-step pattern (`Stepper` + per-step body + Back/Next/submit footer) and a "success state" swap (same overlay, panel content replaced wholesale once the action completes, rather than a second modal). Copy one of these shells for the next modal rather than re-deriving the overlay/panel pattern; `Components/InviteTeammate.jsx` is an older modal that predates this pattern and hasn't been converged onto it.
+- **`Stepper`** — horizontal numbered-step progress indicator (`steps: string[]`, `currentStep: number`); completed steps get a checkmark, the current step is outlined, later steps are muted. See `NewOnboardingModal`.
+- **`Avatar`** — initials circle for a person, deterministic tint color derived from the name (`name`, `size` in px). Use this instead of a photo whenever there's no real avatar image (most of the app doesn't have one yet).
+- **`StatusBadge`** — colored status pill, `status` prop of `"active"` / `"completed"` / `"at-risk"`. For anything else pill-shaped that isn't a status, use `Badge` instead.
+- **`ProgressBar`** — thin percentage bar, color ramps red → amber → green by value. See the Onboardings table.
+- **`Toast`** — bottom-right, self-dismissing (`message`, `onDismiss`, optional `duration`). One at a time — the pages that use it keep a single `toastMessage` state slot rather than a queue.
+- **`OnboardingDetailModal`** — a "record detail" quick-view pattern: header with status + `n/total` pager (prev/next `IconButton`s) + close, an identity block (`Avatar` + name + role), tabs (`Details` / `Tasks`, the latter with a count badge), and a footer action bar. Tasks are grouped by phase using the same `PHASES.map(phase => ({phase, tasks: tasks.filter(...)})).filter(...)` pattern as `NewTemplateModal`. Reuse this shape for the next "click a row to see more" view.
 
 Still hand-rolled markup (no component yet — cite the file, don't copy-paste into a third place without extracting one):
 
@@ -70,12 +77,16 @@ Still hand-rolled markup (no component yet — cite the file, don't copy-paste i
 
 `Input`/`Select`/`Textarea` return a Fragment of `[label, control]` so they work as direct siblings in a `flex flex-col` form. If you place one of them directly as a child of a `grid` container, its label and control become **separate grid cells** instead of a stacked pair (this was a real bug in `NewTemplateModal`'s 3-column task row). Always wrap each field in its own `<div>` when using them inside a `grid`.
 
+### Gotcha: images inside `flex-col` containers
+
+A `flex flex-col` container defaults to `align-items: stretch`, which stretches an `<img>` to the container's full width even with `w-auto` set — `w-auto` doesn't opt an item out of stretch, only an explicit cross-axis size or `self-start`/`items-start` does. Combined with a fixed `h-*`, this forces the browser to scale the image non-proportionally, producing a smeared/blurry look (hit this with the Fifthlab logo on `HirePortal`). Give a fixed-height logo/icon inside a `flex-col` parent `self-start` (or put it in its own `flex items-center` wrapper, as `Sidebar.jsx` does) rather than relying on `w-auto` alone.
+
 ## Spacing / layout
 
 - App page padding: `p-8` on the outer content wrapper (see `Dashboard.jsx`, `Templates.jsx`).
 - Card gaps: `gap-3`–`gap-4` for compact cards, `gap-6`–`gap-8` for auth/form sections.
 - Radius scale: `rounded-[5px]` inputs → `rounded-md` buttons/icon squares → `rounded-xl` settings cards / modal sections → `rounded-2xl` data cards (e.g. template cards) → `rounded-full` avatars/pills/circular icon badges.
-- Sidebar is fixed at `w-[12vw]`; app content sits in a `flex-1` region next to it (`layouts/Layout.jsx`).
+- Sidebar is a fixed `w-64` (`w-20` collapsed), not viewport-relative; app content sits in a `flex-1` region next to it (`layouts/Layout.jsx`).
 - Auth pages cap card width at `max-w-md` and center with flex; use `min-h-screen` + `overflow-y-auto` (not bare `h-screen`) so content isn't clipped on short viewports.
 
 ## Rules
@@ -87,3 +98,6 @@ Still hand-rolled markup (no component yet — cite the file, don't copy-paste i
 - Every focusable form control gets `focus:border-primary focus:outline-none` (and typically `hover:border-primary` too) — this is baked into `Input`/`Textarea`/`Select`/`PasswordInput` already; apply it by hand only to raw `<input>`/`<select>`/`<button>` markup that hasn't been migrated onto those components yet.
 - Don't add a `tailwind.config.js` — this project is Tailwind v4 CSS-first; configure via `@theme` in `index.css`.
 - Anything reusable — buttons, cards, badges, icon badges, page headings, form fields — gets extracted into a component in `src/Components/` the first time it's about to be copy-pasted, not left as duplicated markup across pages. Check `src/Components/` first; there's a good chance the piece you're about to build already exists.
+- Mock/sample data used by more than one page (e.g. `SAMPLE_TEMPLATES`, `DEPARTMENT_STAFF`) lives in `src/data/`, not redeclared locally in each page — there is no backend yet, so this is the single source of truth until one exists. This app is scoped to one department, not a whole organization: a "who should handle this" picker (manager, team member, assignee) should draw from the one flat `DEPARTMENT_STAFF` roster, not a per-sub-department structure.
+- That covers *static* reference data. *Mutable* state shared across more than one route (e.g. onboarding records, edited from the internal table, its detail modal, and the public hire portal all at once) goes through a Context in `src/context/` instead — see `OnboardingsContext.jsx`. It wraps the whole app above `<BrowserRouter>` in `App.jsx`, so both authenticated and public routes can read/write the same in-memory data. Keep derived fields (e.g. a record's `progress`/`status`) computed from the authoritative data (its `tasks` array) inside the context's own actions, not duplicated ad hoc in whichever component happens to update it — that's how the internal detail view and the public portal never drift out of sync with each other.
+- Routes that are public and outside the app shell entirely (no `Layout`, no auth) but aren't part of the auth flow either — e.g. the hire-facing `/hire/:portalId` portal — live in `pages/public/`, a sibling to `pages/auth/` and `pages/app/`.
