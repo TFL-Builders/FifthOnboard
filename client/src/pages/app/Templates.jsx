@@ -1,25 +1,19 @@
 import { useState } from "react";
-import { Search, Plus, FileText, Filter, ChevronDown, Pencil, Copy, Archive, Trash2 } from "lucide-react";
+import { Search, Plus, FileText, Pencil, Copy, Archive, Trash2 } from "lucide-react";
 import { PageHeading } from "../../Components/PageHeading";
 import { IconBadge } from "../../Components/IconBadge";
 import { Badge } from "../../Components/Badge";
 import { Button } from "../../Components/Button";
 import { IconButton } from "../../Components/IconButton";
+import { FilterDropdown } from "../../Components/FilterDropdown";
 import { NewTemplateModal } from "../../Components/NewTemplateModal";
-
-const SAMPLE_TEMPLATES = [
-  { id: 1, name: "Engineering Onboarding", category: "Engineering", description: "Standard ramp-up checklist for new engineers.", updatedAt: "Aug 12, 2026" },
-  { id: 2, name: "Sales Onboarding", category: "Sales", description: "Territory setup, CRM access, and quota ramp plan.", updatedAt: "Jul 30, 2026" },
-  { id: 3, name: "HR Onboarding", category: "HR", description: "Policy sign-off, benefits enrollment, and orientation.", updatedAt: "Aug 1, 2026" },
-  { id: 4, name: "Contractor Onboarding", category: "Contractor", description: "NDA, scope of work, and access provisioning.", updatedAt: "Jun 18, 2026" },
-];
+import { SAMPLE_TEMPLATES } from "../../data/mockTemplates";
 
 const CATEGORIES = ["All", ...new Set(SAMPLE_TEMPLATES.map((template) => template.category))];
 
 export const Templates = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
-  const [filterOpen, setFilterOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
   const filteredTemplates = SAMPLE_TEMPLATES.filter(
@@ -45,35 +39,7 @@ export const Templates = () => {
             />
           </div>
 
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setFilterOpen((prev) => !prev)}
-              className="flex items-center gap-2 h-11 px-4 rounded-[15px] border border-[#E5E7EB] text-[#64748B] bg-white hover:bg-background transition-colors"
-            >
-              <Filter size={16} />
-              {category === "All" ? "Filter" : category}
-              <ChevronDown size={16} className={`transition-transform ${filterOpen ? "rotate-180" : ""}`} />
-            </button>
-            {filterOpen && (
-              <div className="absolute mt-1 w-44 bg-white border border-[#E5E7EB] rounded-lg shadow-md z-10 divide-y divide-[#E5E7EB] overflow-hidden">
-                {CATEGORIES.map((option) => (
-                  <div
-                    key={option}
-                    onClick={() => {
-                      setCategory(option);
-                      setFilterOpen(false);
-                    }}
-                    className={`p-2 cursor-pointer hover:bg-background ${
-                      option === category ? "text-primary font-medium" : "text-[#64748B]"
-                    }`}
-                  >
-                    {option}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <FilterDropdown value={category} options={CATEGORIES} onChange={setCategory} />
         </div>
 
         <Button variant="action" onClick={() => setModalOpen(true)}>

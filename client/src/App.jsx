@@ -9,12 +9,14 @@ import { Templates } from './pages/app/Templates'
 import { Onboardings } from './pages/app/Onboardings'
 import { Member } from './pages/app/Member'
 import { Settings } from './pages/app/Settings'
+import { HirePortal } from './pages/public/HirePortal'
+import { OnboardingsProvider } from './context/OnboardingsContext'
 import './App.css'
 // import { InviteTeammate } from './Components/InviteTeammate' in case of editing
 
 function App() {
   return (
-    
+    <OnboardingsProvider>
       <BrowserRouter>
         <Routes>
           {/* Public auth routes */}
@@ -22,6 +24,9 @@ function App() {
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           {/* <Route path="/invite" element={<InviteTeammate />} /> in the event of editing required */}
+
+          {/* Public hire portal — no login, reached only via the unique link sent after launch */}
+          <Route path="/hire/:portalId" element={<HirePortal />} />
 
           {/* App routes */}
           <Route element={<Layout />}>
@@ -37,7 +42,7 @@ function App() {
           <Route path="*" element={<Login />} />
         </Routes>
       </BrowserRouter>
-    
+    </OnboardingsProvider>
   )
 }
 

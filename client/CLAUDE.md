@@ -24,3 +24,13 @@ There is no test setup in this project yet (no test script, no test runner insta
 - **Pages**: live in `src/Pages/` (note the capital `P`), one component per route — [Login.jsx](src/Pages/Login.jsx), [CreateAcc.jsx](src/Pages/CreateAcc.jsx), [ForgotPass.jsx](src/Pages/ForgotPass.jsx). These are currently static forms with no submit handlers or API calls wired up (`action="/submit_form"` is a placeholder); there is no API client, no auth/session state, and no global state management in the app yet.
 - **Styling**: Tailwind CSS v4 via the `@tailwindcss/vite` plugin (see [vite.config.js](vite.config.js)) — there is no `tailwind.config.js`. Theme customization (e.g. `--color-background`, `--color-primary`) is done via an inline `@theme` block in [src/index.css](src/index.css), which is imported once in `main.jsx`. Prefer extending that `@theme` block over hardcoding new hex values in components.
 - Password-visibility toggles (show/hide with inline SVG eye icons) are duplicated per-field across `Login.jsx` and `CreateAcc.jsx`; if adding another password field, follow the existing local `useState` + inline SVG pattern used there unless asked to refactor it into a shared component.
+
+## Skill files are off-limits without asking first
+
+Never edit anything under `.claude/skills/` (e.g. the `design` skill) directly, even when a change you're making would make the skill doc more accurate or complete. Instead:
+
+1. Tell the user what you think should change — either an addition/correction to an existing skill, or that a new skill should be created — and why.
+2. Give a clear rundown of the actual change before making it (what file, what's being added/removed/reworded).
+3. Only edit the skill file after the user explicitly says to go ahead.
+
+This applies even mid-task — if implementing something surfaces a skill update worth making, pause and surface it rather than folding it into the same edit pass.
