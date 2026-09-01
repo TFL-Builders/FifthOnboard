@@ -7,11 +7,13 @@ import Layout from './layouts/Layout'
 import { Profile } from './pages/app/Profile'
 import { Templates } from './pages/app/Templates'
 import { Onboardings } from './pages/app/Onboardings'
-import { Member } from './pages/app/Member'
+// import { Member } from './pages/app/Member' I'm not sure on how to work with what you did
 import { Settings } from './pages/app/Settings'
 import { HirePortal } from './pages/public/HirePortal'
 import { OnboardingsProvider } from './context/OnboardingsContext'
+import { People } from './pages/app/People'
 import './App.css'
+
 // import { InviteTeammate } from './Components/InviteTeammate' in case of editing
 
 function App() {
@@ -34,7 +36,7 @@ function App() {
             <Route path="/profile-page" element={<Profile/>}/>
             <Route path="/templates" element={<Templates/>}/>
             <Route path="/onboardings" element={<Onboardings/>}/>
-            <Route path="/people" element={<Member/>}/>
+            <Route path="/people" element={<People/>}/>
             <Route path="/settings" element={<Settings/>}/>
 
           </Route>
