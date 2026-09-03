@@ -3,6 +3,7 @@ import Login from './pages/auth/Login'
 import CreateAccount from './pages/auth/CreateAccount'
 import ForgotPassword from './pages/auth/ForgotPassword'
 import ResetPass from './pages/auth/ResetPass'
+import AcceptInvite from './pages/auth/AcceptInvite'
 import Dashboard from './pages/app/Dashboard'
 import Layout from './layouts/Layout'
 import { Profile } from './pages/app/Profile'
@@ -30,6 +31,7 @@ function App() {
             <Route path="/create-account" element={<CreateAccount />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPass />} />
+            <Route path="/accept-invite/:token" element={<AcceptInvite />} />
             {/* <Route path="/invite" element={<InviteTeammate />} /> in the event of editing required */}
 
             {/* Public hire portal — no login, reached only via the unique link sent after launch */}
