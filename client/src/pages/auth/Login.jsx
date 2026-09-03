@@ -1,9 +1,44 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Input } from "../../Components/Input";
 import { PasswordInput } from "../../Components/PasswordInput";
 import { Button } from "../../Components/Button";
+import { ErrorBanner } from "../../Components/ErrorBanner";
+import { useAuth } from "../../context/AuthContext";
+import { sanitizeEmail } from "../../lib/sanitize";
+import { getErrorMessage } from "../../lib/getErrorMessage";
+import { emailError } from "../../lib/validators";
 
 const Login = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(Boolean(location.state?.resetSuccess));
+  const [emailTouched, setEmailTouched] = useState(false);
+
+  const emailErr = emailError(email);
+  const isFormValid = !emailErr && password.length > 0;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isFormValid) return;
+    setError("");
+    setResetSuccess(false);
+    setSubmitting(true);
+    try {
+      await login(sanitizeEmail(email), password);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(getErrorMessage(err).message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="full-login flex justify-center items-center bg-background h-screen">
         <div className="flex flex-col text-center main-login max-w-md">
@@ -16,13 +51,39 @@ const Login = () => {
 
 
                             <div>
-                                <form id="login-form" action="/submit_form" method="post" className="flex flex-col login-form">
+                                <form id="login-form" onSubmit={handleSubmit} className="flex flex-col login-form">
 
-                                <Input label="Email Address" type="email" id="email-add" placeholder="Enter your email address"/>
+                                {resetSuccess && (
+                                  <div className="text-[13px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 mb-4 text-left">
+                                    Your password has been reset. Sign in with your new password.
+                                  </div>
+                                )}
+                                <ErrorBanner message={error} />
 
-                                <PasswordInput label="Password" id="pass" placeholder="Enter password"/>
+                                <Input
+                                  label="Email Address"
+                                  type="email"
+                                  id="email-add"
+                                  placeholder="Enter your email address"
+                                  value={email}
+                                  onChange={(e) => setEmail(e.target.value)}
+                                  onBlur={() => setEmailTouched(true)}
+                                  error={emailTouched ? emailErr : ""}
+                                  required
+                                />
+
+                                <PasswordInput
+                                  label="Password"
+                                  id="pass"
+                                  placeholder="Enter password"
+                                  value={password}
+                                  onChange={(e) => setPassword(e.target.value)}
+                                  required
+                                />
                                 </form>
-                                <Button form="login-form" type="submit">Sign In</Button>
+                                <Button form="login-form" type="submit" disabled={submitting || !isFormValid}>
+                                  {submitting ? "Signing in..." : "Sign In"}
+                                </Button>
                                 <div className="flex justify-center items-center gap-50 text-[13px] p-2">
                                     <div><Link to="/create-account" className="text-primary hover:brightness-150 transition">Create Account</Link></div>
                                     <div><Link to="/forgot-password" className="text-primary hover:brightness-150 transition">Forgot Password</Link></div>

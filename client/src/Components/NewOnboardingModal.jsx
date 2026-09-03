@@ -1,30 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { X, FileText, Check, Copy, Mail, Rocket, ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
 import { Input } from "./Input";
 import { Button } from "./Button";
 import { Stepper } from "./Stepper";
 import { Avatar } from "./Avatar";
-import { SAMPLE_TEMPLATES } from "../data/mockTemplates";
-import { DEPARTMENT_STAFF } from "../data/mockStaff";
-import { useOnboardings } from "../context/OnboardingsContext";
+import { ErrorBanner } from "./ErrorBanner";
+import { useAuthedApi } from "../hooks/useAuthedApi";
+import { listTemplatesForOnboarding } from "../lib/templatesApi";
+import { listUsers, ROLE_LABELS } from "../lib/usersApi";
+import { createOnboarding, sendHireEmail } from "../lib/onboardingsApi";
+import { getErrorMessage } from "../lib/getErrorMessage";
 
 const STEPS = ["New Hire Info", "Choose Template", "Manager", "Start Date & Review"];
 
 export const NewOnboardingModal = ({ onClose, onLaunched }) => {
-  const { addRecord } = useOnboardings();
+  const authedApi = useAuthedApi();
   const [step, setStep] = useState(0);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [jobTitle, setJobTitle] = useState("");
+  const [templates, setTemplates] = useState([]);
+  const [templatesLoading, setTemplatesLoading] = useState(true);
   const [templateId, setTemplateId] = useState(null);
+  const [staff, setStaff] = useState([]);
+  const [staffLoading, setStaffLoading] = useState(true);
   const [managerId, setManagerId] = useState(null);
   const [startDate, setStartDate] = useState("");
-  const [launched, setLaunched] = useState(false);
+  const [launchResult, setLaunchResult] = useState(null);
+  const [launching, setLaunching] = useState(false);
+  const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
-  const [portalSuffix] = useState(() => Math.random().toString(16).slice(2, 8));
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
-  const template = SAMPLE_TEMPLATES.find((t) => t.id === templateId);
-  const manager = DEPARTMENT_STAFF.find((s) => s.id === managerId);
+  useEffect(() => {
+    listTemplatesForOnboarding(authedApi)
+      .then(setTemplates)
+      .finally(() => setTemplatesLoading(false));
+    listUsers(authedApi, { status: "active" })
+      .then(setStaff)
+      .finally(() => setStaffLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const template = templates.find((t) => t.id === templateId);
+  const templateTaskCount = template?.templateTasks?.length ?? 0;
+  const manager = staff.find((s) => s.id === managerId);
 
   const canProceed =
     step === 0
@@ -33,24 +56,40 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
       ? templateId !== null
       : true;
 
-  const portalId = `${fullName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${portalSuffix}`;
-  const portalLink = `http://localhost:5173/hire/${portalId}`;
+  const portalLink = launchResult ? `${window.location.origin}/hire/${launchResult.hirePortalToken}` : "";
 
-  const handleLaunch = () => {
-    const record = {
-      id: Date.now(),
-      portalId,
-      name: fullName,
-      jobTitle,
-      email,
-      template: template?.name ?? "—",
-      manager: manager?.name ?? "Unassigned",
-      startDate,
-      progress: 0,
-    };
-    addRecord(record);
-    setLaunched(true);
-    onLaunched?.(record);
+  const handleLaunch = async () => {
+    setError("");
+    setLaunching(true);
+    try {
+      const result = await createOnboarding(authedApi, {
+        templateId,
+        newHireName: fullName.trim(),
+        newHireEmail: email.trim(),
+        startDate,
+        job: jobTitle.trim() || undefined,
+        managerId: managerId || undefined,
+      });
+      setLaunchResult(result);
+      onLaunched?.(result);
+    } catch (err) {
+      setError(getErrorMessage(err).message);
+    } finally {
+      setLaunching(false);
+    }
+  };
+
+  const handleSendEmail = async () => {
+    setEmailError("");
+    setSendingEmail(true);
+    try {
+      await sendHireEmail(authedApi, launchResult.id, portalLink);
+      setEmailSent(true);
+    } catch (err) {
+      setEmailError(getErrorMessage(err).message);
+    } finally {
+      setSendingEmail(false);
+    }
   };
 
   const handleCopy = async () => {
@@ -63,7 +102,7 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
     }
   };
 
-  if (launched) {
+  if (launchResult) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-8" onClick={onClose}>
         <div
@@ -90,16 +129,23 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
             This link won&apos;t be shown again. Copy it before closing.
           </div>
 
-          <Button variant="secondary" type="button" className="w-full justify-center">
+          <ErrorBanner message={emailError} />
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={handleSendEmail}
+            disabled={sendingEmail}
+            className="w-full justify-center"
+          >
             <Mail size={16} />
-            Send email with link to {fullName}
+            {sendingEmail ? "Sending..." : emailSent ? "Email sent" : `Send email with link to ${fullName}`}
           </Button>
 
           <Button
             variant="primary"
             type="button"
             onClick={() => {
-              window.open(`/hire/${portalId}`, "_blank", "noopener,noreferrer");
+              window.open(`/hire/${launchResult.hirePortalToken}`, "_blank", "noopener,noreferrer");
               onClose();
             }}
             className="w-full justify-center"
@@ -135,6 +181,8 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
 
         <div className="p-6 border border-border rounded-xl m-6 flex flex-col gap-4 min-h-70">
           <div className="text-[16px] font-medium">{STEPS[step]}</div>
+
+          {step === STEPS.length - 1 && <ErrorBanner message={error} />}
 
           {step === 0 && (
             <>
@@ -182,27 +230,46 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
           )}
 
           {step === 1 && (
-            <div className="grid grid-cols-2 gap-3">
-              {SAMPLE_TEMPLATES.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setTemplateId(t.id)}
-                  className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-colors ${
-                    templateId === t.id ? "border-primary bg-[#ECFEFF]" : "border-border hover:border-primary"
-                  }`}
-                >
-                  <div className="bg-[#ECFEFF] rounded-md p-2 w-9 h-9 flex items-center justify-center shrink-0">
-                    <FileText className="text-[#0891B2]" size={18} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[14px] font-medium truncate">{t.name}</div>
-                    <div className="text-[12px] text-[#64748B]">{t.taskCount} tasks</div>
-                  </div>
-                  {templateId === t.id && <Check className="text-primary ml-auto shrink-0" size={18} />}
-                </button>
-              ))}
-            </div>
+            <>
+              {!templatesLoading && templates.length > 0 && (
+                <div className="flex justify-end -mt-1 -mb-2">
+                  <Link to="/templates" className="text-[13px] text-primary hover:brightness-150 transition-colors">
+                    + New Template
+                  </Link>
+                </div>
+              )}
+              {!templatesLoading && templates.length === 0 && (
+                <div className="text-center text-[14px] py-6 flex flex-col items-center gap-2">
+                  <span className="text-[#64748B]">No templates yet — you&apos;ll need one before launching an onboarding.</span>
+                  <Link to="/templates" className="text-primary hover:brightness-150 transition-colors font-medium">
+                    Create a template →
+                  </Link>
+                </div>
+              )}
+              {!templatesLoading && templates.length > 0 && (
+                <div className="grid grid-cols-2 gap-3">
+                  {templates.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setTemplateId(t.id)}
+                      className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-colors ${
+                        templateId === t.id ? "border-primary bg-[#ECFEFF]" : "border-border hover:border-primary"
+                      }`}
+                    >
+                      <div className="bg-[#ECFEFF] rounded-md p-2 w-9 h-9 flex items-center justify-center shrink-0">
+                        <FileText className="text-[#0891B2]" size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[14px] font-medium truncate">{t.name}</div>
+                        <div className="text-[12px] text-[#64748B]">{t.templateTasks?.length ?? 0} tasks</div>
+                      </div>
+                      {templateId === t.id && <Check className="text-primary ml-auto shrink-0" size={18} />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
           )}
 
           {step === 2 && (
@@ -211,27 +278,29 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
                 Who will supervise and onboard {fullName || "the new hire"}?
               </div>
               <div className="text-[12px] text-[#64748B] mb-3">
-                Pick a staff member from the department to be in charge — you can update this later.
+                Pick a staff member from the org to be in charge — you can update this later.
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                {DEPARTMENT_STAFF.map((person) => (
-                  <button
-                    key={person.id}
-                    type="button"
-                    onClick={() => setManagerId(managerId === person.id ? null : person.id)}
-                    className={`relative flex flex-col items-center text-center gap-1 p-3 rounded-xl border transition-colors ${
-                      managerId === person.id ? "border-primary bg-[#ECFEFF]" : "border-border hover:border-primary"
-                    }`}
-                  >
-                    {managerId === person.id && (
-                      <Check className="absolute right-2 top-2 text-primary" size={16} />
-                    )}
-                    <Avatar name={person.name} size={36} />
-                    <div className="text-[14px] truncate w-full">{person.name}</div>
-                    <div className="text-[12px] text-[#64748B] truncate w-full">{person.role}</div>
-                  </button>
-                ))}
-              </div>
+              {!staffLoading && (
+                <div className="grid grid-cols-3 gap-3">
+                  {staff.map((person) => (
+                    <button
+                      key={person.id}
+                      type="button"
+                      onClick={() => setManagerId(managerId === person.id ? null : person.id)}
+                      className={`relative flex flex-col items-center text-center gap-1 p-3 rounded-xl border transition-colors ${
+                        managerId === person.id ? "border-primary bg-[#ECFEFF]" : "border-border hover:border-primary"
+                      }`}
+                    >
+                      {managerId === person.id && (
+                        <Check className="absolute right-2 top-2 text-primary" size={16} />
+                      )}
+                      <Avatar name={person.name} size={36} />
+                      <div className="text-[14px] truncate w-full">{person.name}</div>
+                      <div className="text-[12px] text-[#64748B] truncate w-full">{ROLE_LABELS[person.role] ?? person.role}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -263,7 +332,7 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
                 </div>
                 <div className="min-w-0">
                   <div className="text-[14px] font-medium truncate">{template?.name ?? "No template selected"}</div>
-                  <div className="text-[12px] text-[#64748B]">{template?.taskCount ?? 0} tasks</div>
+                  <div className="text-[12px] text-[#64748B]">{templateTaskCount} tasks</div>
                 </div>
               </div>
 
@@ -279,7 +348,7 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
 
               <div className="bg-background rounded-xl p-3 text-center text-[14px]">
                 Ready to launch <span className="text-primary font-medium">{fullName || "this hire"}</span>&apos;s
-                onboarding with {template?.taskCount ?? 0} tasks?
+                onboarding with {templateTaskCount} tasks?
               </div>
             </>
           )}
@@ -307,9 +376,9 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
               <ArrowRight size={16} />
             </Button>
           ) : (
-            <Button variant="primary" type="button" onClick={handleLaunch} className="w-auto px-5 h-11">
+            <Button variant="primary" type="button" onClick={handleLaunch} disabled={launching} className="w-auto px-5 h-11">
               <Rocket size={16} />
-              Launch onboarding
+              {launching ? "Launching..." : "Launch onboarding"}
             </Button>
           )}
         </div>

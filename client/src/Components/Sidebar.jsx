@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { NavLink, Link } from 'react-router-dom'
-import Jaytester from '../assets/Jaytester.jpg'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
 import Logo from '../assets/Fifthlab.png'
+import { Avatar } from './Avatar'
+import { useAuth } from '../context/AuthContext'
+import { ROLE_LABELS } from '../lib/usersApi'
 
 const DashboardIcon = () => (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -73,16 +75,27 @@ const CollapseIcon = ({ collapsed }) => (
     </svg>
 );
 
+// Roles allowed per destination, matching the API's own route guards — kept
+// in step with the backend so a role never sees a link that would just 403.
 const NAV_ITEMS = [
-    { label: 'Dashboard', to: '/dashboard', Icon: DashboardIcon },
-    { label: 'Onboardings', to: '/onboardings', Icon: OnboardingsIcon },
-    { label: 'Templates', to: '/templates', Icon: TemplatesIcon },
-    { label: 'People', to: '/people', Icon: PeopleIcon },
-    { label: 'Settings', to: '/settings', Icon: SettingsIcon },
+    { label: 'Dashboard', to: '/dashboard', Icon: DashboardIcon, roles: ['admin', 'hr', 'manager', 'employee', 'task_owner'] },
+    { label: 'Onboardings', to: '/onboardings', Icon: OnboardingsIcon, roles: ['admin', 'hr', 'manager'] },
+    { label: 'Templates', to: '/templates', Icon: TemplatesIcon, roles: ['admin', 'hr'] },
+    { label: 'People', to: '/people', Icon: PeopleIcon, roles: ['admin', 'hr', 'manager'] },
+    { label: 'Settings', to: '/settings', Icon: SettingsIcon, roles: ['admin', 'hr'] },
 ];
 
 export const Sidebar = () => {
     const [collapsed, setCollapsed] = useState(false);
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const navItems = NAV_ITEMS.filter((item) => !user || item.roles.includes(user.role));
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login');
+    };
 
     return (
         <div className={`h-screen shrink-0 flex flex-col justify-between bg-white border-r border-border transition-all duration-200 ${collapsed ? 'w-20' : 'w-64'}`}>
@@ -93,7 +106,7 @@ export const Sidebar = () => {
                 <div className="border-t border-border" />
 
                 <nav className="flex flex-col gap-1 p-3">
-                    {NAV_ITEMS.map(({ label, to, Icon }) => (
+                    {navItems.map(({ label, to, Icon }) => (
                         <NavLink
                             key={label}
                             to={to}
@@ -118,19 +131,18 @@ export const Sidebar = () => {
                     to="/profile-page"
                     className={`flex items-center gap-3 p-2 rounded-xl bg-[#F0F9FF] hover:brightness-95 transition-[filter] ${collapsed ? 'justify-center' : ''}`}
                 >
-                    <div className="border-2 border-primary rounded-full overflow-hidden h-10 w-10 shrink-0">
-                        <img src={Jaytester} alt="Sampler Temple" className="w-full h-full object-cover" />
-                    </div>
+                    <Avatar name={user?.name ?? "?"} size={40} className="border-2 border-primary" />
                     {!collapsed && (
                         <div className="flex flex-col justify-center min-w-0">
-                            <div className="text-[14px] text-[#0F1729] truncate">Sampler Temple</div>
-                            <div className="text-[12px] text-[#64748B]">Hr</div>
+                            <div className="text-[14px] text-[#0F1729] truncate">{user?.name}</div>
+                            <div className="text-[12px] text-[#64748B]">{ROLE_LABELS[user?.role] ?? user?.role}</div>
                         </div>
                     )}
                 </Link>
 
                 <button
                     type="button"
+                    onClick={handleLogout}
                     title={collapsed ? 'Log Out' : undefined}
                     className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[14px] text-red-900 hover:bg-red-50 transition-colors ${collapsed ? 'justify-center' : ''}`}
                 >
