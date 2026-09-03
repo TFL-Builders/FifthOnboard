@@ -1,12 +1,14 @@
 import { PageHeading } from "../../Components/PageHeading";
 import { useState } from "react";
 import { InviteTeammate } from "../../Components/InviteTeammate";
-import { Button } from "../../Components/Button";
+// import { Button } from "../../Components/Button";
 import { NewOnboardingModal } from "../../Components/NewOnboardingModal";
 import { Toast } from "../../Components/Toast";
 import { NewTemplateModal } from "../../Components/NewTemplateModal";
 import { UpcomingTaskDeadlines } from "../../Components/upcomingTaskDeadlines";
-import { MyTasks } from "../../Components/myTasks";
+import { MyTasks } from "../../Components/MyTasksDashboard";
+import { QuickActions } from "../../Components/QuickActions";
+import { RecentUploads } from "../../Components/RecentUploads";
 
 const statusStyles = {
   "In Progress": "bg-sky-500/15 text-sky-400",
@@ -20,12 +22,6 @@ const progressColor = (value) => {
   if (value >= 50) return "bg-sky-500";
   return "bg-amber-500";
 };
-const inviteSVG = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="white" height="24px" width="24px" viewBox="0 0 512 512">
-      <g><g><path d="M352.062,314.075c-19.834-20.912-43.665-36.124-68.765-44.408c25.008-22.555,40.754-55.191,40.754-91.439    c0-67.899-55.24-123.139-123.139-123.139S77.772,110.329,77.772,178.228c0,36.248,15.746,68.884,40.754,91.439    c-25.101,8.285-48.932,23.498-68.766,44.409C17.672,347.906,0,391.728,0,437.468v19.443h401.823v-19.443    C401.823,391.728,384.15,347.906,352.062,314.075z M116.658,178.228c0-46.457,37.796-84.253,84.253-84.253    c46.457,0,84.253,37.796,84.253,84.253s-37.796,84.253-84.253,84.253C154.454,262.481,116.658,224.685,116.658,178.228z     M40.256,418.025c9.65-67.94,68.591-116.658,121.769-116.658h77.772c53.178,0,112.119,48.718,121.769,116.658H40.256z"/></g></g>
-      <g><g><polygon points="453.671,223.595 453.671,165.266 414.785,165.266 414.785,223.595 356.456,223.595 356.456,262.481     414.785,262.481 414.785,320.81 453.671,320.81 453.671,262.481 512,262.481 512,223.595   "/></g></g>
-    </svg>
-  );
 
 const activeOnboardingSVG = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
@@ -145,12 +141,14 @@ const activeOnboardingSVG = () => (
   },
 ];
 
-const Dashboard = () => {
+const Dashboard = ({currentUserRole}) => {
   const [inviteModal, setInviteModal] = useState(false);
   const [OnboardingModalOpen, setOnboardingModalOpen] = useState(false);
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
+  const canManageTemplates = ["admin", "hr"].includes(currentUserRole);
+  const canLaunchOnboarding = ["admin", "hr"].includes(currentUserRole);
 
   const handleLaunched = (record) => {
     setToastMessage(`${record.name}'s onboarding has been launched!`);
@@ -276,43 +274,19 @@ const Dashboard = () => {
             </div>
             </div>
           </div>
-          <div className="group flex flex-col p-6 w-[35%] bg-card border border-border rounded-xl shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md cursor-pointer">
-              <div className="flex justify-between items-center mb-2 ">
-                <h3 className="text-sm font-medium text-muted-foreground">
-                  Recent Uploads
-                </h3>
-                <div className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors">
-                  {completedOnboardingSVG()}
-                </div>
-              </div>
-              <div className="text-4xl font-bold text-foreground">
-                <p className="text-[20px]">Interns C.V. and WAEC Result</p>
-              </div>
-          </div>
+          <RecentUploads/>
         </div>
         <div className="quickAndUpcoming flex flex-col gap-4">
           <div className="upcomingAndRecent flex gap-4">
             <MyTasks />
             <UpcomingTaskDeadlines />
-            <div className="quickActions p-2">
-            <div className="wording text-[#64748B] pb-2">Quick Actions</div>
-            <div className="flex flex-col gap-4">
-              <button
-                type="button"
-                className="InviteButton flex gap-2 bg-primary rounded-md p-2 w-45 h-10 cursor-pointer"
-                onClick={() => setInviteModal(true)}
-              >
-                {inviteSVG()}
-                <div className="text-white">Invite Teammate</div>
-              </button>
-              <Button className="w-45 h-10" variant="action" onClick={() => setOnboardingModalOpen(true)}>
-                New onboarding
-              </Button>
-              <Button className="w-45 h-10" variant="action" onClick={() => setTemplateModalOpen(true)}>
-                New Template
-              </Button>
-            </div>
-          </div>
+            <QuickActions
+            onInvite={() => setInviteModal(true)}
+            onNewOnboarding={() => setOnboardingModalOpen(true)}
+            onNewTemplate={() => setTemplateModalOpen(true)}
+            canManageTemplates={canManageTemplates}
+            canLaunchOnboarding={canLaunchOnboarding}
+          />
           </div>
         </div>
         {inviteModal && <InviteTeammate onClose={() => setInviteModal(false)} />}
