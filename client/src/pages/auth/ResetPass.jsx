@@ -81,7 +81,7 @@ const ResetPass = () => {
                                             <div className="border-t border-[#E2E8F0]"></div>
                                             <div className="flex justify-center items-center gap-1 p-6">
                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M9.99967 18.3333C9.99967 18.3333 16.6663 15 16.6663 10V4.16667L9.99967 1.66667L3.33301 4.16667V10C3.33301 15 9.99967 18.3333 9.99967 18.3333Z" stroke="#64748B" stroke-width="0.833333" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M9.99967 18.3333C9.99967 18.3333 16.6663 15 16.6663 10V4.16667L9.99967 1.66667L3.33301 4.16667V10C3.33301 15 9.99967 18.3333 9.99967 18.3333Z" stroke="#64748B" strokeWidth="0.833333" strokeLinecap="round" strokeLinejoin="round"/>
                                                 </svg>
                                                 <p className="text-[#64748B]">Enterprise-grade security and authentication</p>
                                             </div>

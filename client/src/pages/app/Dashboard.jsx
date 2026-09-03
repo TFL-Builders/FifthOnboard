@@ -4,7 +4,7 @@ import { InviteTeammate } from "../../Components/InviteTeammate";
 // import { Button } from "../../Components/Button";
 import { NewOnboardingModal } from "../../Components/NewOnboardingModal";
 import { Toast } from "../../Components/Toast";
-import { NewTemplateModal } from "../../Components/NewTemplateModal";
+import { TemplateFormModal } from "../../Components/TemplateFormModal";
 import { UpcomingTaskDeadlines } from "../../Components/upcomingTaskDeadlines";
 import { MyTasks } from "../../Components/MyTasksDashboard";
 import { QuickActions } from "../../Components/QuickActions";
@@ -25,92 +25,92 @@ const progressColor = (value) => {
 
 const activeOnboardingSVG = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
-    <circle cx="32" cy="32" r="28" fill="none" stroke="#E2E8F0" stroke-width="6"/>
-    <circle cx="32" cy="32" r="28" fill="none" stroke="#06B6D4" stroke-width="6" stroke-dasharray="176" stroke-dashoffset="44" stroke-linecap="round" transform="rotate(-90 32 32)"/>
+    <circle cx="32" cy="32" r="28" fill="none" stroke="#E2E8F0" strokeWidth="6"/>
+    <circle cx="32" cy="32" r="28" fill="none" stroke="#06B6D4" strokeWidth="6" strokeDasharray="176" strokeDashoffset="44" strokeLinecap="round" transform="rotate(-90 32 32)"/>
     <circle cx="32" cy="24" r="7" fill="#64748B"/>
-  <path d="M 19 44 C 19 36, 45 36, 45 44" fill="none" stroke="#64748B" stroke-width="6" stroke-linecap="round"/>
+  <path d="M 19 44 C 19 36, 45 36, 45 44" fill="none" stroke="#64748B" strokeWidth="6" strokeLinecap="round"/>
   </svg>);
 
   const completedOnboardingSVG = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
-    <circle cx="32" cy="32" r="28" fill="none" stroke="#E2E8F0" stroke-width="6" />
+    <circle cx="32" cy="32" r="28" fill="none" stroke="#E2E8F0" strokeWidth="6" />
     <circle 
       cx="32" cy="32" r="28" 
       fill="none" 
       stroke="#06B6D4" 
-      stroke-width="6" 
-      stroke-linecap="round" 
+      strokeWidth="6" 
+      strokeLinecap="round" 
       transform="rotate(-90 32 32)" 
     />
     <circle cx="32" cy="24" r="7" fill="#64748B" />
-    <path d="M 19 44 C 19 36, 45 36, 45 44" fill="none" stroke="#64748B" stroke-width="6" stroke-linecap="round" />
+    <path d="M 19 44 C 19 36, 45 36, 45 44" fill="none" stroke="#64748B" strokeWidth="6" strokeLinecap="round" />
     <g transform="translate(18, 18)">
       <circle cx="32" cy="32" r="10" fill="#10B981" />
-      <path d="M 28 32 L 31 35 L 36 29" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M 28 32 L 31 35 L 36 29" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </g>
   </svg>);
 
   const pendingInvites = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
-    <circle cx="32" cy="32" r="28" fill="none" stroke="#E2E8F0" stroke-width="6" />
+    <circle cx="32" cy="32" r="28" fill="none" stroke="#E2E8F0" strokeWidth="6" />
 
     <circle 
       cx="32" cy="32" r="28" 
       fill="none" 
       stroke="#06B6D4" 
-      stroke-width="6" 
-      stroke-dasharray="176" 
-      stroke-dashoffset="132" 
-      stroke-linecap="round" 
+      strokeWidth="6" 
+      strokeDasharray="176" 
+      strokeDashoffset="132" 
+      strokeLinecap="round" 
       transform="rotate(-90 32 32)" 
     />
 
-    <path d="M 18 24 L 32 34 L 46 24" fill="none" stroke="#64748B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-    <rect x="18" y="20" width="28" height="20" rx="3" fill="none" stroke="#64748B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 18 24 L 32 34 L 46 24" fill="none" stroke="#64748B" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    <rect x="18" y="20" width="28" height="20" rx="3" fill="none" stroke="#64748B" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
   </svg>);
 
   const expiringOnboardingsSVG = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
-    <circle cx="32" cy="32" r="28" fill="none" stroke="#E2E8F0" stroke-width="6" />
+    <circle cx="32" cy="32" r="28" fill="none" stroke="#E2E8F0" strokeWidth="6" />
 
     <circle 
       cx="32" cy="32" r="28" 
       fill="none" 
       stroke="#06B6D4" 
-      stroke-width="6" 
-      stroke-dasharray="176" 
-      stroke-dashoffset="26" 
-      stroke-linecap="round" 
+      strokeWidth="6" 
+      strokeDasharray="176" 
+      strokeDashoffset="26" 
+      strokeLinecap="round" 
       transform="rotate(-90 32 32)" 
     />
 
     <circle cx="32" cy="24" r="7" fill="#64748B" />
-    <path d="M 19 44 C 19 36, 45 36, 45 44" fill="none" stroke="#64748B" stroke-width="6" stroke-linecap="round" />
+    <path d="M 19 44 C 19 36, 45 36, 45 44" fill="none" stroke="#64748B" strokeWidth="6" strokeLinecap="round" />
 
     <g transform="translate(18, 18)">
       <circle cx="32" cy="32" r="10" fill="#EF4444" />
-      <path d="M 32 28.5 V 32.5 L 34.5 34.5" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M 32 28.5 V 32.5 L 34.5 34.5" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </g>
   </svg>);
 
   const canceledOnboardingsSVG = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
-    <circle cx="32" cy="32" r="28" fill="none" stroke="#E2E8F0" stroke-width="6" />
+    <circle cx="32" cy="32" r="28" fill="none" stroke="#E2E8F0" strokeWidth="6" />
     <circle 
       cx="32" cy="32" r="28" 
       fill="none" 
       stroke="#06B6D4" 
-      stroke-width="6" 
-      stroke-dasharray="176" 
-      stroke-dashoffset="88" 
-      stroke-linecap="round" 
+      strokeWidth="6" 
+      strokeDasharray="176" 
+      strokeDashoffset="88" 
+      strokeLinecap="round" 
       transform="rotate(-90 32 32)" 
     />
     <circle cx="32" cy="24" r="7" fill="#64748B" />
-    <path d="M 19 44 C 19 36, 45 36, 45 44" fill="none" stroke="#64748B" stroke-width="6" stroke-linecap="round" />
+    <path d="M 19 44 C 19 36, 45 36, 45 44" fill="none" stroke="#64748B" strokeWidth="6" strokeLinecap="round" />
     <g transform="translate(18, 18)">
       <circle cx="32" cy="32" r="10" fill="#EF4444" />
-      <path d="M 29 29 L 35 35 M 35 29 L 29 35" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M 29 29 L 35 35 M 35 29 L 29 35" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" />
     </g>
   </svg>);
 
@@ -300,7 +300,7 @@ const Dashboard = ({currentUserRole}) => {
 
         {toastMessage && <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} />}
 
-        {templateModalOpen && <NewTemplateModal onClose={() => setTemplateModalOpen(false)} />}
+        {templateModalOpen && <TemplateFormModal onClose={() => setTemplateModalOpen(false)} />}
     </div>
   );
 };

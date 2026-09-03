@@ -18,6 +18,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(Boolean(location.state?.resetSuccess));
+  const [inviteAccepted, setInviteAccepted] = useState(Boolean(location.state?.inviteAccepted));
   const [emailTouched, setEmailTouched] = useState(false);
 
   const emailErr = emailError(email);
@@ -28,6 +29,7 @@ const Login = () => {
     if (!isFormValid) return;
     setError("");
     setResetSuccess(false);
+    setInviteAccepted(false);
     setSubmitting(true);
     try {
       await login(sanitizeEmail(email), password);
@@ -56,6 +58,11 @@ const Login = () => {
                                 {resetSuccess && (
                                   <div className="text-[13px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 mb-4 text-left">
                                     Your password has been reset. Sign in with your new password.
+                                  </div>
+                                )}
+                                {inviteAccepted && (
+                                  <div className="text-[13px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 mb-4 text-left">
+                                    Your account is ready. Sign in to get started.
                                   </div>
                                 )}
                                 <ErrorBanner message={error} />
@@ -95,7 +102,7 @@ const Login = () => {
                                         <div className="border-t border-[#E2E8F0]"></div>
                                         <div className="flex justify-center items-center gap-1 p-6">
                                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M9.99967 18.3333C9.99967 18.3333 16.6663 15 16.6663 10V4.16667L9.99967 1.66667L3.33301 4.16667V10C3.33301 15 9.99967 18.3333 9.99967 18.3333Z" stroke="#64748B" stroke-width="0.833333" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M9.99967 18.3333C9.99967 18.3333 16.6663 15 16.6663 10V4.16667L9.99967 1.66667L3.33301 4.16667V10C3.33301 15 9.99967 18.3333 9.99967 18.3333Z" stroke="#64748B" strokeWidth="0.833333" strokeLinecap="round" strokeLinejoin="round"/>
                                             </svg>
                                             <p className="text-[#64748B]">Enterprise-grade security and authentication</p>
                                         </div>

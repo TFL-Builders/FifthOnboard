@@ -27,8 +27,8 @@ export const Profile = () => {
                     <div className="containpic flex p-4 items-center">
                         <IconBadge className="rounded-full p-4">
                             <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M30.0837 33.25V30.0833C30.0837 28.4036 29.4164 26.7927 28.2287 25.605C27.0409 24.4173 25.43 23.75 23.7503 23.75H14.2503C12.5706 23.75 10.9597 24.4173 9.77198 25.605C8.58425 26.7927 7.91699 28.4036 7.91699 30.0833V33.25" stroke="#0891B2" stroke-width="1.58333" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M19.0003 17.4167C22.4981 17.4167 25.3337 14.5811 25.3337 11.0833C25.3337 7.58553 22.4981 4.75 19.0003 4.75C15.5025 4.75 12.667 7.58553 12.667 11.0833C12.667 14.5811 15.5025 17.4167 19.0003 17.4167Z" stroke="#0891B2" stroke-width="1.58333" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M30.0837 33.25V30.0833C30.0837 28.4036 29.4164 26.7927 28.2287 25.605C27.0409 24.4173 25.43 23.75 23.7503 23.75H14.2503C12.5706 23.75 10.9597 24.4173 9.77198 25.605C8.58425 26.7927 7.91699 28.4036 7.91699 30.0833V33.25" stroke="#0891B2" strokeWidth="1.58333" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M19.0003 17.4167C22.4981 17.4167 25.3337 14.5811 25.3337 11.0833C25.3337 7.58553 22.4981 4.75 19.0003 4.75C15.5025 4.75 12.667 7.58553 12.667 11.0833C12.667 14.5811 15.5025 17.4167 19.0003 17.4167Z" stroke="#0891B2" strokeWidth="1.58333" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                         </IconBadge>
                         <div className="svgabout ml-4">
@@ -45,8 +45,8 @@ export const Profile = () => {
                     <div className="notifications flex ">
                         <IconBadge className="p-2 mr-2 w-8.5 h-8.5 rounded-xl">
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4.5 6C4.5 4.80653 4.97411 3.66193 5.81802 2.81802C6.66193 1.97411 7.80653 1.5 9 1.5C10.1935 1.5 11.3381 1.97411 12.182 2.81802C13.0259 3.66193 13.5 4.80653 13.5 6C13.5 11.25 15.75 12.75 15.75 12.75H2.25C2.25 12.75 4.5 11.25 4.5 6Z" stroke="#0891B2" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M7.72461 15.75C7.85015 15.9783 8.0347 16.1688 8.25898 16.3014C8.48326 16.434 8.73904 16.504 8.99961 16.504C9.26017 16.504 9.51596 16.434 9.74024 16.3014C9.96452 16.1688 10.1491 15.9783 10.2746 15.75" stroke="#0891B2" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M4.5 6C4.5 4.80653 4.97411 3.66193 5.81802 2.81802C6.66193 1.97411 7.80653 1.5 9 1.5C10.1935 1.5 11.3381 1.97411 12.182 2.81802C13.0259 3.66193 13.5 4.80653 13.5 6C13.5 11.25 15.75 12.75 15.75 12.75H2.25C2.25 12.75 4.5 11.25 4.5 6Z" stroke="#0891B2" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M7.72461 15.75C7.85015 15.9783 8.0347 16.1688 8.25898 16.3014C8.48326 16.434 8.73904 16.504 8.99961 16.504C9.26017 16.504 9.51596 16.434 9.74024 16.3014C9.96452 16.1688 10.1491 15.9783 10.2746 15.75" stroke="#0891B2" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                         </IconBadge>
                         
@@ -58,8 +58,8 @@ export const Profile = () => {
                     <div className="review text-[14px] text-[#64748B] flex items-center">
                         <div className="pr-4">Review</div>
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3.33301 8H12.6663" stroke="#64748B" stroke-width="0.666667" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M8 3.33398L12.6667 8.00065L8 12.6673" stroke="#64748B" stroke-width="0.666667" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3.33301 8H12.6663" stroke="#64748B" strokeWidth="0.666667" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M8 3.33398L12.6667 8.00065L8 12.6673" stroke="#64748B" strokeWidth="0.666667" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </div>
                 </div>
@@ -67,9 +67,9 @@ export const Profile = () => {
                     <div className="NotificationToggle p-4 flex justify-between">
                         <div className="BellSvg ml-4 flex items-center">
                             <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M10.542 4.79102L5.75033 8.62435H1.91699V14.3743H5.75033L10.542 18.2077V4.79102Z" stroke="#0891B2" stroke-width="0.958333" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M14.8926 8.10742C15.7909 9.00599 16.2955 10.2246 16.2955 11.4951C16.2955 12.7657 15.7909 13.9843 14.8926 14.8828" stroke="#0891B2" stroke-width="0.958333" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M18.2754 4.72461C20.072 6.52175 21.0813 8.95887 21.0813 11.5C21.0813 14.0412 20.072 16.4783 18.2754 18.2754" stroke="#0891B2" stroke-width="0.958333" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M10.542 4.79102L5.75033 8.62435H1.91699V14.3743H5.75033L10.542 18.2077V4.79102Z" stroke="#0891B2" strokeWidth="0.958333" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M14.8926 8.10742C15.7909 9.00599 16.2955 10.2246 16.2955 11.4951C16.2955 12.7657 15.7909 13.9843 14.8926 14.8828" stroke="#0891B2" strokeWidth="0.958333" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M18.2754 4.72461C20.072 6.52175 21.0813 8.95887 21.0813 11.5C21.0813 14.0412 20.072 16.4783 18.2754 18.2754" stroke="#0891B2" strokeWidth="0.958333" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                             <div className="sound ml-2">
                                 <div className="">Notification Sound</div>
@@ -158,10 +158,10 @@ export const Profile = () => {
                             </div>
                             <div className="play border border-[#64748B] bg-[#FFFFFF] hover:bg-primary rounded-sm h-12 w-12 flex justify-center items-center">
                                 <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M10.542 4.79102L5.75033 8.62435H1.91699V14.3743H5.75033L10.542 18.2077V4.79102Z" stroke="#64748B" stroke-width="0.958333" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M14.8926 8.10742C15.7909 9.00599 16.2955 10.2246 16.2955 11.4951C16.2955 12.7657 15.7909 13.9843 14.8926 14.8828" stroke="#64748B" stroke-width="0.958333" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M10.542 4.79102L5.75033 8.62435H1.91699V14.3743H5.75033L10.542 18.2077V4.79102Z" stroke="#64748B" strokeWidth="0.958333" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M14.8926 8.10742C15.7909 9.00599 16.2955 10.2246 16.2955 11.4951C16.2955 12.7657 15.7909 13.9843 14.8926 14.8828" stroke="#64748B" strokeWidth="0.958333" strokeLinecap="round" strokeLinejoin="round"/>
                                     {/* stroke =#0891B2 */}
-                                    <path d="M18.2754 4.72461C20.072 6.52175 21.0813 8.95887 21.0813 11.5C21.0813 14.0412 20.072 16.4783 18.2754 18.2754" stroke="#64748B" stroke-width="0.958333" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M18.2754 4.72461C20.072 6.52175 21.0813 8.95887 21.0813 11.5C21.0813 14.0412 20.072 16.4783 18.2754 18.2754" stroke="#64748B" strokeWidth="0.958333" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                             </div>
                         </div>
@@ -173,8 +173,8 @@ export const Profile = () => {
                 <div className="introAccount p-4 flex gap-2 items-center border-b border-[#64748B]">
                     <IconBadge className="rounded-md p-2 w-8.5 h-8.5">
                         <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M30.0837 33.25V30.0833C30.0837 28.4036 29.4164 26.7927 28.2287 25.605C27.0409 24.4173 25.43 23.75 23.7503 23.75H14.2503C12.5706 23.75 10.9597 24.4173 9.77198 25.605C8.58425 26.7927 7.91699 28.4036 7.91699 30.0833V33.25" stroke="#0891B2" stroke-width="1.58333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M19.0003 17.4167C22.4981 17.4167 25.3337 14.5811 25.3337 11.0833C25.3337 7.58553 22.4981 4.75 19.0003 4.75C15.5025 4.75 12.667 7.58553 12.667 11.0833C12.667 14.5811 15.5025 17.4167 19.0003 17.4167Z" stroke="#0891B2" stroke-width="1.58333" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M30.0837 33.25V30.0833C30.0837 28.4036 29.4164 26.7927 28.2287 25.605C27.0409 24.4173 25.43 23.75 23.7503 23.75H14.2503C12.5706 23.75 10.9597 24.4173 9.77198 25.605C8.58425 26.7927 7.91699 28.4036 7.91699 30.0833V33.25" stroke="#0891B2" strokeWidth="1.58333" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M19.0003 17.4167C22.4981 17.4167 25.3337 14.5811 25.3337 11.0833C25.3337 7.58553 22.4981 4.75 19.0003 4.75C15.5025 4.75 12.667 7.58553 12.667 11.0833C12.667 14.5811 15.5025 17.4167 19.0003 17.4167Z" stroke="#0891B2" strokeWidth="1.58333" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </IconBadge>
                     <div className="info">

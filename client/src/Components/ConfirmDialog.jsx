@@ -13,6 +13,7 @@ export const ConfirmDialog = ({
   loading = false,
   onConfirm,
   onCancel,
+  children,
 }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-8" onClick={onCancel}>
     <div
@@ -24,6 +25,8 @@ export const ConfirmDialog = ({
       </div>
       <div className="text-[18px] font-bold">{title}</div>
       <div className="text-[14px] text-[#64748B]">{message}</div>
+
+      {children}
 
       <div className="flex gap-3 w-full mt-2">
         <Button variant="secondary" type="button" onClick={onCancel} className="flex-1" disabled={loading}>
