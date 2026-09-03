@@ -209,7 +209,8 @@ export async function signUpload (req, res) {
                 allowed_formats: allowedFormats,
                 max_file_size: maxFileSize,
                 cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-                cloudinary_api_key: process.env.CLOUDINARY_API_KEY
+                cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
+                upload_preset
             }
         })
     } catch(error) {

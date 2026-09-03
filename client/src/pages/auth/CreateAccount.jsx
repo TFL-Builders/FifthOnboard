@@ -1,9 +1,58 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Input } from "../../Components/Input";
 import { PasswordInput } from "../../Components/PasswordInput";
 import { Button } from "../../Components/Button";
+import { ErrorBanner } from "../../Components/ErrorBanner";
+import { PasswordRulesChecklist } from "../../Components/PasswordRulesChecklist";
+import { useAuth } from "../../context/AuthContext";
+import { sanitizeText, sanitizeEmail } from "../../lib/sanitize";
+import { getErrorMessage } from "../../lib/getErrorMessage";
+import { isPasswordValid } from "../../lib/passwordRules";
+import { fullNameError, organizationNameError, emailError } from "../../lib/validators";
 
 const CreateAcc = () => {
+  const { signup } = useAuth();
+  const navigate = useNavigate();
+  const [fullName, setFullName] = useState("");
+  const [organizationName, setOrganizationName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [touched, setTouched] = useState({});
+
+  const markTouched = (field) => setTouched((prev) => ({ ...prev, [field]: true }));
+
+  const fullNameErr = fullNameError(fullName);
+  const orgNameErr = organizationNameError(organizationName);
+  const emailErr = emailError(email);
+  const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword;
+
+  const isFormValid =
+    !fullNameErr && !orgNameErr && !emailErr && isPasswordValid(password) && password === confirmPassword;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isFormValid) return;
+    setError("");
+    setSubmitting(true);
+    try {
+      await signup({
+        name: sanitizeText(fullName),
+        email: sanitizeEmail(email),
+        password,
+        organizationName: sanitizeText(organizationName),
+      });
+      navigate("/dashboard");
+    } catch (err) {
+      setError(getErrorMessage(err).message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="full-create flex justify-center items-center bg-background min-h-screen py-10 overflow-y-auto">
         <div className="flex flex-col text-center main-login max-w-md">
@@ -17,20 +66,72 @@ const CreateAcc = () => {
 
 
                             <div>
-                                <form id="create-form" action="/submit_form" method="post" className="flex flex-col create-form">
+                                <form id="create-form" onSubmit={handleSubmit} className="flex flex-col create-form">
 
-                                <Input label={<><span className="text-primary">User</span>name</>} type="text" id="user-create" placeholder="Enter your name"/>
+                                <ErrorBanner message={error} />
 
-                                <Input label="Organization name" type="text" id="user-org" placeholder="Enter your Organization"/>
+                                <Input
+                                  label={<>Full <span className="text-primary">name</span></>}
+                                  type="text"
+                                  id="user-create"
+                                  placeholder="Enter your full name"
+                                  value={fullName}
+                                  onChange={(e) => setFullName(e.target.value)}
+                                  onBlur={() => markTouched("fullName")}
+                                  error={touched.fullName ? fullNameErr : ""}
+                                  required
+                                />
 
-                                <Input label={<>Email Ad<span className="text-primary">dress</span></>} type="email" id="email-create" placeholder="Enter your email address"/>
+                                <Input
+                                  label="Organization name"
+                                  type="text"
+                                  id="user-org"
+                                  placeholder="Enter your Organization"
+                                  value={organizationName}
+                                  onChange={(e) => setOrganizationName(e.target.value)}
+                                  onBlur={() => markTouched("organizationName")}
+                                  error={touched.organizationName ? orgNameErr : ""}
+                                  required
+                                />
 
-                                <PasswordInput label={<><span className="text-primary">Pass</span>word</>} id="pass-create" placeholder="Enter password"/>
+                                <Input
+                                  label={<>Email Ad<span className="text-primary">dress</span></>}
+                                  type="email"
+                                  id="email-create"
+                                  placeholder="Enter your email address"
+                                  value={email}
+                                  onChange={(e) => setEmail(e.target.value)}
+                                  onBlur={() => markTouched("email")}
+                                  error={touched.email ? emailErr : ""}
+                                  required
+                                />
 
-                                <PasswordInput label={<>Confirm <span className="text-primary">Pass</span>word</>} id="pass-confirm" placeholder="Re-enter password"/>
+                                <PasswordInput
+                                  label={<><span className="text-primary">Pass</span>word</>}
+                                  id="pass-create"
+                                  placeholder="Enter password"
+                                  value={password}
+                                  onChange={(e) => setPassword(e.target.value)}
+                                  minLength={8}
+                                  required
+                                />
+
+                                <PasswordRulesChecklist password={password} />
+
+                                <PasswordInput
+                                  label={<>Confirm <span className="text-primary">Pass</span>word</>}
+                                  id="pass-confirm"
+                                  placeholder="Re-enter password"
+                                  value={confirmPassword}
+                                  onChange={(e) => setConfirmPassword(e.target.value)}
+                                  required
+                                  error={passwordsMismatch ? "Passwords do not match" : ""}
+                                />
 
                                 </form>
-                                <Button form="create-form" type="submit" className="mb-4">Create</Button>
+                                <Button form="create-form" type="submit" className="mb-4" disabled={submitting || !isFormValid}>
+                                  {submitting ? "Creating account..." : "Create"}
+                                </Button>
 
                                 <div className="flex justify-center items-center gap-1 text-[13px] p-2">
                                     <span className="text-[#64748B]">Already have an account?</span>

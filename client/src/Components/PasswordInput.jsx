@@ -16,7 +16,7 @@ const EyeIcon = () => (
   </svg>
 );
 
-export const PasswordInput = ({ label, id, className = "", ...props }) => {
+export const PasswordInput = ({ label, id, className = "", error, ...props }) => {
   const [show, setShow] = useState(false);
 
   return (
@@ -30,7 +30,9 @@ export const PasswordInput = ({ label, id, className = "", ...props }) => {
         <input
           type={show ? "text" : "password"}
           id={id}
-          className={`border border-solid border-[#E5E7EB] hover:border-primary focus:border-primary focus:outline-none h-12 w-100 rounded-[5px] mb-4 pl-2.5 bg-white [&::-ms-reveal]:hidden [&::-ms-clear]:hidden ${className}`}
+          className={`border border-solid ${error ? "border-red-400" : "border-[#E5E7EB]"} hover:border-primary focus:border-primary focus:outline-none h-12 w-100 rounded-[5px] ${
+            error ? "mb-1" : "mb-4"
+          } pl-2.5 bg-white [&::-ms-reveal]:hidden [&::-ms-clear]:hidden ${className}`}
           {...props}
         />
         <button
@@ -43,6 +45,7 @@ export const PasswordInput = ({ label, id, className = "", ...props }) => {
           {show ? <EyeOffIcon /> : <EyeIcon />}
         </button>
       </div>
+      {error && <div className="text-[12px] text-red-500 text-left mb-3">{error}</div>}
     </>
   );
 };
