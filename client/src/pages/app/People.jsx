@@ -4,7 +4,6 @@ import { InviteTeammate } from "../../Components/InviteTeammate";
 const Roles = [
   { value: 'admin', label: 'Admin' },
   { value: 'manager', label: 'Manager' },
-  { value: 'supervisor', label: 'Supervisor' },
   { value: 'taskOwner', label: 'T.O.' },
   { value: 'newHire', label: 'New Hire' },
 ];
@@ -112,26 +111,26 @@ export const People = () => {
         </button>
       </div>
 
-      <div className="w-full border-2 border-primary rounded-md">
+      <div className="w-full border border-border rounded-md">
         <div className="flex focus:brightness-150">
           <button
             type="button"
-            className={`py-2 w-[20%] flex justify-center items-center cursor-pointer ${selected === "member" ? "border-b-2 border-primary text-primary shadow-md" : "border-b-2 border-primary text-[#64748B]"}`}
+            className={`py-2 w-[20%] flex justify-center items-center cursor-pointer ${selected === "member" ? "border-b-2 border-primary text-primary shadow-md" : "border-b border-border text-[#64748B]"}`}
             onClick={() => setSelected("member")}
           >
             Members
           </button>
           <button
             type="button"
-            className={`py-2 w-[20%] flex justify-center items-center cursor-pointer ${selected === "invite" ? "border-b-2 border-primary text-primary shadow-md" : "border-b-2 border-primary text-[#64748B]"}`}
+            className={`py-2 w-[20%] flex justify-center items-center cursor-pointer ${selected === "invite" ? "border-b-2 border-primary text-primary shadow-md" : "border-b border-border text-[#64748B]"}`}
             onClick={() => setSelected("invite")}
           >
             Invites
           </button>
-          <div className="py-2 w-[60%] border-b-2 border-primary"></div>
+          <div className="py-2 w-[60%] border-b border-border"></div>
         </div>
 
-        <div className="searchbar p-2 flex flex-wrap gap-1.5 border-b-2 border-primary">
+        <div className="searchbar p-2 flex flex-wrap gap-1.5 border-b border-border">
           <div className="flex items-center gap-2 w-full max-w-70 px-4 py-2 bg-white border border-[#64748B] rounded-lg shadow-sm transition-all focus-within:border-primary">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4.5 h-4.5 text-gray-400 shrink-0">
               <circle cx="11" cy="11" r="7" />
@@ -228,12 +227,12 @@ export const People = () => {
             </div>
           </div>
 
-          <div className="active border border-[#64748B] rounded-lg flex justify-center text-[14px] overflow-hidden">
-            <button type="button" className={`ac p-1 flex items-center cursor-pointer ${status === "active" ? "bg-primary text-white" : "bg-white text-[#64748B]"}`} onClick={() => setStatus("active")}>
+          <div className="active border border-border rounded-lg flex justify-center text-[14px] overflow-hidden">
+            <button type="button" className={`ac py-1 px-3 flex items-center cursor-pointer ${status === "active" ? "bg-primary text-white" : "bg-white text-[#64748B]"}`} onClick={() => setStatus("active")}>
               Active
             </button>
-            <div className="line border-l border-[#64748B]"></div>
-            <button type="button" className={`disabled p-1 flex items-center cursor-pointer ${status === "disabled" ? "bg-primary text-white" : "bg-white text-[#64748B]"}`} onClick={() => setStatus("disabled")}>
+            <div className="line border-l border-border"></div>
+            <button type="button" className={`disabled py-1 px-3 flex items-center cursor-pointer ${status === "disabled" ? "bg-primary text-white" : "bg-white text-[#64748B]"}`} onClick={() => setStatus("disabled")}>
               Disabled
             </button>
           </div>
@@ -244,7 +243,7 @@ export const People = () => {
         ) : (
           <div className="bg-white rounded-b-md overflow-x-auto">
             <table className="w-full min-w-180px text-sm text-left">
-              <thead className="border-b-2 border-primary">
+              <thead className="border-b border-border">
                 <tr className="text-gray-400 text-xs uppercase">
                   <th className="px-6 py-4 font-medium">Member</th>
                   <th className="px-6 py-4 font-medium">Role</th>
