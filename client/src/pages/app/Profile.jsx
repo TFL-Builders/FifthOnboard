@@ -156,7 +156,7 @@ export const Profile = () => {
                             )}
                         </div>
                             </div>
-                            <div className="play border border-[#64748B] bg-[#FFFFFF] rounded-sm h-12 w-12 flex justify-center items-center">
+                            <div className="play border border-[#64748B] bg-[#FFFFFF] hover:bg-primary rounded-sm h-12 w-12 flex justify-center items-center">
                                 <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M10.542 4.79102L5.75033 8.62435H1.91699V14.3743H5.75033L10.542 18.2077V4.79102Z" stroke="#64748B" stroke-width="0.958333" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M14.8926 8.10742C15.7909 9.00599 16.2955 10.2246 16.2955 11.4951C16.2955 12.7657 15.7909 13.9843 14.8926 14.8828" stroke="#64748B" stroke-width="0.958333" stroke-linecap="round" stroke-linejoin="round"/>

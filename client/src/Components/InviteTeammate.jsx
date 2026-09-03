@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Input } from "./Input";
 
-export const InviteTeammate = (onClose) => {
+export const InviteTeammate = ({onClose}) => {
     const [roleOpen, setroleOpen] = useState(false);
     const [role, setRole] = useState('');
     const RoleOptions = [
@@ -24,8 +24,8 @@ export const InviteTeammate = (onClose) => {
     
     
   return (
-    <div className="Invite flex justify-center items-center bg-transparent h-screen fixed top-0 left-0 z-50" onClick={onClose}>
-        <div className="main-Invite flex flex-col text-center max-w-md relative" onClick={(e) => e.stopPropagation()}>{/*work on this using dogmodal on line 152 in HundSucher when it's to be called in people */}
+    <div className="Invite fixed inset-0 z-50 flex justify-center items-center bg-black/40" onClick={onClose}>
+        <div className="main-Invite flex flex-col text-center max-w-md" onClick={(e) => e.stopPropagation()}>{/*work on this using dogmodal on line 152 in HundSucher when it's to be called in people */}
             <div className="page-container bg-background flex justify-center items-center flex-col  shadow-2xl rounded-2xl mb-5 border border-primary">
                 <div className="card flex flex-col gap-8 px-6">
                     <div className="flex flex-col">
@@ -118,7 +118,7 @@ export const InviteTeammate = (onClose) => {
                     <div>
                     <hr className="text-primary"/>
                     <div className="final flex flex-row justify-end gap-4 m-4 mb-4">
-                        <button type="button" className="cancel border p-2 rounded-md text-red-400 hover:bg-red-800 hover:text-white">
+                        <button type="button" className="cancel border p-2 rounded-md text-red-400 hover:bg-red-800 hover:text-white" onClick={()=>onClose()}>
                             Cancel
                         </button>
                         <button 
