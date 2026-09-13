@@ -11,31 +11,40 @@ export const QuickActions = ({
   onInvite,
   onNewOnboarding,
   onNewTemplate,
-//   canManageTemplates = true,
-//   canLaunchOnboarding = true,
+  canInvite = false,
+  canManageTemplates = false,
+  canLaunchOnboarding = false,
 }) => {
   return (
     <div className="quickActions p-2">
       <div className="wording text-[#64748B] pb-2">Quick Actions</div>
       <div className="flex gap-4 flex-col">
-        <button
-          type="button"
-          className="InviteButton flex gap-2 bg-primary rounded-md p-2 w-45 h-10 cursor-pointer"
-          onClick={onInvite}
-        >
-          {inviteSVG()}
-          <div className="text-white">Invite Teammate</div>
-        </button>
+        {canInvite && (
+          <button
+            type="button"
+            className="InviteButton flex gap-2 bg-primary rounded-md p-2 w-45 h-10 cursor-pointer"
+            onClick={onInvite}
+          >
+            {inviteSVG()}
+            <div className="text-white">Invite Teammate</div>
+          </button>
+        )}
 
-    
+        {canLaunchOnboarding && (
           <Button className="w-45 h-10" variant="action" onClick={onNewOnboarding}>
             New onboarding
           </Button>
-    
+        )}
 
+        {canManageTemplates && (
           <Button className="w-45 h-10" variant="action" onClick={onNewTemplate}>
             New Template
           </Button>
+        )}
+
+        {!canInvite && !canLaunchOnboarding && !canManageTemplates && (
+          <div className="text-[13px] text-[#64748B]">Nothing to do here yet.</div>
+        )}
       </div>
     </div>
   );

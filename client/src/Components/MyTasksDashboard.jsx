@@ -1,8 +1,4 @@
-const myTasksData = [
-  { id: 1, title: "Review offer letter", onboarding: "Jordan Reyes", dueLabel: "Due tomorrow", urgent: true },
-  { id: 2, title: "Set default manager", onboarding: "Sales dept", dueLabel: "Due in 3 days", urgent: false },
-  { id: 3, title: "Approve IT provisioning", onboarding: "Priya Nair", dueLabel: "Due in 5 days", urgent: false },
-];
+import { Check } from "lucide-react";
 
 const checklistSVG = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -10,7 +6,7 @@ const checklistSVG = () => (
   </svg>
 );
 
-export const MyTasks = () => (
+export const MyTasks = ({ tasks = [], loading = false, onToggle }) => (
   <div className="group flex flex-col p-6 w-[40%] bg-card border border-border rounded-xl shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md">
     <div className="flex justify-between items-center mb-4">
       <h3 className="text-sm font-medium text-muted-foreground">My Tasks</h3>
@@ -19,19 +15,32 @@ export const MyTasks = () => (
       </div>
     </div>
     <div className="flex flex-col gap-1">
-      {myTasksData.length === 0 ? (
+      {loading ? (
+        <div className="py-6 text-center text-sm text-[#64748B]">Loading...</div>
+      ) : tasks.length === 0 ? (
         <div className="py-6 text-center text-sm text-[#64748B]">No tasks assigned to you.</div>
       ) : (
-        myTasksData.map((task) => (
-          <div
-            key={task.id}
-            className="flex justify-between items-center py-2.5 border-b border-border last:border-0"
-          >
-            <div className="flex flex-col">
-              <span className="text-sm text-foreground">{task.title}</span>
-              <span className="text-xs text-[#64748B]">{task.onboarding}</span>
-            </div>
-            <span className={`text-xs font-medium ${task.urgent ? "text-red-500" : "text-[#64748B]"}`}>
+        tasks.map((task) => (
+          <div key={task.id} className="flex justify-between items-center py-2.5 border-b border-border last:border-0">
+            <button
+              type="button"
+              onClick={() => !task.requiresUpload && onToggle(task)}
+              disabled={task.requiresUpload}
+              className="flex items-center gap-2 min-w-0 text-left disabled:cursor-not-allowed"
+            >
+              <div
+                className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                  task.status === "done" ? "bg-primary border-primary" : "border-[#E5E7EB]"
+                }`}
+              >
+                {task.status === "done" && <Check className="text-white" size={10} />}
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm text-foreground truncate">{task.title}</span>
+                <span className="text-xs text-[#64748B] truncate">{task.onboardingName}</span>
+              </div>
+            </button>
+            <span className={`text-xs font-medium shrink-0 ml-2 ${task.overdue ? "text-red-500" : "text-[#64748B]"}`}>
               {task.dueLabel}
             </span>
           </div>

@@ -1,5 +1,5 @@
 import { PageHeading } from "../../Components/PageHeading";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InviteTeammate } from "../../Components/InviteTeammate";
 // import { Button } from "../../Components/Button";
 import { NewOnboardingModal } from "../../Components/NewOnboardingModal";
@@ -9,6 +9,20 @@ import { UpcomingTaskDeadlines } from "../../Components/upcomingTaskDeadlines";
 import { MyTasks } from "../../Components/MyTasksDashboard";
 import { QuickActions } from "../../Components/QuickActions";
 import { RecentUploads } from "../../Components/RecentUploads";
+import { useAuth } from "../../context/AuthContext";
+import { useAuthedApi } from "../../hooks/useAuthedApi";
+import { getUserTasks } from "../../lib/usersApi";
+import { updateTaskStatus } from "../../lib/onboardingsApi";
+import { getErrorMessage } from "../../lib/getErrorMessage";
+
+const formatDueLabel = (dueAt) => {
+  if (!dueAt) return { label: "No due date", overdue: false };
+  const diffDays = Math.ceil((new Date(dueAt).getTime() - Date.now()) / 86400000);
+  if (diffDays < 0) return { label: `Overdue by ${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? "" : "s"}`, overdue: true };
+  if (diffDays === 0) return { label: "Due today", overdue: false };
+  if (diffDays === 1) return { label: "Due tomorrow", overdue: false };
+  return { label: `Due in ${diffDays} days`, overdue: false };
+};
 
 const statusStyles = {
   "In Progress": "bg-sky-500/15 text-sky-400",
@@ -141,19 +155,75 @@ const activeOnboardingSVG = () => (
   },
 ];
 
-const Dashboard = ({currentUserRole}) => {
+const Dashboard = () => {
+  const { user } = useAuth();
+  const authedApi = useAuthedApi();
   const [inviteModal, setInviteModal] = useState(false);
   const [OnboardingModalOpen, setOnboardingModalOpen] = useState(false);
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [toastVariant, setToastVariant] = useState("success");
+  const [myTasks, setMyTasks] = useState([]);
+  const [tasksLoading, setTasksLoading] = useState(true);
 
-  const canManageTemplates = ["admin", "hr"].includes(currentUserRole);
-  const canLaunchOnboarding = ["admin", "hr"].includes(currentUserRole);
+  const canManageTemplates = ["admin", "hr"].includes(user?.role);
+  const canLaunchOnboarding = ["admin", "hr"].includes(user?.role);
+  const canInvite = canManageTemplates || user?.role === "manager";
+
+  const loadMyTasks = () => {
+    if (!user?.id) return;
+    setTasksLoading(true);
+    getUserTasks(authedApi, user.id, { status: "pending,in_progress" })
+      .then((groups) => {
+        const flattened = groups.flatMap((group) =>
+          group.tasks.map((task) => {
+            const { label, overdue } = formatDueLabel(task.dueAt);
+            return {
+              id: task.id,
+              title: task.title,
+              onboardingName: group.newHireName,
+              status: task.status,
+              requiresUpload: task.requiresUpload,
+              dueAt: task.dueAt,
+              dueLabel: label,
+              overdue,
+            };
+          })
+        );
+        flattened.sort((a, b) => {
+          if (!a.dueAt) return 1;
+          if (!b.dueAt) return -1;
+          return new Date(a.dueAt) - new Date(b.dueAt);
+        });
+        setMyTasks(flattened);
+      })
+      .catch(() => setMyTasks([]))
+      .finally(() => setTasksLoading(false));
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loading indicator for a real fetch, not derivable state
+    loadMyTasks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  const handleToggleMyTask = async (task) => {
+    try {
+      await updateTaskStatus(authedApi, task.id, { status: "done" });
+      loadMyTasks();
+    } catch (err) {
+      setToastVariant("error");
+      setToastMessage(getErrorMessage(err).message);
+    }
+  };
+
+  const upcomingDeadlines = myTasks.filter((t) => t.dueAt).slice(0, 5);
 
   const handleLaunched = (record) => {
+    setToastVariant("success");
     setToastMessage(`${record.name}'s onboarding has been launched!`);
   };
-  
+
   return (
     <div className="p-8">
       <PageHeading title="Dashboard" subtitle="Welcome back, here's what's happening comprehensively." />
@@ -278,12 +348,13 @@ const Dashboard = ({currentUserRole}) => {
         </div>
         <div className="quickAndUpcoming flex flex-col gap-4">
           <div className="upcomingAndRecent flex gap-4">
-            <MyTasks />
-            <UpcomingTaskDeadlines />
+            <MyTasks tasks={myTasks} loading={tasksLoading} onToggle={handleToggleMyTask} />
+            <UpcomingTaskDeadlines tasks={upcomingDeadlines} loading={tasksLoading} />
             <QuickActions
             onInvite={() => setInviteModal(true)}
             onNewOnboarding={() => setOnboardingModalOpen(true)}
             onNewTemplate={() => setTemplateModalOpen(true)}
+            canInvite={canInvite}
             canManageTemplates={canManageTemplates}
             canLaunchOnboarding={canLaunchOnboarding}
           />
@@ -298,7 +369,7 @@ const Dashboard = ({currentUserRole}) => {
                 />
               )}
 
-        {toastMessage && <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} />}
+        {toastMessage && <Toast message={toastMessage} variant={toastVariant} onDismiss={() => setToastMessage(null)} />}
 
         {templateModalOpen && <TemplateFormModal onClose={() => setTemplateModalOpen(false)} />}
     </div>

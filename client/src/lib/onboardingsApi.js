@@ -66,6 +66,19 @@ export const updateOnboardingManager = (authedApi, id, current, managerId) =>
     })
     .then((res) => normalizeOnboarding(res.data));
 
+export const updateOnboardingDepartments = (authedApi, id, current, departmentMap) =>
+  authedApi
+    .patch(`/onboardings/${id}`, {
+      templateId: "000000000000000000000000",
+      newHireName: current.name,
+      newHireEmail: current.email,
+      startDate: current.startDate,
+      job: current.jobTitle || undefined,
+      managerId: current.managerId || undefined,
+      departmentMap,
+    })
+    .then((res) => normalizeOnboarding(res.data));
+
 export const updateTaskStatus = (authedApi, taskId, patch) =>
   authedApi.patch(`/tasks/${taskId}`, patch).then((res) => res.data);
 

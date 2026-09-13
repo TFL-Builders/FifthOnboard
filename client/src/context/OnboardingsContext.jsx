@@ -6,8 +6,10 @@ import { getErrorMessage } from "../lib/getErrorMessage";
 
 const OnboardingsContext = createContext(undefined);
 
+const ROLES_WITH_ONBOARDING_ACCESS = ["admin", "hr", "manager"];
+
 export const OnboardingsProvider = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const authedApi = useAuthedApi();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,14 +30,14 @@ export const OnboardingsProvider = ({ children }) => {
   useEffect(() => {
     // Public routes (the hire portal) render under this same provider tree
     // but have no session — never fire the staff-only list fetch for them.
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !ROLES_WITH_ONBOARDING_ACCESS.includes(user?.role)) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- no session, so the fetch below never runs; nothing left to load
       setLoading(false);
       return;
     }
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user?.role]);
 
   return (
     <OnboardingsContext.Provider value={{ records, loading, error, refetch }}>

@@ -6,6 +6,11 @@ export const listUsers = (authedApi, params = {}) => {
   return authedApi.get(`/users${query ? `?${query}` : ""}`).then((res) => res.data);
 };
 
+export const getUserTasks = (authedApi, userId, params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  return authedApi.get(`/users/${userId}/tasks${query ? `?${query}` : ""}`).then((res) => res.data);
+};
+
 // disable (soft-delete) a user; reassignTo optionally moves their open tasks
 // (and, if they were a manager, their onboardings) to another user instead
 // of leaving them unassigned.

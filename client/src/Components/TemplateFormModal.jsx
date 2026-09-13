@@ -265,10 +265,10 @@ export const TemplateFormModal = ({ templateId, onClose, onSaved }) => {
                           <label className="flex items-center gap-2 text-[14px] cursor-pointer">
                             <input
                               type="checkbox"
-                              checked={task.assigneeRole === "Employee"}
+                              checked={task.assigneeRole === "New Hire"}
                               onChange={(e) =>
                                 updateTask(task.id, {
-                                  assigneeRole: e.target.checked ? "Employee" : DEPARTMENT_LABELS[0],
+                                  assigneeRole: e.target.checked ? "New Hire" : DEPARTMENT_LABELS[0],
                                   requiresFileUpload: e.target.checked ? task.requiresFileUpload : false,
                                 })
                               }
@@ -277,7 +277,7 @@ export const TemplateFormModal = ({ templateId, onClose, onSaved }) => {
                             Assign to new hire (shows on their onboarding portal)
                           </label>
 
-                          {task.assigneeRole === "Employee" && (
+                          {task.assigneeRole === "New Hire" ? (
                             <label className="flex items-center gap-2 text-[14px] cursor-pointer pl-6">
                               <input
                                 type="checkbox"
@@ -287,6 +287,17 @@ export const TemplateFormModal = ({ templateId, onClose, onSaved }) => {
                               />
                               Requires file upload
                             </label>
+                          ) : (
+                            <div className="pl-6">
+                              <Select
+                                label="Assign to department"
+                                id={`task-department-${task.id}`}
+                                value={task.assigneeRole}
+                                onChange={(e) => updateTask(task.id, { assigneeRole: e.target.value })}
+                                options={DEPARTMENT_LABELS.filter((label) => label !== "New Hire")}
+                                noMargin
+                              />
+                            </div>
                           )}
                         </div>
                       </div>

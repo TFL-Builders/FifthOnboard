@@ -2,7 +2,7 @@
 // enums. Keeping the mapping here means <Select> never has to know the
 // difference — it just deals in label strings like every other Select in the app.
 
-export const DEPARTMENT_LABELS = ["HR", "Manager", "IT", "Finance", "Custom", "Employee"];
+export const DEPARTMENT_LABELS = ["HR", "Manager", "IT", "Finance", "Custom", "New Hire"];
 export const PHASE_LABELS = ["Pre-start", "Week 1", "Week 2", "Week 3+"];
 
 const DEPARTMENT_TO_VALUE = {
@@ -11,7 +11,7 @@ const DEPARTMENT_TO_VALUE = {
   IT: "it",
   Finance: "finance",
   Custom: "custom",
-  Employee: "new_hire",
+  "New Hire": "new_hire",
 };
 const VALUE_TO_DEPARTMENT = Object.fromEntries(Object.entries(DEPARTMENT_TO_VALUE).map(([k, v]) => [v, k]));
 
