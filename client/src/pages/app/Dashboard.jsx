@@ -12,8 +12,29 @@ import { RecentUploads } from "../../Components/RecentUploads";
 import { useAuth } from "../../context/AuthContext";
 import { useAuthedApi } from "../../hooks/useAuthedApi";
 import { getUserTasks } from "../../lib/usersApi";
-import { updateTaskStatus } from "../../lib/onboardingsApi";
+import { updateTaskStatus, listOnboardings } from "../../lib/onboardingsApi";
+import { listInvites } from "../../lib/invitesApi";
+import { getRecentUploads } from "../../lib/settingsApi";
 import { getErrorMessage } from "../../lib/getErrorMessage";
+
+const ORG_DASHBOARD_ROLES = ["admin", "hr", "manager"];
+const EXPIRING_SOON_DAYS = 7;
+
+const isExpiringSoon = (dateStr) => {
+  if (!dateStr) return false;
+  const diffDays = (new Date(dateStr).getTime() - Date.now()) / 86400000;
+  return diffDays >= 0 && diffDays <= EXPIRING_SOON_DAYS;
+};
+
+const isThisQuarter = (dateStr) => {
+  if (!dateStr) return false;
+  const d = new Date(dateStr);
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() && Math.floor(d.getMonth() / 3) === Math.floor(now.getMonth() / 3);
+};
+
+const formatStartDate = (dateStr) =>
+  dateStr ? new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 
 const formatDueLabel = (dueAt) => {
   if (!dueAt) return { label: "No due date", overdue: false };
@@ -25,10 +46,16 @@ const formatDueLabel = (dueAt) => {
 };
 
 const statusStyles = {
-  "In Progress": "bg-sky-500/15 text-sky-400",
-  "Completed": "bg-emerald-500/15 text-emerald-400",
-  "Blocked": "bg-red-500/15 text-red-400",
-  "Not Started": "bg-gray-500/15 text-gray-400",
+  active: "bg-sky-500/15 text-sky-400",
+  completed: "bg-emerald-500/15 text-emerald-400",
+  cancelled: "bg-red-500/15 text-red-400",
+  archived: "bg-gray-500/15 text-gray-400",
+};
+const statusLabels = {
+  active: "Active",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  archived: "Archived",
 };
 
 const progressColor = (value) => {
@@ -128,33 +155,6 @@ const activeOnboardingSVG = () => (
     </g>
   </svg>);
 
-  const projects = [
-  {
-    id: 1,
-    name: "Hank Shrader",
-    template: "Marketing Sprint",
-    progress: 72,
-    status: "In Progress",
-    startDate: "Jan 12, 2026",
-  },
-  {
-    id: 2,
-    name: "Gustavo Fring",
-    template: "Product Rollout",
-    progress: 100,
-    status: "Completed",
-    startDate: "Nov 3, 2025",
-  },
-  {
-    id: 3,
-    name: "Better Saul",
-    template: "Call",
-    progress: 10,
-    status: "Completed",
-    startDate: "Nov 3, 2025",
-  },
-];
-
 const Dashboard = () => {
   const { user } = useAuth();
   const authedApi = useAuthedApi();
@@ -165,10 +165,17 @@ const Dashboard = () => {
   const [toastVariant, setToastVariant] = useState("success");
   const [myTasks, setMyTasks] = useState([]);
   const [tasksLoading, setTasksLoading] = useState(true);
+  const [activeOnboardings, setActiveOnboardings] = useState([]);
+  const [cancelledCount, setCancelledCount] = useState(0);
+  const [completedThisQuarterCount, setCompletedThisQuarterCount] = useState(0);
+  const [pendingInvitesCount, setPendingInvitesCount] = useState(0);
+  const [recentUploads, setRecentUploads] = useState([]);
+  const [orgDataLoading, setOrgDataLoading] = useState(true);
 
   const canManageTemplates = ["admin", "hr"].includes(user?.role);
   const canLaunchOnboarding = ["admin", "hr"].includes(user?.role);
   const canInvite = canManageTemplates || user?.role === "manager";
+  const canViewOrgDashboard = ORG_DASHBOARD_ROLES.includes(user?.role);
 
   const loadMyTasks = () => {
     if (!user?.id) return;
@@ -207,6 +214,44 @@ const Dashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
+  const loadOrgData = () => {
+    if (!canViewOrgDashboard) {
+      setOrgDataLoading(false);
+      return;
+    }
+    setOrgDataLoading(true);
+    Promise.all([
+      listOnboardings(authedApi, { status: "active" }),
+      listOnboardings(authedApi, { status: "cancelled" }),
+      listOnboardings(authedApi, { status: "completed" }),
+      listInvites(authedApi),
+      getRecentUploads(authedApi),
+    ])
+      .then(([active, cancelled, completed, invites, uploads]) => {
+        setActiveOnboardings(active);
+        setCancelledCount(cancelled.length);
+        setCompletedThisQuarterCount(completed.filter((o) => isThisQuarter(o.completedAt)).length);
+        setPendingInvitesCount(invites.length);
+        setRecentUploads(uploads);
+      })
+      .catch(() => {
+        setActiveOnboardings([]);
+        setCancelledCount(0);
+        setCompletedThisQuarterCount(0);
+        setPendingInvitesCount(0);
+        setRecentUploads([]);
+      })
+      .finally(() => setOrgDataLoading(false));
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loading indicator for a real fetch, not derivable state
+    loadOrgData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canViewOrgDashboard]);
+
+  const expiringCount = activeOnboardings.filter((o) => isExpiringSoon(o.hirePortalExpiresAt)).length;
+
   const handleToggleMyTask = async (task) => {
     try {
       await updateTaskStatus(authedApi, task.id, { status: "done" });
@@ -221,7 +266,8 @@ const Dashboard = () => {
 
   const handleLaunched = (record) => {
     setToastVariant("success");
-    setToastMessage(`${record.name}'s onboarding has been launched!`);
+    setToastMessage(`${record.newHireName}'s onboarding has been launched!`);
+    loadOrgData();
   };
 
   return (
@@ -238,7 +284,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="text-4xl font-bold text-foreground">
-              2
+              {orgDataLoading ? "–" : expiringCount}
             </div>
           </div>
           <div className="group flex flex-col p-6 w-full sm:max-w-xs bg-card border border-border rounded-xl shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md">
@@ -251,7 +297,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="text-4xl font-bold text-foreground">
-              1
+              {orgDataLoading ? "–" : cancelledCount}
             </div>
           </div>
           <div className="group flex flex-col p-6 w-full sm:max-w-xs bg-card border border-border rounded-xl shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md cursor-pointer">
@@ -264,7 +310,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="text-4xl font-bold text-foreground">
-              8
+              {orgDataLoading ? "–" : completedThisQuarterCount}
             </div>
           </div>
           <div className="group flex flex-col p-6 w-full sm:max-w-xs bg-card border border-border rounded-xl shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md cursor-pointer">
@@ -277,7 +323,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="text-4xl font-bold text-foreground">
-              4
+              {orgDataLoading ? "–" : pendingInvitesCount}
             </div>
           </div>
         </div>
@@ -288,7 +334,9 @@ const Dashboard = () => {
                   <h3 className="text-sm font-medium text-muted-foreground">
                     Active Onboardings
                     <div className="flex items-center gap-2">
-                      <div className="text-4xl font-light text-foreground text-[#64748B]">7</div>
+                      <div className="text-4xl font-light text-foreground text-[#64748B]">
+                        {orgDataLoading ? "–" : activeOnboardings.length}
+                      </div>
                       <span className="font-light text-[#64748B]">currently in progress</span>
                     </div>
                   </h3>
@@ -308,34 +356,40 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {projects.length === 0 ? (
+                  {orgDataLoading ? (
                     <tr>
                       <td colSpan={5} className="px-6 py-10 text-center text-[#64748B]">
-                        No projects yet.
+                        Loading...
+                      </td>
+                    </tr>
+                  ) : activeOnboardings.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-10 text-center text-[#64748B]">
+                        No active onboardings.
                       </td>
                     </tr>
                   ) : (
-                    projects.map((project) => (
-                      <tr key={project.id} className="text-gray-300 hover:bg-white/2 transition-colors">
-                        <td className="px-6 py-4 font-medium text-[#64748B]">{project.name}</td>
-                        <td className="px-6 py-4 text-[#64748B]">{project.template}</td>
+                    activeOnboardings.map((onboarding) => (
+                      <tr key={onboarding.id} className="text-gray-300 hover:bg-white/2 transition-colors">
+                        <td className="px-6 py-4 font-medium text-[#64748B]">{onboarding.name}</td>
+                        <td className="px-6 py-4 text-[#64748B]">{onboarding.template}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2 w-32">
                             <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                               <div
-                                className={`h-full rounded-full ${progressColor(project.progress)}`}
-                                style={{ width: `${project.progress}%` }}
+                                className={`h-full rounded-full ${progressColor(onboarding.progress)}`}
+                                style={{ width: `${onboarding.progress}%` }}
                               />
                             </div>
-                            <span className="text-xs text-[#64748B] w-8 shrink-0">{project.progress}%</span>
+                            <span className="text-xs text-[#64748B] w-8 shrink-0">{onboarding.progress}%</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${statusStyles[project.status] ?? "bg-gray-500/15 text-gray-400"}`}>
-                            {project.status}
+                          <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${statusStyles[onboarding.status] ?? "bg-gray-500/15 text-gray-400"}`}>
+                            {statusLabels[onboarding.status] ?? onboarding.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-[#64748B]">{project.startDate}</td>
+                        <td className="px-6 py-4 text-[#64748B]">{formatStartDate(onboarding.startDate)}</td>
                       </tr>
                     ))
                   )}
@@ -344,7 +398,7 @@ const Dashboard = () => {
             </div>
             </div>
           </div>
-          <RecentUploads/>
+          <RecentUploads uploads={recentUploads} loading={orgDataLoading} />
         </div>
         <div className="quickAndUpcoming flex flex-col gap-4">
           <div className="upcomingAndRecent flex gap-4">

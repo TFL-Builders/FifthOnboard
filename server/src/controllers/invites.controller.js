@@ -72,7 +72,8 @@ export async function acceptInvite(req, res) {
             department: invite.department,
             passwordHash: password,
             role: invite.role,
-            organizationId: invite.organizationId
+            organizationId: invite.organizationId,
+            status: 'active'
         })
 
         const accepted = await Invite.findOneAndUpdate({tokenHash: tokenHash}, {$set: {acceptedAt: new Date(), status: 'accepted'}}, {new: true})

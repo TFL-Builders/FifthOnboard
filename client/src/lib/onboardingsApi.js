@@ -18,6 +18,7 @@ const normalizeOnboarding = (o) => ({
   warnings: o.warnings ?? {},
   createdAt: o.createdAt,
   hirePortalExpiresAt: o.hirePortalExpiresAt,
+  completedAt: o.completedAt,
 });
 
 export const listOnboardings = (authedApi, { status, search, managerId, startDate } = {}) => {

@@ -1,16 +1,10 @@
 import { FileText, Image as ImageIcon } from "lucide-react";
 import { MediaDisplay } from "./MediaDisplay";
 import cancelledClip from "../assets/CancelledFile.mp4";
-// import * as Assets from "../assets" checking if I could carry everything from assets
-
-const recentUploadsData = [
-//   { id: 1, fileName: "signed_offer_letter.pdf", person: "Jordan Reyes", task: "Sign offer letter", uploadedLabel: "2 hours ago" },
-//   { id: 2, fileName: "id_verification.jpg", person: "Priya Nair", task: "ID verification", uploadedLabel: "Yesterday" },
-//   { id: 3, fileName: "tax_form_w4.pdf", person: "Marcus Lee", task: "Tax paperwork", uploadedLabel: "2 days ago" },
-];
+import { formatRelativeTime } from "../lib/onboardingsApi";
 
 const clips = [
-  {id: 1, title: "Cancelled Document", src:cancelledClip},
+  { id: 1, title: "Cancelled Document", src: cancelledClip },
 ];
 
 const fileSVG = () => (
@@ -26,7 +20,7 @@ const fileTypeIcon = (fileName) => {
   return <Icon className="w-4 h-4 text-[#64748B]" />;
 };
 
-export const RecentUploads = () => (
+export const RecentUploads = ({ uploads = [], loading = false }) => (
   <div className="group flex flex-col p-6 w-[35%] bg-card border border-border rounded-xl shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md">
     <div className="flex justify-between items-center mb-4">
       <h3 className="text-sm font-medium text-muted-foreground">Recent Uploads</h3>
@@ -35,32 +29,37 @@ export const RecentUploads = () => (
       </div>
     </div>
     <div className="flex flex-col gap-1">
-      {recentUploadsData.length === 0 ? (
+      {loading ? (
+        <div className="py-6 text-center text-sm text-[#64748B]">Loading...</div>
+      ) : uploads.length === 0 ? (
         <div className="py-6 text-center text-sm text-[#64748B] flex flex-col items-center justify-center">
-            <div className=" w-[40%]">
-                <MediaDisplay
-                src={clips[0].src}
-                />
-            </div>
-            <div>
-                No documents uploaded in the last week.
-            </div>
+          <div className=" w-[40%]">
+            <MediaDisplay src={clips[0].src} />
+          </div>
+          <div>No documents uploaded recently.</div>
         </div>
       ) : (
-        recentUploadsData.map((upload) => (
-          <div
+        uploads.map((upload) => (
+          <a
             key={upload.id}
-            className="flex justify-between items-center py-2.5 border-b border-border last:border-0"
+            href={upload.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex justify-between items-center py-2.5 border-b border-border last:border-0 hover:bg-background transition-colors rounded-lg px-1 -mx-1"
           >
             <div className="flex items-center gap-2 min-w-0">
               <span className="shrink-0">{fileTypeIcon(upload.fileName)}</span>
               <div className="flex flex-col min-w-0">
                 <span className="text-sm text-foreground truncate">{upload.fileName}</span>
-                <span className="text-xs text-[#64748B]">{upload.person} — {upload.task}</span>
+                <span className="text-xs text-[#64748B] truncate">
+                  {upload.newHireName} — {upload.taskTitle}
+                </span>
               </div>
             </div>
-            <span className="text-xs font-medium text-[#64748B] shrink-0">{upload.uploadedLabel}</span>
-          </div>
+            <span className="text-xs font-medium text-[#64748B] shrink-0">
+              {formatRelativeTime(upload.uploadedAt)}
+            </span>
+          </a>
         ))
       )}
     </div>
