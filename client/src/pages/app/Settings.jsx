@@ -57,7 +57,10 @@ export const Settings = () => {
     }
   };
 
-  const userOptions = [{ value: "", label: "Unassigned" }, ...users.map((u) => ({ value: u.id, label: u.name }))];
+  const managerOptions = [
+    { value: "", label: "Unassigned" },
+    ...users.filter((u) => u.role === "manager").map((u) => ({ value: u.id, label: u.name })),
+  ];
   const optionsForDepartment = (value) => [
     { value: "", label: "Unassigned" },
     ...users.filter((u) => u.department === value).map((u) => ({ value: u.id, label: u.name })),
@@ -114,9 +117,12 @@ export const Settings = () => {
                   id="settings-default-manager"
                   value={managerId}
                   onChange={(e) => setManagerId(e.target.value)}
-                  options={userOptions}
+                  options={managerOptions}
                   noMargin
                 />
+                {managerOptions.length === 1 && (
+                  <div className="text-[12px] text-[#94A3B8] mt-1">No users with the Manager role yet.</div>
+                )}
               </div>
             </div>
           </div>
