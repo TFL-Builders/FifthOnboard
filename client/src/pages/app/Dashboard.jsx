@@ -251,6 +251,7 @@ const Dashboard = () => {
   }, [canViewOrgDashboard]);
 
   const expiringCount = activeOnboardings.filter((o) => isExpiringSoon(o.hirePortalExpiresAt)).length;
+  const activeOnboardingsToShow = activeOnboardings.slice(0, 5);
 
   const handleToggleMyTask = async (task) => {
     try {
@@ -362,14 +363,14 @@ const Dashboard = () => {
                         Loading...
                       </td>
                     </tr>
-                  ) : activeOnboardings.length === 0 ? (
+                  ) : activeOnboardingsToShow.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="px-6 py-10 text-center text-[#64748B]">
                         No active onboardings.
                       </td>
                     </tr>
                   ) : (
-                    activeOnboardings.map((onboarding) => (
+                    activeOnboardingsToShow.map((onboarding) => (
                       <tr key={onboarding.id} className="text-gray-300 hover:bg-white/2 transition-colors">
                         <td className="px-6 py-4 font-medium text-[#64748B]">{onboarding.name}</td>
                         <td className="px-6 py-4 text-[#64748B]">{onboarding.template}</td>

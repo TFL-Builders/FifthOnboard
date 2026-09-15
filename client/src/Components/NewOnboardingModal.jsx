@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { X, FileText, Check, Copy, Mail, Rocket, ArrowLeft, ArrowRight, ExternalLink, AlertTriangle } from "lucide-react";
+import { X, FileText, Check, Copy, Mail, Rocket, ArrowLeft, ArrowRight, ExternalLink, AlertTriangle, CalendarDays } from "lucide-react";
 import { Input } from "./Input";
 import { Select } from "./Select";
 import { Button } from "./Button";
@@ -15,7 +15,7 @@ import { getSettings } from "../lib/settingsApi";
 import { departmentValueToLabel } from "../lib/templateEnums";
 import { getErrorMessage } from "../lib/getErrorMessage";
 
-const STEPS = ["New Hire Info", "Choose Template", "Manager & Teams", "Start Date & Review"];
+const STEPS = ["New Hire Info", "Choose Template", "Manager & Teams", "Review"];
 
 export const NewOnboardingModal = ({ onClose, onLaunched }) => {
   const authedApi = useAuthedApi();
@@ -33,7 +33,6 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
   const [orgSettings, setOrgSettings] = useState(null);
   const [settingsLoading, setSettingsLoading] = useState(true);
   const prefilledForTemplateRef = useRef(null);
-  const [startDate, setStartDate] = useState("");
   const [launchResult, setLaunchResult] = useState(null);
   const [launching, setLaunching] = useState(false);
   const [error, setError] = useState("");
@@ -111,7 +110,6 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
         templateId,
         newHireName: fullName.trim(),
         newHireEmail: email.trim(),
-        startDate,
         job: jobTitle.trim() || undefined,
         managerId: managerId || undefined,
         departmentMap: Object.fromEntries(Object.entries(departmentMap).filter(([, v]) => v)),
@@ -442,15 +440,18 @@ export const NewOnboardingModal = ({ onClose, onLaunched }) => {
 
           {step === 3 && (
             <>
-              <Input
-                label="Start date"
-                id="start-date"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                noMargin
-                className="w-full"
-              />
+              <div className="border border-border rounded-xl p-3 flex items-center gap-3">
+                <div className="bg-[#ECFEFF] rounded-md p-2 w-9 h-9 flex items-center justify-center shrink-0">
+                  <CalendarDays className="text-[#0891B2]" size={18} />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[12px] text-[#64748B]">Start date</div>
+                  <div className="text-[14px] font-medium truncate">
+                    {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}{" "}
+                    <span className="text-[12px] text-[#94A3B8] font-normal">(today, when this launches)</span>
+                  </div>
+                </div>
+              </div>
 
               <div className="border border-border rounded-xl p-3 flex items-center gap-3">
                 <Avatar name={fullName || "?"} size={36} />

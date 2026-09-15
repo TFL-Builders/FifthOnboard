@@ -58,6 +58,10 @@ export const Settings = () => {
   };
 
   const userOptions = [{ value: "", label: "Unassigned" }, ...users.map((u) => ({ value: u.id, label: u.name }))];
+  const optionsForDepartment = (value) => [
+    { value: "", label: "Unassigned" },
+    ...users.filter((u) => u.department === value).map((u) => ({ value: u.id, label: u.name })),
+  ];
 
   return (
     <div className="p-8">
@@ -78,6 +82,7 @@ export const Settings = () => {
               const value = departmentLabelToValue(label);
               const currentUserId = departmentMap[value] ?? "";
               const currentUser = users.find((u) => u.id === currentUserId);
+              const options = optionsForDepartment(value);
               return (
                 <div key={value} className="flex items-center gap-3">
                   <Avatar name={currentUser?.name ?? "?"} size={32} />
@@ -87,9 +92,12 @@ export const Settings = () => {
                       id={`settings-dept-${value}`}
                       value={currentUserId}
                       onChange={(e) => setDepartmentMap((prev) => ({ ...prev, [value]: e.target.value }))}
-                      options={userOptions}
+                      options={options}
                       noMargin
                     />
+                    {options.length === 1 && (
+                      <div className="text-[12px] text-[#94A3B8] mt-1">No users in this department yet.</div>
+                    )}
                   </div>
                 </div>
               );
