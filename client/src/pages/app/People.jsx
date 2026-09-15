@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { UserX, Ban } from "lucide-react";
 import { useAuthedApi } from "../../hooks/useAuthedApi";
 import { useAuth } from "../../context/AuthContext";
-import { listUsers, deleteUser, ROLE_LABELS, departmentValueToLabel } from "../../lib/usersApi";
+import { listUsers, deleteUser, departmentValueToLabel } from "../../lib/usersApi";
 import { listInvites, deleteInvite } from "../../lib/invitesApi";
 import { getErrorMessage } from "../../lib/getErrorMessage";
 import { ErrorBanner } from "../../Components/ErrorBanner";
@@ -10,6 +10,13 @@ import { ConfirmDialog } from "../../Components/ConfirmDialog";
 import { Select } from "../../Components/Select";
 import { Toast } from "../../Components/Toast";
 import { InviteTeammate } from "../../Components/InviteTeammate";
+
+const ROLE_LABELS = {
+  admin: "Admin",
+  hr: "HR",
+  manager: "Manager",
+  task_owner: "Task Owner",
+}
 
 const ROLE_OPTIONS = Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label }));
 const departmentSelectOptions = [

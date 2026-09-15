@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useAuthedApi } from "../hooks/useAuthedApi";
 import { sendInvite as sendInviteRequest } from "../lib/invitesApi";
 import { getErrorMessage } from "../lib/getErrorMessage";
-import { ROLE_LABELS } from "../lib/usersApi";
 import { Input } from "./Input";
 import { Select } from "./Select";
 import { ErrorBanner } from "./ErrorBanner";
@@ -11,6 +10,12 @@ import { emailError } from "../lib/validators";
 
 // Admins aren't invited through this flow — granting that level of access is
 // an org-owner action, not a routine team invite.
+ const ROLE_LABELS = {
+  admin: "Admin",
+  hr: "HR",
+  manager: "Manager",
+  task_owner: "Task Owner",
+}
 const ROLE_OPTIONS = Object.entries(ROLE_LABELS)
   .filter(([value]) => value !== "admin")
   .map(([value, label]) => ({ value, label }));
