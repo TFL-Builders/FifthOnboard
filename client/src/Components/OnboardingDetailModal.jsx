@@ -9,6 +9,7 @@ import { Select } from "./Select";
 import { ErrorBanner } from "./ErrorBanner";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { useAuthedApi } from "../hooks/useAuthedApi";
+import { useAuth } from "../context/AuthContext";
 import {
   getOnboarding,
   getOnboardingTasks,
@@ -43,11 +44,35 @@ const DetailRow = ({ icon: Icon, label, value }) => (
 
 const taskAssigneeLabel = (task) => task.completedBy ?? task.assignee ?? departmentValueToLabel(task.assigneeDepartment);
 
-const TaskRow = ({ task, onToggle, onSetStatus }) => {
+const TaskRow = ({ task, onToggle, onSetStatus, canEdit = true }) => {
   const [blocking, setBlocking] = useState(false);
   const [reasonDraft, setReasonDraft] = useState("");
   const done = task.status === "done";
   const uploadLocked = task.requiresUpload && task.status !== "done";
+
+  if (!canEdit) {
+    return (
+      <div className="flex items-start gap-3 p-2 rounded-lg">
+        <div
+          className={`w-4.5 h-4.5 rounded flex items-center justify-center shrink-0 mt-0.5 border ${
+            done ? "bg-primary border-primary" : "border-[#E5E7EB]"
+          }`}
+        >
+          {done && <Check className="text-white" size={12} />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className={`text-[14px] ${done ? "text-[#94A3B8] line-through" : ""}`}>{task.title}</div>
+          <div className="text-[12px] text-[#64748B]">{taskAssigneeLabel(task)}</div>
+          {task.status === "blocked" && task.blockedReason && (
+            <div className="text-[11px] text-red-500 mt-0.5">Blocked: {task.blockedReason}</div>
+          )}
+        </div>
+        <span className="text-[12px] text-[#64748B] shrink-0 mt-0.5">
+          {TASK_STATUS_OPTIONS.find((o) => o.value === task.status)?.label ?? task.status}
+        </span>
+      </div>
+    );
+  }
 
   const handleClick = () => {
     if (uploadLocked) return;
@@ -147,7 +172,7 @@ const TaskRow = ({ task, onToggle, onSetStatus }) => {
   );
 };
 
-const TasksTab = ({ tasks, progress, onToggleTask, onSetStatus, onMarkComplete, markingComplete }) => {
+const TasksTab = ({ tasks, progress, onToggleTask, onSetStatus, onMarkComplete, markingComplete, canEdit }) => {
   const doneCount = tasks.filter((t) => t.status === "done").length;
   const completableRemaining = tasks.filter((t) => t.status !== "done" && !t.requiresUpload);
 
@@ -171,7 +196,7 @@ const TasksTab = ({ tasks, progress, onToggleTask, onSetStatus, onMarkComplete, 
           <div key={phase} className="flex flex-col gap-1">
             <div className="text-[12px] uppercase tracking-wide text-[#64748B] font-semibold mb-1">{phase}</div>
             {phaseTasks.map((task) => (
-              <TaskRow key={task.id} task={task} onToggle={onToggleTask} onSetStatus={onSetStatus} />
+              <TaskRow key={task.id} task={task} onToggle={onToggleTask} onSetStatus={onSetStatus} canEdit={canEdit} />
             ))}
           </div>
         ))}
@@ -179,7 +204,7 @@ const TasksTab = ({ tasks, progress, onToggleTask, onSetStatus, onMarkComplete, 
         {tasks.length === 0 && <div className="text-[14px] text-[#94A3B8] text-center py-4">No tasks yet.</div>}
       </div>
 
-      {completableRemaining.length > 0 && (
+      {canEdit && completableRemaining.length > 0 && (
         <Button variant="secondary" type="button" onClick={onMarkComplete} disabled={markingComplete} className="w-auto self-start px-4">
           {markingComplete ? "Marking complete..." : "Mark all remaining tasks complete"}
         </Button>
@@ -188,20 +213,24 @@ const TasksTab = ({ tasks, progress, onToggleTask, onSetStatus, onMarkComplete, 
   );
 };
 
-const DetailsTab = ({ record, taskCount, onChangeManagerClick, onFixAssignmentsClick, unassignedDepartmentCount }) => (
+const DetailsTab = ({ record, taskCount, onChangeManagerClick, onFixAssignmentsClick, unassignedDepartmentCount, canManage }) => (
   <div className="flex flex-col gap-4">
     {(record.warnings?.hasUnassignedTasks || record.warnings?.hasNoManager) && (
       <div className="flex items-start gap-2 text-[13px] text-[#B45309] bg-[#FEF3C7] rounded-lg px-3 py-2.5">
         <AlertTriangle size={16} className="shrink-0 mt-0.5" />
         <div>
-          {record.warnings?.hasNoManager && <div>No supervisor is assigned yet — use "Change" below to set one.</div>}
+          {record.warnings?.hasNoManager && (
+            <div>{canManage ? 'No supervisor is assigned yet — use "Change" below to set one.' : "No supervisor is assigned yet."}</div>
+          )}
           {record.warnings?.hasUnassignedTasks && (
             <div>
               {unassignedDepartmentCount} department{unassignedDepartmentCount === 1 ? "" : "s"} still need
               {unassignedDepartmentCount === 1 ? "s" : ""} someone assigned to their tasks.{" "}
-              <button type="button" onClick={onFixAssignmentsClick} className="underline hover:brightness-110">
-                Fix now
-              </button>
+              {canManage && (
+                <button type="button" onClick={onFixAssignmentsClick} className="underline hover:brightness-110">
+                  Fix now
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -227,14 +256,18 @@ const DetailsTab = ({ record, taskCount, onChangeManagerClick, onFixAssignmentsC
           </div>
         </div>
       </div>
-      <Button variant="secondary" type="button" className="px-3 py-1.5 text-[13px]" onClick={onChangeManagerClick}>
-        Change
-      </Button>
+      {canManage && (
+        <Button variant="secondary" type="button" className="px-3 py-1.5 text-[13px]" onClick={onChangeManagerClick}>
+          Change
+        </Button>
+      )}
     </div>
   </div>
 );
 
 export const OnboardingDetailModal = ({ records, index, onClose, onNavigate, onChanged }) => {
+  const { user } = useAuth();
+  const canManage = ["admin", "hr"].includes(user?.role);
   const authedApi = useAuthedApi();
   const [tab, setTab] = useState("Details");
   const [detail, setDetail] = useState(null);
@@ -520,6 +553,7 @@ export const OnboardingDetailModal = ({ records, index, onClose, onNavigate, onC
               onSetStatus={handleSetStatus}
               onMarkComplete={handleMarkComplete}
               markingComplete={markingComplete}
+              canEdit={canManage}
             />
           ) : (
             <DetailsTab
@@ -528,11 +562,12 @@ export const OnboardingDetailModal = ({ records, index, onClose, onNavigate, onC
               onChangeManagerClick={openChangeManager}
               onFixAssignmentsClick={openFixAssignments}
               unassignedDepartmentCount={unassignedDepartments.length}
+              canManage={canManage}
             />
           )}
         </div>
 
-        {!loading && !changingManager && !fixingAssignments && (
+        {!loading && !changingManager && !fixingAssignments && canManage && (
           <div className="flex justify-between gap-3 px-6 pb-6">
             <Button variant="secondary" type="button" className="px-4 h-11" onClick={() => setConfirmCancel(true)} disabled={!canCancel}>
               <Ban size={16} />

@@ -51,7 +51,8 @@ export const People = () => {
   const authedApi = useAuthedApi();
   const { user } = useAuth();
   const canManage = user?.role === "hr" || user?.role === "admin";
-  const canInvite = canManage || user?.role === "manager";
+  const canInvite = canManage;
+  const canViewInvites = canManage;
 
   const [selected, setSelected] = useState("member");
   const [inviteModal, setInviteModal] = useState(false);
@@ -96,7 +97,7 @@ export const People = () => {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- loading indicator for a real fetch, not derivable state
-    if (selected === "invite") loadInvites();
+    if (selected === "invite" && canViewInvites) loadInvites();
     else loadMembers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, status, selectedRole, selectedDepartment]);
@@ -137,6 +138,15 @@ export const People = () => {
     }
   };
 
+  const hasPageAccess = ["admin", "hr", "manager"].includes(user?.role);
+  if (!hasPageAccess) {
+    return (
+      <div className="p-8 flex items-center justify-center">
+        <div className="text-[14px] text-[#64748B]">You don&apos;t have access to this page.</div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8">
       <div className="introPeople flex justify-between items-center">
@@ -168,14 +178,16 @@ export const People = () => {
           >
             Members
           </button>
-          <button
-            type="button"
-            className={`py-2 w-[20%] flex justify-center items-center cursor-pointer ${selected === "invite" ? "border-b-2 border-primary text-primary shadow-md" : "border-b border-border text-[#64748B]"}`}
-            onClick={() => setSelected("invite")}
-          >
-            Invites
-          </button>
-          <div className="py-2 w-[60%] border-b border-border"></div>
+          {canViewInvites && (
+            <button
+              type="button"
+              className={`py-2 w-[20%] flex justify-center items-center cursor-pointer ${selected === "invite" ? "border-b-2 border-primary text-primary shadow-md" : "border-b border-border text-[#64748B]"}`}
+              onClick={() => setSelected("invite")}
+            >
+              Invites
+            </button>
+          )}
+          <div className={`py-2 border-b border-border ${canViewInvites ? "w-[60%]" : "w-[80%]"}`}></div>
         </div>
 
         <div className="searchbar p-2 flex flex-wrap gap-1.5 border-b border-border items-start">
@@ -229,7 +241,7 @@ export const People = () => {
           )}
         </div>
 
-        {selected === "invite" ? (
+        {selected === "invite" && canViewInvites ? (
           <div className="bg-white rounded-b-md overflow-x-auto">
             <table className="w-full min-w-180px text-sm text-left">
               <thead className="border-b border-border">

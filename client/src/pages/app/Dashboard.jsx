@@ -16,6 +16,7 @@ import { updateTaskStatus, listOnboardings } from "../../lib/onboardingsApi";
 import { listInvites } from "../../lib/invitesApi";
 import { getRecentUploads } from "../../lib/settingsApi";
 import { getErrorMessage } from "../../lib/getErrorMessage";
+import { departmentValueToLabel } from "../../lib/templateEnums";
 
 const ORG_DASHBOARD_ROLES = ["admin", "hr", "manager"];
 const EXPIRING_SOON_DAYS = 7;
@@ -176,6 +177,12 @@ const Dashboard = () => {
   const canLaunchOnboarding = ["admin", "hr"].includes(user?.role);
   const canInvite = canManageTemplates || user?.role === "manager";
   const canViewOrgDashboard = ORG_DASHBOARD_ROLES.includes(user?.role);
+  const canViewPendingInvites = ["admin", "hr"].includes(user?.role);
+  const canViewQuickActions = ["admin", "hr"].includes(user?.role);
+  const isTaskOwner = user?.role === "task_owner";
+  const pageTitle = isTaskOwner
+    ? [user?.name, user?.department ? departmentValueToLabel(user.department) : null].filter(Boolean).join(" · ") || "Dashboard"
+    : "Dashboard";
 
   const loadMyTasks = () => {
     if (!user?.id) return;
@@ -224,7 +231,7 @@ const Dashboard = () => {
       listOnboardings(authedApi, { status: "active" }),
       listOnboardings(authedApi, { status: "cancelled" }),
       listOnboardings(authedApi, { status: "completed" }),
-      listInvites(authedApi),
+      canViewPendingInvites ? listInvites(authedApi) : Promise.resolve([]),
       getRecentUploads(authedApi),
     ])
       .then(([active, cancelled, completed, invites, uploads]) => {
@@ -273,7 +280,9 @@ const Dashboard = () => {
 
   return (
     <div className="p-8">
-      <PageHeading title="Dashboard" subtitle="Welcome back, here's what's happening comprehensively." />
+      <PageHeading title={pageTitle} subtitle="Welcome back, here's what's happening comprehensively." />
+      {canViewOrgDashboard && (
+      <>
       <div className="linkcard flex gap-2 pb-4">
           <div className="group flex flex-col p-6 w-full sm:max-w-xs bg-card border border-border rounded-xl shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md cursor-pointer">
             <div className="flex justify-between items-center mb-2">
@@ -314,6 +323,7 @@ const Dashboard = () => {
               {orgDataLoading ? "–" : completedThisQuarterCount}
             </div>
           </div>
+          {canViewPendingInvites && (
           <div className="group flex flex-col p-6 w-full sm:max-w-xs bg-card border border-border rounded-xl shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md cursor-pointer">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-sm font-medium text-muted-foreground">
@@ -327,6 +337,7 @@ const Dashboard = () => {
               {orgDataLoading ? "–" : pendingInvitesCount}
             </div>
           </div>
+          )}
         </div>
         <div className="activeAndUpload flex flex-row gap-2 pb-4">
           <div className="active w-[60%]">
@@ -401,18 +412,22 @@ const Dashboard = () => {
           </div>
           <RecentUploads uploads={recentUploads} loading={orgDataLoading} />
         </div>
+        </>
+        )}
         <div className="quickAndUpcoming flex flex-col gap-4">
           <div className="upcomingAndRecent flex gap-4">
             <MyTasks tasks={myTasks} loading={tasksLoading} onToggle={handleToggleMyTask} />
             <UpcomingTaskDeadlines tasks={upcomingDeadlines} loading={tasksLoading} />
-            <QuickActions
-            onInvite={() => setInviteModal(true)}
-            onNewOnboarding={() => setOnboardingModalOpen(true)}
-            onNewTemplate={() => setTemplateModalOpen(true)}
-            canInvite={canInvite}
-            canManageTemplates={canManageTemplates}
-            canLaunchOnboarding={canLaunchOnboarding}
-          />
+            {canViewQuickActions && (
+              <QuickActions
+                onInvite={() => setInviteModal(true)}
+                onNewOnboarding={() => setOnboardingModalOpen(true)}
+                onNewTemplate={() => setTemplateModalOpen(true)}
+                canInvite={canInvite}
+                canManageTemplates={canManageTemplates}
+                canLaunchOnboarding={canLaunchOnboarding}
+              />
+            )}
           </div>
         </div>
         {inviteModal && <InviteTeammate onClose={() => setInviteModal(false)} />}

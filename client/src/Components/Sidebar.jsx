@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, Link, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import Logo from '../assets/Fifthlab.png'
 import { Avatar } from './Avatar'
 import { useAuth } from '../context/AuthContext'
@@ -82,7 +82,7 @@ const NAV_ITEMS = [
     { label: 'Onboardings', to: '/onboardings', Icon: OnboardingsIcon, roles: ['admin', 'hr', 'manager'] },
     { label: 'Templates', to: '/templates', Icon: TemplatesIcon, roles: ['admin', 'hr'] },
     { label: 'People', to: '/people', Icon: PeopleIcon, roles: ['admin', 'hr', 'manager'] },
-    { label: 'Settings', to: '/settings', Icon: SettingsIcon, roles: ['admin', 'hr'] },
+    { label: 'Settings', to: '/settings', Icon: SettingsIcon, roles: ['admin'] },
 ];
 
 export const Sidebar = () => {
@@ -90,7 +90,9 @@ export const Sidebar = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
-    const navItems = NAV_ITEMS.filter((item) => !user || item.roles.includes(user.role));
+    const navItems = NAV_ITEMS.filter((item) => !user || item.roles.includes(user.role)).map((item) =>
+        item.to === '/dashboard' && user?.role === 'task_owner' ? { ...item, label: 'My Tasks' } : item
+    );
 
     const handleLogout = async () => {
         await logout();
@@ -127,7 +129,7 @@ export const Sidebar = () => {
             </div>
 
             <div className="flex flex-col gap-1 p-3 border-t border-border">
-                <Link
+                <div
                     to="/profile-page"
                     className={`flex items-center gap-3 p-2 rounded-xl bg-[#F0F9FF] hover:brightness-95 transition-[filter] ${collapsed ? 'justify-center' : ''}`}
                 >
@@ -138,7 +140,7 @@ export const Sidebar = () => {
                             <div className="text-[12px] text-[#64748B]">{ROLE_LABELS[user?.role] ?? user?.role}</div>
                         </div>
                     )}
-                </Link>
+                </div>
 
                 <button
                     type="button"

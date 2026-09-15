@@ -10,14 +10,19 @@ import { NewOnboardingModal } from "../../Components/NewOnboardingModal";
 import { OnboardingDetailModal } from "../../Components/OnboardingDetailModal";
 import { Toast } from "../../Components/Toast";
 import { useOnboardings } from "../../context/OnboardingsContext";
+import { useAuth } from "../../context/AuthContext";
 import { useAuthedApi } from "../../hooks/useAuthedApi";
 import { listOnboardings, getRecentlyCompleted, formatRelativeTime } from "../../lib/onboardingsApi";
 
 const FILTERS = ["Active", "Completed", "Archived", "Cancelled", "All"];
+const ROLES_WITH_PAGE_ACCESS = ["admin", "hr", "manager"];
 
 export const Onboardings = () => {
+  const { user } = useAuth();
   const { records, loading, error, refetch } = useOnboardings();
   const authedApi = useAuthedApi();
+  const canLaunchOnboarding = ["admin", "hr"].includes(user?.role);
+  const hasPageAccess = ROLES_WITH_PAGE_ACCESS.includes(user?.role);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("Active");
   const [modalOpen, setModalOpen] = useState(false);
@@ -72,6 +77,14 @@ export const Onboardings = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [records, search]);
 
+  if (!hasPageAccess) {
+    return (
+      <div className="p-8 bg-background h-full flex items-center justify-center">
+        <div className="text-[14px] text-[#64748B]">You don&apos;t have access to this page.</div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 bg-background h-full">
       <div className="flex justify-between items-start mb-6">
@@ -80,10 +93,12 @@ export const Onboardings = () => {
           subtitle="Track every new hire from offer to productive."
           className="pb-0"
         />
-        <Button variant="action" onClick={() => setModalOpen(true)}>
-          <Plus size={18} />
-          New onboarding
-        </Button>
+        {canLaunchOnboarding && (
+          <Button variant="action" onClick={() => setModalOpen(true)}>
+            <Plus size={18} />
+            New onboarding
+          </Button>
+        )}
       </div>
 
       <div className="flex gap-6 items-start">
@@ -183,7 +198,7 @@ export const Onboardings = () => {
         </div>
       </div>
 
-      {modalOpen && (
+      {modalOpen && canLaunchOnboarding && (
         <NewOnboardingModal
           onClose={() => setModalOpen(false)}
           onLaunched={handleLaunched}
