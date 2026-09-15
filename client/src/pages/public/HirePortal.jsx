@@ -16,6 +16,7 @@ import {
 import { getErrorMessage } from "../../lib/getErrorMessage";
 import { PHASE_LABELS, phaseValueToLabel } from "../../lib/templateEnums";
 import Logo from "../../assets/Fifthlab.png";
+import { CancelledOnboarding } from "../app/CancelledOnboarding.jsx";
 
 // The API fixes this list server-side regardless of what's picked here —
 // matching it in the file picker just avoids a round-trip for an obviously
@@ -220,6 +221,12 @@ export const HirePortal = () => {
     phase: label,
     tasks: profile.tasks.filter((t) => phaseValueToLabel(t.phase) === label),
   })).filter((group) => group.tasks.length > 0);
+
+  if(profile.status === 'cancelled'){
+    return(
+      <CancelledOnboarding />
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background py-10 px-6">
