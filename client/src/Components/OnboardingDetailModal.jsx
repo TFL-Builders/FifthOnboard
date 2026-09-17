@@ -333,10 +333,6 @@ export const OnboardingDetailModal = ({ records, index, onClose, onNavigate, onC
   };
 
   useEffect(() => {
-    console.log(`Tasks: ${tasks}`)
-  }, [tasks])
-
-  useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- resetting UI state when switching to a different record, not derived state
     setTab("Details");
     setChangingManager(false);
