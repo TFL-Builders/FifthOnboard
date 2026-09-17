@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, ChevronLeft, ChevronRight, FileText, Calendar, Mail, Check, Ban, AlertTriangle } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, FileText, Calendar, Mail, Check, Ban, AlertTriangle, Paperclip } from "lucide-react";
 import { Avatar } from "./Avatar";
 import { StatusBadge } from "./StatusBadge";
 import { ProgressBar } from "./ProgressBar";
@@ -56,9 +56,8 @@ const TaskRow = ({ task, onToggle, onSetStatus, canEdit = true }) => {
       <div className="flex flex-col gap-1.5 p-2 rounded-lg">
         <div className="flex items-start gap-3">
           <div
-            className={`w-4.5 h-4.5 rounded flex items-center justify-center shrink-0 mt-0.5 border ${
-              done ? "bg-primary border-primary" : "border-[#E5E7EB]"
-            }`}
+            className={`w-4.5 h-4.5 rounded flex items-center justify-center shrink-0 mt-0.5 border ${done ? "bg-primary border-primary" : "border-[#E5E7EB]"
+              }`}
           >
             {done && <Check className="text-white" size={12} />}
           </div>
@@ -73,6 +72,17 @@ const TaskRow = ({ task, onToggle, onSetStatus, canEdit = true }) => {
             {TASK_STATUS_OPTIONS.find((o) => o.value === task.status)?.label ?? task.status}
           </span>
         </div>
+        {task.requiresUpload && done && task.attachments?.[0] && (
+          <a
+            href={task.attachments[0].url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[12px] text-primary hover:brightness-150 transition-colors flex items-center gap-1 pl-7"
+          >
+            <Paperclip size={11} />
+            {task.attachments[0].fileName}
+          </a>
+        )}
         <div className="pl-7">
           <TaskComments taskId={task.id} />
         </div>
@@ -115,9 +125,8 @@ const TaskRow = ({ task, onToggle, onSetStatus, canEdit = true }) => {
           className={`flex items-start gap-3 flex-1 min-w-0 text-left ${uploadLocked ? "cursor-not-allowed" : ""}`}
         >
           <div
-            className={`w-4.5 h-4.5 rounded flex items-center justify-center shrink-0 mt-0.5 border transition-colors ${
-              done ? "bg-primary border-primary" : "border-[#E5E7EB]"
-            }`}
+            className={`w-4.5 h-4.5 rounded flex items-center justify-center shrink-0 mt-0.5 border transition-colors ${done ? "bg-primary border-primary" : "border-[#E5E7EB]"
+              }`}
           >
             {done && <Check className="text-white" size={12} />}
           </div>
@@ -148,6 +157,18 @@ const TaskRow = ({ task, onToggle, onSetStatus, canEdit = true }) => {
           ))}
         </select>
       </div>
+
+      {task.requiresUpload && done && task.attachments?.[0] && (
+        <a
+          href={task.attachments[0].url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[12px] text-primary hover:brightness-150 transition-colors flex items-center gap-1 pl-7"
+        >
+          <Paperclip size={11} />
+          {task.attachments[0].fileName}
+        </a>
+      )}
 
       {blocking && (
         <div className="flex items-center gap-2 pl-7">
@@ -310,6 +331,10 @@ export const OnboardingDetailModal = ({ records, index, onClose, onNavigate, onC
       .catch((err) => setError(getErrorMessage(err).message))
       .finally(() => setLoading(false));
   };
+
+  useEffect(() => {
+    console.log(`Tasks: ${tasks}`)
+  }, [tasks])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- resetting UI state when switching to a different record, not derived state
@@ -487,9 +512,8 @@ export const OnboardingDetailModal = ({ records, index, onClose, onNavigate, onC
               key={t}
               type="button"
               onClick={() => setTab(t)}
-              className={`px-3 py-2 text-[14px] border-b-2 -mb-px transition-colors ${
-                tab === t ? "border-primary text-primary font-medium" : "border-transparent text-[#64748B] hover:text-black"
-              }`}
+              className={`px-3 py-2 text-[14px] border-b-2 -mb-px transition-colors ${tab === t ? "border-primary text-primary font-medium" : "border-transparent text-[#64748B] hover:text-black"
+                }`}
             >
               {t}
               {t === "Tasks" && <span className="ml-1.5 text-[11px] bg-background rounded-full px-1.5 py-0.5">{tasks.length}</span>}
