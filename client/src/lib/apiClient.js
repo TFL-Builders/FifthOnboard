@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL ?? "https://fifthonboard.onrender.com/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api/v1";
 
 // Carries the parsed error body so callers can tell apart the two shapes the
 // API uses: { error: "<message>" } vs. Zod's { errors: [{ field, message }] }.

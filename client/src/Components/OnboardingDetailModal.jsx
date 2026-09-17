@@ -8,6 +8,7 @@ import { IconButton } from "./IconButton";
 import { Select } from "./Select";
 import { ErrorBanner } from "./ErrorBanner";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { TaskComments } from "./TaskComments";
 import { useAuthedApi } from "../hooks/useAuthedApi";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -52,24 +53,29 @@ const TaskRow = ({ task, onToggle, onSetStatus, canEdit = true }) => {
 
   if (!canEdit) {
     return (
-      <div className="flex items-start gap-3 p-2 rounded-lg">
-        <div
-          className={`w-4.5 h-4.5 rounded flex items-center justify-center shrink-0 mt-0.5 border ${
-            done ? "bg-primary border-primary" : "border-[#E5E7EB]"
-          }`}
-        >
-          {done && <Check className="text-white" size={12} />}
+      <div className="flex flex-col gap-1.5 p-2 rounded-lg">
+        <div className="flex items-start gap-3">
+          <div
+            className={`w-4.5 h-4.5 rounded flex items-center justify-center shrink-0 mt-0.5 border ${
+              done ? "bg-primary border-primary" : "border-[#E5E7EB]"
+            }`}
+          >
+            {done && <Check className="text-white" size={12} />}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className={`text-[14px] ${done ? "text-[#94A3B8] line-through" : ""}`}>{task.title}</div>
+            <div className="text-[12px] text-[#64748B]">{taskAssigneeLabel(task)}</div>
+            {task.status === "blocked" && task.blockedReason && (
+              <div className="text-[11px] text-red-500 mt-0.5">Blocked: {task.blockedReason}</div>
+            )}
+          </div>
+          <span className="text-[12px] text-[#64748B] shrink-0 mt-0.5">
+            {TASK_STATUS_OPTIONS.find((o) => o.value === task.status)?.label ?? task.status}
+          </span>
         </div>
-        <div className="min-w-0 flex-1">
-          <div className={`text-[14px] ${done ? "text-[#94A3B8] line-through" : ""}`}>{task.title}</div>
-          <div className="text-[12px] text-[#64748B]">{taskAssigneeLabel(task)}</div>
-          {task.status === "blocked" && task.blockedReason && (
-            <div className="text-[11px] text-red-500 mt-0.5">Blocked: {task.blockedReason}</div>
-          )}
+        <div className="pl-7">
+          <TaskComments taskId={task.id} />
         </div>
-        <span className="text-[12px] text-[#64748B] shrink-0 mt-0.5">
-          {TASK_STATUS_OPTIONS.find((o) => o.value === task.status)?.label ?? task.status}
-        </span>
       </div>
     );
   }
@@ -168,6 +174,10 @@ const TaskRow = ({ task, onToggle, onSetStatus, canEdit = true }) => {
           </Button>
         </div>
       )}
+
+      <div className="pl-7">
+        <TaskComments taskId={task.id} />
+      </div>
     </div>
   );
 };

@@ -83,6 +83,12 @@ export const updateOnboardingDepartments = (authedApi, id, current, departmentMa
 export const updateTaskStatus = (authedApi, taskId, patch) =>
   authedApi.patch(`/tasks/${taskId}`, patch).then((res) => res.data);
 
+export const getTaskComments = (authedApi, taskId) =>
+  authedApi.get(`/tasks/${taskId}/comments`).then((res) => res.data);
+
+export const addTaskComment = (authedApi, taskId, body) =>
+  authedApi.post(`/tasks/${taskId}/comments`, { body }).then((res) => res.data);
+
 // Staff-side action (hr/admin, Bearer-authed) despite the /hire URL prefix —
 // (re)sends the new hire's portal-link email. Note: the server's email
 // template for this is currently an empty file, so it sends successfully
